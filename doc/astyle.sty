@@ -35,3 +35,25 @@
     \fancyhf{}                         % Clear defaults
     \renewcommand{\headrulewidth}{0pt} % Remove header border
 }
+
+% Deal with the not-so-empty headers on blank pages created due to `openright'.
+% Redefine the \cleardoublepage command so as to apply the empty pagestyle
+% before creating a new blank page.
+% Ref: fancyhdr doc, chapter 15.
+\makeatletter%          Make @ available for use as a letter
+\def\cleardoublepage{%
+    \clearpage%         Apply any remaining floats
+    \if@twoside%        In case the `twoside' option is in use, but the page is
+        \ifodd%         already recto, proceed as normal.
+            \c@page%
+        \else%          In case of verso, the current page must be left empty
+            \hbox{}%    Create an empty box and apply the empty pagestyle
+            \thispagestyle{empty}%
+            \newpage%
+            \if@twocolumn% Create 'two' empty pages if columns are used
+                \hbox{}%
+                \newpage%
+            \fi%
+        \fi%
+    \fi%
+}\makeatother
