@@ -1,0 +1,18 @@
+\documentclass[twoside,a4paper,openright]{report}
+\usepackage{astyle}
+
+\usepackage{ifpdf}
+\ifpdf
+    % This should be the LAST package to include, because it redefines many
+    % other commands.
+    \usepackage[unicode]{hyperref} % Enable hyperlinks in cross-references, etc.
+\fi
+
+\begin{document}
+% All this file does is to piece together the final document. It does so by
+% using the \include command to reference files from directory tex/. It is only
+% within this file that this particular command may be used to avoid cascaded
+% invocations which is not permitted.
+
+
+\end{document}
