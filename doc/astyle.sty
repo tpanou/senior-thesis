@@ -1,11 +1,50 @@
 \ProvidesPackage{astyle}
-% Bilingual text; greek as default.
-\usepackage[english,greek]{babel}
-% Specify variable length unicode character encoding.
-\usepackage[utf8x]{inputenc}
+\usepackage{xunicode}
+\usepackage{fontspec}    % Specify otf or ttf font (required by `polyglossia')
+
+% Support TeX-ish Ligatures, e.g. --.
+\defaultfontfeatures{Mapping=tex-text}
+% Use the CMU font (equivalent to the default TeX font) that supports both
+% english and greek encoding.
+\setmainfont[
+    Extension = .otf,
+    UprightFont = *rm,   % Roman
+    BoldFont = *bx,      % Bold Extended Roman
+    ItalicFont = *ti,    % Italic; alt. ci for Classical Italic
+    BoldItalicFont = *bi % Bold Extended Italic; alt. bl for Slanted
+]{cmun}
+
+\setmonofont[
+    Extension = .otf,
+    UprightFont = *tt,   % Regular
+    BoldFont = *tb,      % Bold
+    ItalicFont = *it,    % Italic; alt. st for Oblique
+    BoldItalicFont = *tx % Bold Italic
+]{cmun}
+
+\setsansfont[
+    Extension = .otf,
+    UprightFont = *ss,
+    BoldFont = *sx,      % Bold Extended
+    ItalicFont = *si,    % Oblique; alt. sl for Roman Slanted
+    BoldItalicFont = *so % Bold Extended Oblique
+]{cmun}
+
+\usepackage{csquotes} % Localized quotes
+\usepackage{polyglossia}
+\setdefaultlanguage{greek}
+\setotherlanguage{english}
 \usepackage{makeidx}  % Ability to create index
 \usepackage{graphicx} % Include images from external files
-\usepackage{textcomp} % Degree Celsius \textcelsius
+
+\usepackage[
+    backend=biber,
+    citestyle=authoryear,
+    bibstyle=authoryear,
+    natbib=true
+]{biblatex}
+
+\addbibresource{bib/sample.bib} % Suffix is required
 
 \usepackage{setspace} % Change line-height
 \setstretch{1.3}
