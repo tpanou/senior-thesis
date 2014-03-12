@@ -1,13 +1,6 @@
 \documentclass[twoside,a4paper,openright]{report}
 \usepackage{astyle}
 
-\usepackage{ifpdf}
-\ifpdf
-    % This should be the LAST package to include, because it redefines many
-    % other commands.
-    \usepackage[unicode]{hyperref} % Enable hyperlinks in cross-references, etc.
-\fi
-
 \begin{document}
 % All this file does is to piece together the final document. It does so by
 % using the \input command to reference documents from directory tex/.

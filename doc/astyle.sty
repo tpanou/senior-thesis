@@ -1,5 +1,4 @@
 \ProvidesPackage{astyle}
-\usepackage{xunicode}
 \usepackage{fontspec}    % Specify otf or ttf font (required by `polyglossia')
 
 % Support TeX-ish Ligatures, e.g. --.
@@ -7,27 +6,27 @@
 % Use the CMU font (equivalent to the default TeX font) that supports both
 % english and greek encoding.
 \setmainfont[
-    Extension = .otf,
-    UprightFont = *rm,   % Roman
-    BoldFont = *bx,      % Bold Extended Roman
-    ItalicFont = *ti,    % Italic; alt. ci for Classical Italic
-    BoldItalicFont = *bi % Bold Extended Italic; alt. bl for Slanted
+    Extension      = .otf,
+    UprightFont    = *rm, % Roman
+    BoldFont       = *bx, % Bold Extended Roman
+    ItalicFont     = *ti, % Italic; alt. ci for Classical Italic
+    BoldItalicFont = *bi  % Bold Extended Italic; alt. bl for Slanted
 ]{cmun}
 
 \setmonofont[
-    Extension = .otf,
-    UprightFont = *tt,   % Regular
-    BoldFont = *tb,      % Bold
-    ItalicFont = *it,    % Italic; alt. st for Oblique
-    BoldItalicFont = *tx % Bold Italic
+    Extension      = .otf,
+    UprightFont    = *tt, % Regular
+    BoldFont       = *tb, % Bold
+    ItalicFont     = *it, % Italic; alt. st for Oblique
+    BoldItalicFont = *tx  % Bold Italic
 ]{cmun}
 
 \setsansfont[
-    Extension = .otf,
-    UprightFont = *ss,
-    BoldFont = *sx,      % Bold Extended
-    ItalicFont = *si,    % Oblique; alt. sl for Roman Slanted
-    BoldItalicFont = *so % Bold Extended Oblique
+    Extension      = .otf,
+    UprightFont    = *ss,
+    BoldFont       = *sx, % Bold Extended
+    ItalicFont     = *si, % Oblique; alt. sl for Roman Slanted
+    BoldItalicFont = *so  % Bold Extended Oblique
 ]{cmun}
 
 \usepackage{csquotes} % Localized quotes
@@ -38,10 +37,11 @@
 \usepackage{graphicx} % Include images from external files
 
 \usepackage[
-    backend=biber,
-    citestyle=authoryear,
-    bibstyle=authoryear,
-    natbib=true
+    backend        = biber,
+    citestyle      = authoryear,
+    bibstyle       = authoryear,
+    natbib         = true,
+    hyperref       = true
 ]{biblatex}
 
 \addbibresource{bib/sample.bib} % Suffix is required
@@ -98,3 +98,8 @@
         \fi%
     \fi%
 }\makeatother
+
+% This should be the LAST package to include, because it redefines many
+% other commands.
+\usepackage[unicode]{hyperref} % Enable hyperlinks in citations etc.
+
