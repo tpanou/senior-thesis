@@ -217,6 +217,17 @@ Pencil, HB                              &   26\%    \\
 αποκόπηκε από το δέκτη, και συνεχίζει να μειώνεται σταδιακά έως ότου το τμήμα με
 το νέο συντελεστή έχει καλύψει πλήρως την περιοχή $g$.
 
+\begin{figure}
+    \caption{Σχέση μεταβολής ρεύματος $I_C$ και συντελεστή ανάκλασης.
+    \label{fig:reflex:switching-distance}}
+    \begin{center}%
+    \includegraphics[width=0.4\textwidth]{reflex_switching-distance_a.png}%
+    \includegraphics[width=0.5\textwidth]{reflex_switching-distance_b.png}%
+    \end{center}
+
+    \fullcite[3]{vishay06:switching-distance}
+\end{figure}
+
 Επίσης, συμπεραίνεται ότι, καθώς το πάχος των τμημάτων μειώνεται ώστε η περιοχή
 $g$ να είναι αδύνατο να καλυφθεί εξ ολοκλήρου από ένα μόνο τμήμα, η μέγιστη και
 ελάχιστη τιμή έντασης ρεύματος που είναι δυνατό να σημειωθούν αρχίζουν να
@@ -234,16 +245,28 @@ $X_d$, το οποίο ορίζεται ως το διάστημα μεταξύ 
 \parencites{vishay02}{vishay06}. Για τον αισθητήρα TCRT5000, το διάστημα
 εναλλαγής ανέρχεται στα 1.9mm \parencite{vishay02}.
 
+Στο σχήμα \ref{fig:reflex:d_switching-distance} παρουσιάζεται πώς η λειτουργική
+απόσταση του αισθητήρα επηρεάζει το διάστημα εναλλαγής του. Οι εμφανιζόμενες
+καμπύλες αποτελούν ένα κατώτατο όριο και αντιστοιχούν σε δύο διαφορετικούς
+τρόπους τοποθέτησης του αισθητήρα σε σχέση με την ανακλαστική επιφάνεια.
+Στη θέση~1, ο νοητός άξονας που ορίζεται από πομπό και δέκτη του αισθητήρα είναι
+κάθετος ως προς τα εναλλασσόμενα τμήματα, ενώ στη θέση~2, παράλληλος.
+Παρατηρείται ότι η θέση~1 υπερτερεί της θέσης~2 καθώς για την ίδια λειτουργική
+απόσταση επιτυγχάνεται υψηλότερη διακριτική ικανότητα και, συνεπώς, προσφέρεται
+υψηλότερο ελάχιστο διάστημα εναλλαγής. Δεδομένου ότι δεν προκύπτουν διαφορετικές
+ανάγκες και περιορισμοί στην πορεία, επιλέγεται η θέση~1 για την υλοποίηση.
+
 \begin{figure}
-    \caption{Σχέση μεταβολής ρεύματος $I_C$ και συντελεστή ανάκλασης.
-    \label{fig:reflex:switching-distance}}
+    \caption{Σχέση Λειτουργικής απόστασης και Διαστήματος εναλλαγής.
+    \label{fig:reflex:d_switching-distance}}
     \begin{center}%
-    \includegraphics[width=0.4\textwidth]{reflex_switching-distance_a.png}%
-    \includegraphics[width=0.5\textwidth]{reflex_switching-distance_b.png}%
+    \includegraphics[width=0.7\textwidth]{reflex_d_switching-distance.png}%
     \end{center}
 
-    \fullcite[3]{vishay06:switching-distance}
+    \fullcite[8]{vishay02:d_switching-distance}
 \end{figure}
+
+
 
 \subsubsection{Συχνότητα αποκοπής}
 
@@ -444,7 +467,7 @@ k_{Kodak} = 5.5\% \label{eq:reflex:k_kodak-value}
 d = 2.5 \text{mm}
 \end{equation}
 
-Από το σχήμα ref\{fig:reflex:d-switching-distance\} προκύπτει ότι για την
+Από το σχήμα \ref{fig:reflex:d_switching-distance} προκύπτει ότι για την
 επιλεγμένη λειτουργική απόσταση (2.5mm), το ελάχιστο επιτρεπτό διάστημα
 εναλλαγής είναι περίπου 2mm. Αφήνοντας περιθώριο σφάλματος, επιλέγεται διάστημα
 εναλλαγής
