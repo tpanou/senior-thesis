@@ -162,7 +162,7 @@ Pencil, HB                              &   26\%    \\
 ποσοστό των προσπίπτουσων ακτίνων στο δέκτη που είναι υπεύθυνες για τη διέγερση
 του φωτοτρανζίστορ. Η απόσταση αυτή αποκαλείται \emph{λειτουργική απόσταση}
 \index{λειτουργική απόσταση} (\emph{operating distance}), $d$, και, για μία
-τυπική υλοποίηση, απεικονίζεται στο σχήμα \ref{fig:reflex:working-diagram}(α)
+τυπική υλοποίηση, απεικονίζεται στο σχήμα \ref{fig:reflex:working-diagram}(αʹ)
 \parencite{vishay02}.
 
 Όπως είναι αναμενόμενο, καθώς η λειτουργική απόσταση μεταβάλλεται, η ένταση
@@ -171,7 +171,7 @@ Pencil, HB                              &   26\%    \\
 \index{λειτουργικό διάγραμμα} (\emph{operating diagram}) στο εγχειρίδιο χρήσης
 κάθε αισθητήρα.
 
-Το σχήμα \ref{fig:reflex:working-diagram}(β) αποτελεί το λειτουργικό διάγραμμα
+Το σχήμα \ref{fig:reflex:working-diagram}(βʹ) αποτελεί το λειτουργικό διάγραμμα
 του επιλεγμένου αισθητήρα, TCRT5000, όπου παρουσιάζεται η ένταση ρεύματος του
 συλλέκτη, $I_{C}$, σε σχέση με τη μέγιστη δυνατή, $I_{Cmax}$, καθώς μεταβάλλεται
 η λειτουργική απόσταση.
@@ -180,16 +180,21 @@ Pencil, HB                              &   26\%    \\
 
 \begin{figure}
     \caption{Λειτουργική απόσταση και λειτουργικό διάγραμμα.
-    \label{fig:reflex:working-diagram}}
-    (α)\hfill(β)\hfill
-    \begin{center}%
-    \includegraphics[width=0.5\textwidth]{reflex_test-circuit.png}%
-    \includegraphics[width=0.5\textwidth]{reflex_working-distance.png}%
+        \label{fig:reflex:working-diagram}}
+    \begin{center}
+        \begin{subfigure}[b]{0.45\textwidth}
+            \includegraphics[width=0.95\textwidth]{reflex_test-circuit.png}
+            \caption{}
+        \end{subfigure}
+        \begin{subfigure}[b]{0.45\textwidth}
+            \includegraphics[width=0.9\textwidth]{reflex_working-distance.png}
+            \caption{}
+        \end{subfigure}
     \end{center}
 
-    (α): \fullcite[3]{vishay09:test-circuit}
+    (αʹ): \fullcite[3]{vishay09:test-circuit}
 
-    (β): \fullcite[4]{vishay09:working-distance}
+    (βʹ): \fullcite[4]{vishay09:working-distance}
 \end{figure}
 
 Για τις ανάγκες της υλοποίησης, επιλέγεται λειτουργική απόσταση 2.5cm έτσι ώστε
@@ -219,12 +224,15 @@ Pencil, HB                              &   26\%    \\
 
 \begin{figure}
     \caption{Σχέση μεταβολής ρεύματος $I_C$ και συντελεστή ανάκλασης.
-    \label{fig:reflex:switching-distance}}
-    \begin{center}%
-    \includegraphics[width=0.4\textwidth]{reflex_switching-distance_a.png}%
-    \includegraphics[width=0.5\textwidth]{reflex_switching-distance_b.png}%
+        \label{fig:reflex:switching-distance}}
+    \begin{center}
+        \begin{subfigure}{0.45\linewidth}
+            \includegraphics{reflex_switching-distance_a.png}
+        \end{subfigure}
+        \begin{subfigure}{0.45\linewidth}
+            \includegraphics{reflex_switching-distance_b.png}
+        \end{subfigure}
     \end{center}
-
     \fullcite[3]{vishay06:switching-distance}
 \end{figure}
 
