@@ -2,7 +2,8 @@
 @file
 */
 
-#include <defs.h>
+#include "mcu.h"
+#include "defs.h"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -13,9 +14,11 @@
 int main() {
 
     /** The tasks are outlined below: */
-    /** - Setup CPU clock. */
+
     /* Disable all interrupts during this procedure. */
     cli();
+
+    /** - Setup CPU clock. */
     /* Clock Prescaler Change Enable bit (CLKPCE) of CLKPR must first be set
     while all other bits are cleared. */
     CLKPCE      = _BV(CLKPCE);
@@ -23,6 +26,26 @@ int main() {
     same register are set while the CLKPCE bit is cleared. For a clock
     frequency of 4MHz, only CLKPS1 needs to be set. Atmel pp.34--37. */
     CLKPCE      = _BV(CLKPS1);
+
+    /** - Setup USART prescaler and enable receiver and transmitter. */
+    init_usart();
+
     sei();
+
+    while(1)
+        ;
+
     return 0;
+}
+
+void init_usart() {
+    /* Set UBRRn value. */
+    UBRR0H      = (unsigned char)(UBRR_VALUE>>8);
+    UBRR0L      = (unsigned char)(UBRR_VALUE);
+
+    /* Set character size to 8 bits. */
+    UCSR0C      = _BV(UCSZ01) | _BV(UCSZ00);
+
+    /* Enable Rx-complete interrupts, Receiver and Transmitter. */
+    UCSR0B      = _BV(RXCIE0) | _BV(RXEN0) | _BV(TXEN0);
 }
