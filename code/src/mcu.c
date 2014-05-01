@@ -48,6 +48,21 @@ int usart_getchar(FILE* stream) {
     return UDR0;
 }
 
+ISR(USART_RX_vect) {
+
+    char buf[100];
+    if(gets(buf)) {
+        /* For the time being, just echo back. */
+        /* NL is not appended after the string so that the host does not
+        flush before receiving the rest of the message. */
+        fputs("You sent: ", stdout);
+        puts(buf);
+
+    } else {
+        puts("Error.");
+    }
+}
+
 void init_clock() {
     /* Clock Prescaler Change Enable bit (CLKPCE) of CLKPR must first be set
     while all other bits are cleared. */
