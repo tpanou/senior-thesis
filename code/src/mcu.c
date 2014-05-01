@@ -19,13 +19,7 @@ int main() {
     cli();
 
     /** - Setup CPU clock. */
-    /* Clock Prescaler Change Enable bit (CLKPCE) of CLKPR must first be set
-    while all other bits are cleared. */
-    CLKPCE      = _BV(CLKPCE);
-    /* Then, within four clock cycles, the appropriate prescaler bits of the
-    same register are set while the CLKPCE bit is cleared. For a clock
-    frequency of 4MHz, only CLKPS1 needs to be set. Atmel pp.34--37. */
-    CLKPCE      = _BV(CLKPS1);
+    init_clock();
 
     /** - Setup USART prescaler and enable receiver and transmitter. */
     init_usart();
@@ -36,6 +30,17 @@ int main() {
         ;
 
     return 0;
+}
+
+void init_clock() {
+    /* Clock Prescaler Change Enable bit (CLKPCE) of CLKPR must first be set
+    while all other bits are cleared. */
+    CLKPR       = _BV(CLKPCE);
+
+    /* Then, within four clock cycles, the appropriate prescaler bits of the
+    same register are set while the CLKPCE bit is cleared. For a clock
+    frequency of 4MHz, only CLKPS1 needs to be set. Atmel pp.34--37. */
+    CLKPR       = _BV(CLKPS1);
 }
 
 void init_usart() {

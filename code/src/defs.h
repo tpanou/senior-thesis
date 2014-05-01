@@ -5,9 +5,10 @@
 #define DEFS_H_INCL
 
 /**
-@brief The frequency of CPU, required by <avr/delay.h> convenience functions.
+@brief The frequency of CPU clock, required by <avr/delay.h> convenience
+functions.
 */
-#define F_CPU 16000000UL
+#define F_CPU (4000000UL)
 
 /**
 @brief USART baud rate.
