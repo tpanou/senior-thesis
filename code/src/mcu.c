@@ -7,6 +7,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/sfr_defs.h>   /* e.g. loop_until_bit_is_set() */
 
 /**
 @brief Initializes MCU and resets all hardware.
@@ -24,12 +25,27 @@ int main() {
     /** - Setup USART prescaler and enable receiver and transmitter. */
     init_usart();
 
+    /** - Setup I/O streams. */
+    stdout      = &usart_output;
+    stdin       = &usart_input;
+
     sei();
 
     while(1)
         ;
 
     return 0;
+}
+
+int usart_putchar(char c, FILE* stream) {
+    loop_until_bit_is_set(UCSR0A, UDRE0);
+    UDR0        = c;
+    return 0;
+}
+
+int usart_getchar(FILE* stream) {
+    loop_until_bit_is_set(UCSR0A, RXC0);
+    return UDR0;
 }
 
 void init_clock() {
