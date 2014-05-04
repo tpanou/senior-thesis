@@ -4,10 +4,16 @@
 
 #include "mcu.h"
 #include "defs.h"
+#include "net.h"
+
+#include "w5100/w5100.h"
+#include "w5100/socket.h"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sfr_defs.h>   /* e.g. loop_until_bit_is_set() */
+
+#include <util/delay.h>
 
 /**
 @brief Initializes MCU and resets all hardware.
@@ -28,6 +34,46 @@ int main() {
     /** - Setup I/O streams. */
     stdout      = &usart_output;
     stdin       = &usart_input;
+
+    DDRD |= _BV(NET_RST); // NET_RST 
+    /* Assert W5100 RST pin low for at least 2us when power is first applied.
+    * *WIZnet p.9.* */
+    _delay_us(5);
+    PORTD |= _BV(NET_RST);
+
+    /** - Enable external interrupts on INT0 (on low level, by default). *Atmel
+    * p.72.* */
+    EIMSK       |= _BV(INT0);
+
+    /* Setup buffer size for each socket (for now, 2kBytes each, both on Rx and
+    * Tx). */
+    sysinit(0x55, 0x55);
+
+    uint8 gateway[]     = {192, 168,   1, 1};
+    uint8 subnet[]      = {255, 255, 255, 0};
+    uint8 inet[]        = {192, 168,   1, 73};
+    uint8 mac[]         = {0xBE, 0xEF, 0xBE, 0xEF, 0xBE, 0xEF};
+
+    setGAR(gateway);
+    setSIPR(inet);
+    setSUBR(subnet);    /* This merely sets a global variable. */
+    applySUBR(subnet);  /* This actually passes the address into W5100. */
+    setSHAR(mac);
+
+    /* Mode register (MR) defaults look OK. The same applies for RTR (200ms
+    * intervals) and RCR (8 retries). */
+
+    IINCHIP_WRITE(IMR, IR_SOCK(0)); /* Enable interrupts for socket 0. */
+
+    socket0_handler_ptr = &socket0_handler;
+
+    /* Setup socket `s' for HTTP (TCP on port 80). */
+    if(socket(0, Sn_MR_TCP, 80, 0)) {
+        /* Set port to listen for requests. */
+        listen(0);
+
+        puts("HTTP socket has been opened and is waiting for connections.");
+    }
 
     sei();
 
