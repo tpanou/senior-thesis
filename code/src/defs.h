@@ -30,4 +30,18 @@ down-scaled to 4MHz, and\n
 */
 #define UBRR_VALUE (int)(F_CPU/16/USART_BAUD - 1)
 
+/**
+* @brief MCU pin which the \f$\overline{RESET}\f$ pin of the network controller
+* is connected to.
+*
+* In order to properly reset the W5100 TCP/IP controller, this pin must be held
+* low for at least 2us. *WIZnet p.9.*
+*/
+#define NET_RST PORTD4
+
+/**
+* @brief Number of bytes dedicated to W5100 I/O.
+*/
+#define NET_BUF_SIZE (100)
+
 #endif /* DEFS_H_INCL */
