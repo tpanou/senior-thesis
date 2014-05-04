@@ -6,3 +6,7 @@ doc/tmp/*
 # Ignore build files.
 code/build/*
 !code/build/empty
+
+# The driver is supplied by vendor; ignore it.
+code/src/w5100/*
+!code/src/w5100/empty
