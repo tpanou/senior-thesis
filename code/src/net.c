@@ -49,7 +49,26 @@ void socket0_handler(uint8_t status) {
 
     /* Occurs when a connection termination is requested OR completed. */
     if(status & Sn_IR_DISCON) {
-        puts("Socket 0: DISCON\n");
+        uint8_t sn_SR   = IINCHIP_READ(Sn_SR(0));
+
+        printf("[DISCON] Sn_SR: %x\n", sn_SR);
+
+        /* Termination request is received from peer host. Close the connection
+        * by sending a DISCON or CLOSE command. *WIZnet p.30* */
+        if(sn_SR == SOCK_CLOSE_WAIT || sn_SR == SOCK_CLOSED) {
+            /* Issue a DISCON command as a response to FIN+ACK. */
+            disconnect(0);
+            close(0);
+
+            printf("> Socket closed. Sn_SR: %x\n", IINCHIP_READ(Sn_SR(0)));
+
+            /* Re-open socket. */
+            if(socket(0, Sn_MR_TCP, 80, 0)) {
+                /* Set port to listen for requests. */
+                listen(0);
+                puts(" > HTTP socket has been re-opened.");
+            }
+        }
 
     }
     if(status & Sn_IR_TIMEOUT) {
