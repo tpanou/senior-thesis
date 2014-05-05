@@ -75,6 +75,9 @@ void socket0_handler(uint8_t status) {
         puts("[TIMEOUT] Timeout has occurred.");
     }
 
+    /* Clear interrupt flags that have been dealt with. */
+    IINCHIP_WRITE(Sn_IR(0), status);
+
     puts("=========================");
 }
 
