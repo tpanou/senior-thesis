@@ -35,11 +35,11 @@ int main() {
     stdout      = &usart_output;
     stdin       = &usart_input;
 
-    DDRD |= _BV(NET_RST); // NET_RST 
+    DDRD        |= _BV(NET_RST);
     /* Assert W5100 RST pin low for at least 2us when power is first applied.
     * *WIZnet p.9.* */
     _delay_us(5);
-    PORTD |= _BV(NET_RST);
+    PORTD       |= _BV(NET_RST);
 
     /** - Enable external interrupts on INT0 (on low level, by default). *Atmel
     * p.72.* */
