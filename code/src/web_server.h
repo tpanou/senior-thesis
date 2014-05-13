@@ -21,6 +21,46 @@
 #endif
 
 /**
+* @brief Identify and read a q-value parameter.
+*
+* It should be invoked after an Accept header has been identified on (and
+* consumed from) the stream. Any LWS on the stream is discarded without
+* affecting its output.
+
+* This function is provided on the premise that interest lies in extracting only
+* q-value parameters from the stream.
+*
+* @param qvalue
+* @param c
+* @returns One of:
+*   - #OTHER
+*   - #CRLF
+*   - EOF
+*/
+static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c);
+
+/**
+* @brief Read a q-value from stream.
+*
+* According to <a href="http://tools.ietf.org/html/rfc2616#section-3.9">IETF RFC
+* 2612 p.29</a>, a quality value is a short "floating point"
+* number ranging from 0 up to 1 with, at most, three decimal points. The BNF is:
+* @verbatim
+qvalue = ( "0" [ "." 0*3DIGIT ] )
+       | ( "1" [ "." 0*3("0") ] )@endverbatim
+*
+* The q-value is actually read from stream as an integer (per mil).
+*
+* @param[out] value The q-value read from stream.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read.
+* @returns One of:
+*   - #OTHER
+*   - EOF
+*/
+int8_t q_value(uint16_t* value, uint8_t* c);
+
+/**
 * @brief Advances the stream until all successive linear white space has been
 * read.
 *

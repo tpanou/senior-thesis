@@ -2,6 +2,70 @@
 #include "webserver.h"
 #include "../build/util.h"
 
+static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c) {
+    int8_t c_type;
+
+    c_type = s_next(c);
+
+    if(c_type != EOF) {
+        c_type = discard_LWS(c); /* Ignore any linear white space. */
+
+        /* Check whether the function above was terminated because a q-value
+        * parameter has occurred. */
+        if(*c == 'q') {
+            *c = ' ';
+            c_type = discard_LWS(c);
+
+            if(*c == '=') {
+                *c = ' ';
+                c_type = discard_LWS(c);
+
+                /* Try to convert q-value from stream. If it is not a valid
+                * value, call discard_param() on the rest of the input. */
+                if(c_type == OTHER) {
+                    q_value(qvalue, c);
+                }
+            }
+        }
+
+        if(*c != ';' && *c != ',') {
+
+            /* Discard the (rest of the) parameter. */
+            c_type = discard_param(c);
+        }
+    }
+    return c_type;
+}
+
+int8_t q_value(uint16_t* value, uint8_t* c) {
+    uint8_t i;
+    int8_t  c_type = OTHER;
+
+    *value = 0;
+
+    if(*c == '0') {
+        c_type = s_next(c);
+
+        if(*c == '.') {
+            /* A maximum of three digits are read; the rest are dropped. */
+            c_type = s_next(c);
+            for(i = 0 ; i < 3 && *c >= '0' && *c <= '9' ; ++i) {
+                *value  *= 10;
+                *value  += *c - 0x30;
+                c_type = s_next(c);
+            }
+
+            /* Imitate 3 digits had been given. */
+            for(i ; i < 3 ; ++i) {
+                *value  *= 10;
+            }
+        }
+    } else {
+        *value = 1000;
+    }
+    return c_type;
+}
+
 static int8_t discard_LWS(uint8_t* c) {
     uint8_t peek;
 
