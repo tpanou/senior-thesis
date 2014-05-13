@@ -2,6 +2,72 @@
 #include "webserver.h"
 #include "../build/util.h"
 
+int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c) {
+    int8_t c_type;  /* The character type that is read last (eg. EOF, CRLF). */
+    int8_t idx;     /* The potentially matched media range. */
+
+    uint16_t qvalue_new = 0;
+
+    do {
+        qvalue_new = 1000;  /* Reset q-value to 'preferred'. */
+
+        if(*c == ',') {
+            c_type = s_next(c);
+            c_type = discard_LWS(c);
+            if(c_type == CRLF) break;
+        }
+
+        /* Identify the first media range. */
+        idx = stream_match(server_consts, MIME_MIN, MIME_MAX, c);
+        c_type = discard_LWS(c);
+
+        /* In case that a potential match was terminated by a valid delimiter,
+        * try to identify its parameters, and in particular, a q-value. */
+        if(idx >= 0) {
+
+            /* An acceptable media range without parameters was specified. In
+            * case of an ",", more media ranges may follow. */
+            if(c_type == CRLF || *c == ',') {
+                *qvalue         = 1000;
+                *media_range    = idx;
+
+            } else if(*c == ';') {
+
+                /* Attempt to identify q-value. The last is preserved. */
+                do {
+                    c_type = parse_header_param_qvalue(&qvalue_new, c);
+                } while(*c == ';');
+
+                /* Update media range if it has a higher q-value than the
+                * previous. */
+                if(qvalue_new > *qvalue) {
+                    *qvalue         = qvalue_new;
+                    *media_range    = idx;
+                }
+            }
+        }
+
+        /* If an unsupported media range was supplied (ie, one that completely
+        * failed a match -- idx < 0 -- or one, that although produced a match,
+        * contained no delimiter), it is with certainty that the rest of the
+        * line may be safely discarded. If, along the way, a "," is read,
+        * the process of identifying a new media range is repeated. */
+        while(c_type != EOF && c_type != CRLF && *c != ',') {
+            c_type = discard_param(c);
+
+            /* <discard_param>() returns on either a ";" (parameter separator)
+            * or a "," (media range separator). If a supported media range was
+            * in effect then all its parameters would have been consumed in a
+            * previous loop. So this one could only belong to an unsupported
+            * media range and must be discarded. */
+            if(*c == ';') s_next(c);
+        }
+
+    } while(*c == ',');
+
+    return c_type;
+}
+
 int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c) {
     uint8_t abs_min = min; /* The initial value (before moving boundaries). */
     uint8_t cmp_idx = 0;

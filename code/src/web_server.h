@@ -87,6 +87,41 @@ static uint8_t* server_consts[] = {
 #define MIME_MAX             10
 
 /**
+* @brief Parse Accept header body-value is search of media ranges.
+*
+* This function traverses and consumes the stream from its current position up
+* to a CRLF or EOF in an attempt to identify a supported media range (ie, one
+* that is included in the #server_consts).
+*
+* For any identified media range, it also provides its q-value. If more than one
+* q-value is specified for a particular media range, the last one is preserved.
+* For details on the conversion refer to q_value().
+*
+* According to <a href="http://tools.ietf.org/html/rfc2616#section-14.1">IETF
+* RFC 2616 p.100</a>, the Accept header is a list and, so, it may
+* contain more than one media range. The one with the highest q-value is
+* returned.
+*
+* Since the Accept header is a list, it may appear more than once in a request.
+* Should such an occasion arise, the @p media_range and @p qvalue returned by a
+* previous call to this function can be used in its new invocation. This way,
+* they will be taken into consideration while parsing the header-body.
+* Initially, a non-acceptable index of #server_consts and 0, respectively,
+* should suffice.
+*
+* @param[in,out] media_range Index of #server_consts that corresponds to
+*   the highest, so far, qvalue-ranking media range. Upon first invocation, it
+*   should contain a known invalid value.
+* @param[in,out] qvalue The q-value of the @p media_range. On the first
+*   invocation, it should contain a value of 0.
+* @param[out] c The last character read from the stream.
+* @returns One of:
+*   - #CRLF
+*   - EOF
+*/
+int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c);
+
+/**
 * @brief Find the closest match from an array of strings with the stream.
 *
 * Accepts an array of strings (descriptors) and compares the against the input
