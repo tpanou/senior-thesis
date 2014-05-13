@@ -7,6 +7,23 @@
 #include <inttypes.h>
 
 /**
+* @brief A representation of an HTTP message.
+*/
+typedef struct HTTP_Message {
+    /** @brief Value representing the method of the request. */
+    uint8_t method;
+
+    /** @brief Value representing the accept media range of the request. */
+    int8_t accept;
+
+    /** @brief Value representing the content type of the message. */
+    uint8_t content_type;
+
+    /** @brief The length (in octets) of the message. */
+    uint16_t content_length;
+} HTTP_Message;
+
+/**
 * @brief Array of server strings.
 *
 * Values include supported methods, header names and media ranges.
