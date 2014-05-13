@@ -2,6 +2,38 @@
 #include "webserver.h"
 #include "../build/util.h"
 
+static int8_t discard_LWS(uint8_t* c) {
+    uint8_t peek;
+
+    do {
+        if(*c == '\r') {
+            if(s_peek(&peek, 0)) return EOF;
+
+            if(peek == '\n') {
+                if(s_peek(&peek, 1)) return EOF;
+
+                /* A CR followed by a LN and a LWSP-char is a valid LWS. */
+                if(peek == ' ' || peek == '\t') {
+                    /* Discard LF and LWSP-char from the stream. */
+                    s_drop(2);
+                    *c = peek;
+                    continue;
+                }
+                *c = '\n';
+                s_drop(1); /* Discard LF from stream. */
+                return CRLF;
+            }
+            return OTHER;
+
+       /* A single LWSP-char is a valid LWS, anything else is not. */
+        } else if (*c != ' ' && *c != '\t') {
+            return OTHER;
+        }
+    } while(!s_next(c));
+
+    return EOF;
+}
+
 int8_t is_LWS(uint8_t c) {
 
     if(c == ' ' || c == '\t') return 1;
