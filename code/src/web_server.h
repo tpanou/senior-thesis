@@ -7,6 +7,27 @@
 #include <inttypes.h>
 
 /**
+* @brief Array of server strings.
+*
+* Values include supported methods, header names and media ranges.
+*/
+static uint8_t* server_consts[] = {
+    /* Methods, min: 0, max: 2 */
+    "GET",
+    "POST",
+    /* Headers, min: 2, max: 5 */
+    "accept",
+    "content-length",
+    "content-type",
+    /* Media range, min: 5, max: 10 */
+    "*/*",
+    "application/*",
+    "application/xml",
+    "text/*",
+    "text/html"
+};
+
+/**
 * @brief Indicates a CRLF sequence.
 */
 #define CRLF    -4
@@ -24,6 +45,46 @@
 * @brief Convert character @p c to lower-case.
 */
 #define TO_LOWER(c) if (!(c > 'Z' || c < 'A')) c |= 0x20
+
+/**
+* @brief The starting index in #server_consts of supported method literals.
+*/
+#define METHOD_MIN            0
+#define METHOD_GET            0 /**< @brief Method @c GET. */
+#define METHOD_POST           1 /**< @brief Method @c POST. */
+/**
+* @brief The upper-bound of method literals.
+* It should be one unit greater than the index of the last method literal.
+*/
+#define METHOD_MAX            2
+
+/**
+* @brief The starting index in #server_consts of supported header literals.
+*/
+#define HEADER_MIN            2
+#define HEADER_ACCEPT         2 /**< @brief Header @c Accept. */
+#define HEADER_CONTENT_LENGTH 3 /**< @brief Header @c Content-Length. */
+#define HEADER_CONTENT_TYPE   4 /**< @brief Header @c Content-Type. */
+/**
+* @brief The upper-bound of header literals.
+* It should be one unit greater than the index of the last header literal.
+*/
+#define HEADER_MAX            5
+
+/**
+* @brief The starting index in #server_consts of supported media range literals.
+*/
+#define MIME_MIN              5
+#define MIME_ANY              5 /**< @brief Media range "* / *". */
+#define MIME_APP_ANY          6 /**< @brief Media range "application/any". */
+#define MIME_APP_XML          7 /**< @brief Media range "application/xml". */
+#define MIME_TEXT_ANY         8 /**< @brief Media range "text/ *". */
+#define MIME_TEXT_HTML        9 /**< @brief Media range "text/html". */
+/**
+* @brief The upper-bound of media range literals.
+* It should be one unit greater than the index of the last media range literal.
+*/
+#define MIME_MAX             10
 
 /**
 * @brief Find the closest match from an array of strings with the stream.
