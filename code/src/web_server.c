@@ -2,6 +2,59 @@
 #include "webserver.h"
 #include "../build/util.h"
 
+int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c) {
+    uint8_t abs_min = min; /* The initial value (before moving boundaries). */
+    uint8_t cmp_idx = 0;
+    uint8_t i;
+    int8_t c_type   = 0;
+
+    /* When @c min is equal to @c max, the descriptor at position max-1 is a
+    * possible match. What is left is to check whether the last character read
+    * corresponds to an appropriate delimiter for this particular operation. */
+    while(!c_type && min < max) {
+
+        /* The last byte of the descriptors (null-character) is used as an
+        * implicit iteration terminator when all the previous characters have
+        * been matched. If a null-character is read from the stream when a
+        * comparison with the last character of a matching descriptor is due,
+        * the comparison will succeed and a new iteration will take place
+        * during which the limits of the descriptor will be breached. */
+        if(*c == '\0') *c = 1;
+
+        TO_LOWER(*c);
+
+        /* Omit descriptors with a character less than @c c. */
+        for(i = min; i < max && desc[i][cmp_idx] < *c; ++i)
+            ;
+        min     = i;
+
+        /* Determine position of last possible match. */
+        for(i; i < max && desc[i][cmp_idx] == *c ; ++i)
+            ;
+        max     = i;
+
+        /* Avoid reading the next character for stream, if lower and upper limit
+        * have converged. */
+        if(min < max) {
+            ++cmp_idx;
+            c_type = s_next(c);
+        }
+    }
+
+    /* If there's been an error reading from stream, return that error.
+    * Currently, @c EOF is the only possible error. */
+    if(c_type) return c_type;
+
+    /* @c i equals `abs_min' when the input string alphabetically precedes the
+    * first currently available. */
+    if(i > abs_min && *c != '\0') {
+
+        if(desc[i - 1][cmp_idx] == '\0') return i - 1;
+    }
+
+    return OTHER;
+}
+
 static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c) {
     int8_t c_type;
 

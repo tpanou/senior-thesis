@@ -21,6 +21,63 @@
 #endif
 
 /**
+* @brief Convert character @p c to lower-case.
+*/
+#define TO_LOWER(c) if (!(c > 'Z' || c < 'A')) c |= 0x20
+
+/**
+* @brief Find the closest match from an array of strings with the stream.
+*
+* Accepts an array of strings (descriptors) and compares the against the input
+* stream. The descriptors should be sorted in ascending order beforehand, if
+* necessary, and no duplicates should exist. Otherwise, the result is undefined.
+*
+* The return value is the index of the closest matching descriptor (which may or
+* may not be a valid match -- more on this later); the value #OTHER, if it is
+* certain no descriptor provides a match; or @c EOF if the end of the stream
+* has been reached in the meantime.
+* It should be noted that this function irreversibly consumes bytes from the
+* input stream which are not reinstated back into it even if no match is found.
+*
+* More specifically, on each iteration a single character is extracted from the
+* input stream and is compared against the known descriptors and, in particular,
+* against the character at a position equal to the number of characters read
+* (ie, the first character read is compared against the first character of all
+* descriptors, etc).
+*
+* Initially, all the descriptors are included in the comparisons. However, as
+* the iterations progress, descriptors that fail a match are omitted from the
+* remaining iterations. Because the descriptors are given in ascending order,
+* this is easily done by maintaining two moving boundaries.
+*
+* By the end of the iterations, the two boundaries have converged and specify
+* a particular descriptor. That descriptor is a match if two conditions apply:
+* - Its last character has been reached (null-character).
+* - The input character that caused that last mismatch is an acceptable
+* delimiter for this particular input.
+*
+* The former is readily determined whilst the latter, not. This is because this
+* function is content-unaware and, thus, ignorant of what constitutes an
+* acceptable delimiter. Consequently, it cannot fully determine whether the
+* index returned actually corresponds to a full match; that is the
+* responsibility of the caller. It can, however, determine with certainty when
+* there is no match, in which case, it returns #OTHER.
+*
+* @param[in] desc Array with strings (descriptors).
+* @param[in] min The lower boundary of @p desc; index of the first literal to
+*   use in the comparisons.
+* @param[in] max The upper boundary of @p desc; index of the last literal to use
+*   in the comparisons, incremented by 1.
+* @param[in,out] c The first character to compare against the strings and the
+*   last one read from the stream.
+* @returns One of:
+*   - Index of @p desc with a possible match.
+*   - #OTHER; on no match.
+*   - EOF; if end of stream has been reached before hitting a match/mismatch.
+*/
+int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c);
+
+/**
 * @brief Identify and read a q-value parameter.
 *
 * It should be invoked after an Accept header has been identified on (and
