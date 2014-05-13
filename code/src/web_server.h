@@ -104,6 +104,25 @@ static uint8_t* server_consts[] = {
 #define MIME_MAX             10
 
 /**
+* @brief Populates @p req with header values found on the stream.
+*
+* Is uses parse2() to identify headers at the beginning of each line and then
+* forwards the rest of the line to the appropriate header-body handler for that
+* header. Unsupported headers are simply discarded.
+* It terminates on either EOF or a double CRLF (ie, an empty line).
+*
+* @param[in,out] req HTTP_Message variable to be updated with values found on
+*   stream.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - #CRLF; if an empty line was read. The second CRLF sequence will be dropped
+*       from the stream.
+*   - EOF. Normally, this should not occur in the header section.
+*/
+int8_t parse_headers(HTTP_Message* req, uint8_t* c);
+
+/**
 * @brief Parse Accept header body-value is search of media ranges.
 *
 * This function traverses and consumes the stream from its current position up

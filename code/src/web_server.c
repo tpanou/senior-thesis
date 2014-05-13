@@ -2,6 +2,64 @@
 #include "webserver.h"
 #include "../build/util.h"
 
+int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
+    uint16_t qvalue     = 0;
+    uint8_t is_emptyln  = 0;
+    int8_t c_type       = 0;
+    int8_t idx;
+    uint8_t peek;
+
+    while(c_type != EOF && !is_emptyln) {
+        /* Attempt to identify a header */
+        c_type = stream_match(server_consts, HEADER_MIN, HEADER_MAX, c);
+
+        /* If there is a potential match terminated by a ":", then that match is
+        * valid. (No sort spacing is allowed in the header-name.) */
+        if(c_type >= 0 && *c == ':') {
+            idx     = c_type;
+            *c       = ' ';  /* Discarding starts from the provided byte. */
+            c_type  = discard_LWS(c); /* Ignore LWS on stream. */
+
+            /* Read header-body, if the header-name is not followed by EOF or
+            * a CRLF sequence. */
+            if(c_type == OTHER) {
+                if(idx == HEADER_ACCEPT) {
+                    c_type = parse_header_accept(&(req->accept), &qvalue, c);
+                }
+            }
+
+        /* In case of an unsupported header, the line should be discarded. */
+        } else {
+            do {
+                if(*c == '\r' && is_CRLF(*c)) {
+                    c_type = CRLF;
+                    s_next(c); /* Load LF into @c c. */
+                    break;
+                }
+            } while((c_type = s_next(c)) != EOF);
+        }
+
+        /* Check whether the end of headers has been reached. */
+        if(c_type == CRLF) {
+            s_peek(&peek, 0);
+
+            if(peek == '\r') {
+                s_peek(&peek, 1);
+
+                if(peek == '\n') {
+                    s_drop(2);  /* Discard the second CRLF sequence. */
+                    is_emptyln = 1;
+                }
+
+            /* There exists a new header; read its first byte. */
+            } else {
+                c_type = s_next(c);
+            }
+        }
+    }
+    return c_type;
+}
+
 int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c) {
     int8_t c_type;  /* The character type that is read last (eg. EOF, CRLF). */
     int8_t idx;     /* The potentially matched media range. */
