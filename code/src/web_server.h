@@ -83,6 +83,31 @@ int8_t q_value(uint16_t* value, uint8_t* c);
 static int8_t discard_LWS(uint8_t* c);
 
 /**
+* @brief Discards the HTTP header-value parameter starting at @p c.
+*
+* Discards all characters on the stream until a ";" (end of current parameter),
+* a "," (end of header-value), a CRLF (end of header) or EOF has occurred.
+* In either delimiter ";" or ",", #OTHER is returned and the actual delimiter
+* is found in @p c.
+*
+* Any quoted strings encountered along the way (and quoted-pairs therein) are
+* rejected as well.
+* Delimiters that occur within the boundaries of quoted strings are handled as
+* ordinary text and do not terminate execution. Also, escaped double quotes
+* (quoted-pair) are handled accordingly. It should be noted that although a "\"
+* within a quoted string should be able to escape a CR, it is not permitted to
+* do so, if that would cancel a CRLF sequence or header folding.
+*
+* @param[out] c The first character to start discarding from and the last one
+*   read from the stream.
+* @returns One of:
+*   - #OTHER; if ";" or "," was read.
+*   - #CRLF
+*   - EOF
+*/
+static int8_t discard_param(uint8_t* c);
+
+/**
 * @brief Checks whether there is a LWS on stream starting with @p c.
 *
 * A linear white space is an LWSP-char (ie, @c SPACE or @c HTAB) optionally
