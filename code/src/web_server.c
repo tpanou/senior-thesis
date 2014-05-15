@@ -32,6 +32,7 @@ int8_t handle_http_request() {
     printf("Accept: %d\n", req.accept);
     printf("Content-type: %d\n", req.content_type);
     printf("Content-length: %d\n", req.content_length);
+    printf("Transfer-encoding: %d\n", req.transfer_encoding);
     printf("return status: %d\n", c_type);
     printf("--------------------\n");
 }
@@ -109,6 +110,9 @@ int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
                     c_type = parse_header_accept(&(req->accept), &qvalue, c);
                 } else if(idx == HEADER_CONTENT_LENGTH) {
                     c_type = parse_uint16(&(req->content_length), c);
+                } else if(idx == HEADER_TRANSFER_ENC) {
+                    c_type =
+                        parse_transfer_coding(&(req->transfer_encoding), c);
                 }
             }
 
@@ -141,6 +145,38 @@ int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
             }
         }
     }
+    return c_type;
+}
+
+int8_t parse_transfer_coding(uint8_t* value, uint8_t* c) {
+    int8_t c_type;
+
+    /* Combinations of transfer-codings are not supported. If none has been
+    * previously specified attempt to identify this one. */
+    if(*value == 0) {
+
+        c_type =
+            stream_match(server_consts, TRANSFER_COD_MIN, TRANSFER_COD_MAX, c);
+
+        /* An acceptable transfer-coding has been found; pass it into @p req.
+        * As a note, punctuation characters (comma, in particular) is used to
+        * specify multiple values in a list header. */
+        if(c_type >= 0 && !isalpha(*c) && !ispunct(*c) ) {
+            *value = c_type;
+        } else {
+            *value = TRANSFER_COD_OTHER;
+        }
+    }
+
+    /* Discard the rest of the line. If any combination of transfer-codings is
+    * specified, simply fail all values. */
+    while(c_type != EOF && !is_CRLF(*c)) {
+
+        if(isalpha(*c)) *value = TRANSFER_COD_OTHER;
+        c_type = s_next(c);
+    }
+    if(is_CRLF(*c)) c_type = s_next(c); /* Load LF. */
+
     return c_type;
 }
 

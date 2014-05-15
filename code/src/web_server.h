@@ -25,6 +25,9 @@ typedef struct HTTP_Message {
     /** @brief Value representing the accept media range of the request. */
     int8_t accept;
 
+    /** @brief Value representing the transfer encoding of the message. */
+    uint8_t transfer_encoding;
+
     /** @brief Value representing the content type of the message. */
     uint8_t content_type;
 
@@ -41,21 +44,24 @@ static uint8_t* server_consts[] = {
     /* Methods, min: 0, max: 2 */
     "get",
     "post",
-    /* Headers, min: 2, max: 5 */
+    /* Headers, min: 2, max: 6 */
     "accept",
     "content-length",
     "content-type",
-    /* Media range, min: 5, max: 10 */
+    "transfer-encoding",
+    /* Media range, min: 6, max: 11 */
     "*/*",
     "application/*",
     "application/xml",
     "text/*",
     "text/html",
-    /* HTTP tokens, index: 10, 11 */
+    /* HTTP tokens, index: 11, 12 */
     "http",
     "http://",
-
-    /* Absolute paths, min: 12, max: 15 */
+    /* Transfer-codings, min: 13, max: 15 */
+    "chunked",
+    "identity",
+    /* Absolute paths, min: 15, max: 18 */
     "*",
     "/",
     "/index.html"
@@ -114,42 +120,63 @@ static uint8_t host_port[6] = "80";
 #define HEADER_ACCEPT         2 /**< @brief Header @c Accept. */
 #define HEADER_CONTENT_LENGTH 3 /**< @brief Header @c Content-Length. */
 #define HEADER_CONTENT_TYPE   4 /**< @brief Header @c Content-Type. */
+#define HEADER_TRANSFER_ENC   5 /**< @brief Header @c Transfer-Encoding. */
 /**
 * @brief The upper-bound of header literals.
 * It should be one unit greater than the index of the last header literal.
 */
-#define HEADER_MAX            5
+#define HEADER_MAX            6
 
 /**
 * @brief The starting index in #server_consts of supported media range literals.
 */
-#define MIME_MIN              5
-#define MIME_ANY              5 /**< @brief Media range "* / *". */
-#define MIME_APP_ANY          6 /**< @brief Media range "application/any". */
-#define MIME_APP_XML          7 /**< @brief Media range "application/xml". */
-#define MIME_TEXT_ANY         8 /**< @brief Media range "text/ *". */
-#define MIME_TEXT_HTML        9 /**< @brief Media range "text/html". */
+#define MIME_MIN              6
+#define MIME_ANY              6 /**< @brief Media range "* / *". */
+#define MIME_APP_ANY          7 /**< @brief Media range "application/any". */
+#define MIME_APP_XML          8 /**< @brief Media range "application/xml". */
+#define MIME_TEXT_ANY         9 /**< @brief Media range "text/ *". */
+#define MIME_TEXT_HTML       10 /**< @brief Media range "text/html". */
 /**
 * @brief The upper-bound of media range literals.
 * It should be one unit greater than the index of the last media range literal.
 */
-#define MIME_MAX             10
+#define MIME_MAX             11
 
-#define HTTP_SCHEME          10 /**< @brief HTTP literal. */
-#define HTTP_SCHEME_S        11 /**< @brief HTTP scheme with separator. */
+#define HTTP_SCHEME          11 /**< @brief HTTP literal. */
+#define HTTP_SCHEME_S        12 /**< @brief HTTP scheme with separator. */
+
+/**
+* @brief The starting index in #server_consts of available transfer-coding.
+*/
+#define TRANSFER_COD_MIN     13
+#define TRANSFER_COD_CHUNK   13 /**< @brief Chunked transfer-coding. */
+#define TRANSFER_COD_IDENT   14 /**< @brief Identity transfer-conding. */
+/**
+* @brief The upper-bound of transfer-coding literals.
+* It should be one unit greater than the index of the last transfer-coding
+* literal.
+*/
+#define TRANSFER_COD_MAX     18
 
 /**
 * @brief The starting index in #server_consts of available endpoints.
 */
-#define URI_MIN              12
-#define URI_SERVER           12 /**< @brief Server "*". */
-#define URI_ROOT             13 /**< @brief Server root "/". */
-#define URI_INDEX_HTML       14 /**< @brief Endpoint "/index.html". */
+#define URI_MIN              15
+#define URI_SERVER           15 /**< @brief Server "*". */
+#define URI_ROOT             16 /**< @brief Server root "/". */
+#define URI_INDEX_HTML       17 /**< @brief Endpoint "/index.html". */
 /**
 * @brief The upper-bound of endpoint literals.
 * It should be one unit greater than the index of the last endpoint literal.
 */
-#define URI_MAX              15
+#define URI_MAX              18
+
+/**
+* @brief Describes an unsupported transfer-coding value or combination thereof.
+*
+* This is not a #server_consts index.
+*/
+#define TRANSFER_COD_OTHER    1
 
 int8_t handle_http_request();
 
@@ -173,6 +200,25 @@ int8_t handle_http_request();
 *   - EOF
 */
 int8_t parse_request_line(HTTP_Message* req, uint8_t* c);
+
+/**
+* @brief Read the specified transfer-coding from stream.
+*
+* Only `chunked' and `identity' are currently supported. Should any other, or
+* combination thereof, be specified, #TRANSFER_COD_OTHER shall be returned.
+*
+* As the `Transfer-Encoding' and `TE' headers are a list, this function may be
+* invoked more than once for each.
+*
+* @param[in,out] value One of #TRANSFER_COD_CHUNK, #TRANSFER_COD_IDENT or
+*   #TRANSFER_COD_OTHER.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream, typically @c LF.
+* @returns One of:
+*   - CRLF
+*   - EOF
+*/
+int8_t parse_transfer_coding(uint8_t* value, uint8_t* c);
 
 /**
 * @brief Read HTTP major and minor version numbers from stream.
