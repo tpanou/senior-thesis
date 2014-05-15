@@ -234,6 +234,66 @@ int8_t stream_match_ext(uint8_t** desc,
     return OTHER;
 }
 
+static int8_t parse_uri(HTTP_Message* req, uint8_t* c) {
+    uint8_t min     = URI_MIN;
+    uint8_t max     = URI_MAX;
+    uint8_t cmp_idx = 0;
+    uint8_t last_it = 255;
+    int8_t  c_type  = 0;
+
+    /* Parse absolute path. */
+    /* Match stream against available absolute paths taking into consideration
+    * possible percent-encoding. */
+    while(c_type != EOF && min < max) {
+        c_type =
+            stream_match_ext(server_consts, URI_MIN, &min, &max, &cmp_idx, c);
+
+        /* If there is a failed match for the second time for a particular
+        * iteration (ie, after attempting a percent-decoding, if a percent sign
+        * was present), then there can be no match. */
+        if(last_it == cmp_idx) {
+            break;
+        }
+
+        /* On a mismatch due to "%", retry the comparison, unless already
+        * retried. */
+        if(c_type == OTHER && *c == '%' && last_it != cmp_idx) {
+            uint8_t p1, p2;
+            uint8_t value;
+
+            last_it = cmp_idx; /* Keep iteration of last percent decoding. */
+
+            /* Decode the next two characters. */
+            s_peek(&p1, 0);
+            s_peek(&p2, 1);
+
+            if(isxdigit(p1) && isxdigit(p2)) {
+                s_drop(2);
+                value   = p1 <= '9' ? p1 - '0' : tolower(p1) - 'a' + 10;
+                value  *= 16;
+                value  += p2 <= '9' ? p2 - '0' : tolower(p2) - 'a' + 10;
+
+                *c = value;
+            } else {
+                break;
+            }
+
+        /* A possible match has been admitted. */
+        } else if(c_type >= 0) {
+            if(*c == ' ') {
+                req->uri = c_type;
+            }
+            break;
+
+        /* Certain mismatch. */
+        } else {
+            break;
+        }
+    }
+
+    return c_type;
+}
+
 static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c) {
     int8_t c_type;
 

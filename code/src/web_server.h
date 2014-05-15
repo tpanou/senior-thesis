@@ -13,6 +13,9 @@ typedef struct HTTP_Message {
     /** @brief Value representing the method of the request. */
     uint8_t method;
 
+    /** @brief Value representing the URI of the request line. */
+    uint8_t uri;
+
     /** @brief Value representing the accept media range of the request. */
     int8_t accept;
 
@@ -42,6 +45,14 @@ static uint8_t* server_consts[] = {
     "application/xml",
     "text/*",
     "text/html"
+    /* HTTP tokens, index: 10, 11 */
+    "http",
+    "http://",
+
+    /* Absolute paths, min: 12, max: 15 */
+    "*",
+    "/",
+    "/index.html"
 };
 
 /**
@@ -101,6 +112,22 @@ static uint8_t* server_consts[] = {
 * It should be one unit greater than the index of the last media range literal.
 */
 #define MIME_MAX             10
+
+#define HTTP_SCHEME          10 /**< @brief HTTP literal. */
+#define HTTP_SCHEME_S        11 /**< @brief HTTP scheme with separator. */
+
+/**
+* @brief The starting index in #server_consts of available endpoints.
+*/
+#define URI_MIN              12
+#define URI_SERVER           12 /**< @brief Server "*". */
+#define URI_ROOT             13 /**< @brief Server root "/". */
+#define URI_INDEX_HTML       14 /**< @brief Endpoint "/index.html". */
+/**
+* @brief The upper-bound of endpoint literals.
+* It should be one unit greater than the index of the last endpoint literal.
+*/
+#define URI_MAX              15
 
 /**
 * @brief Populates @p req with header values found on the stream.
@@ -248,6 +275,27 @@ int8_t stream_match_ext(uint8_t** desc,
                         uint8_t* max,
                         uint8_t* cmp_idx,
                         uint8_t* c);
+
+/**
+* @brief Match input from stream against the available server endpoints.
+*
+* This function is in accordance with
+* <a href="http://tools.ietf.org/html/rfc2616#section-5.1.2">IETF RFC 2616
+* p.37</a> in that if the Request-URI is encoded using the "% HEX HEX" encoding,
+* it decodes the corresponding characters. To do so, it uses stream_match_ext()
+* to be informed of cases that contain a percent sign. If the encoding is valid
+* (ie, a hexadecimal number), the decoded character is fed back into
+* stream_match_ext() and the operation continues as normal.
+*
+* @param[out] req HTTP_Message variable to be updated with the endpoint value
+*   found on (@link HTTP_Message::uri uri@endlink).
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - CRLF
+*   - EOF
+*/
+static int8_t parse_uri(HTTP_Message* req, uint8_t* c);
 
 /**
 * @brief Identify and read a q-value parameter.
