@@ -4,6 +4,29 @@
 
 #include <ctype.h> /* isxdigit(), tolower() */
 
+int8_t parse_http_version(HTTP_Message* req, uint8_t* c) {
+    int8_t c_type;
+    uint8_t digits;
+
+    c_type = stream_match(server_consts, HTTP_SCHEME, HTTP_SCHEME + 1, c);
+
+    if(c_type >= 0 && *c == '/') {
+
+        s_next(c);
+        c_type = parse_uint8(&(req->v_major), c);
+
+        while(*c != '.' && c_type != EOF && !is_CRLF(*c)) {
+            c_type = s_next(c);
+        }
+
+        if(*c == '.') {
+            c_type = s_next(c);
+            c_type = parse_uint8(&(req->v_minor), c);
+        }
+    }
+    return c_type;
+}
+
 int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
     uint16_t qvalue     = 0;
     uint8_t is_emptyln  = 0;

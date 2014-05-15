@@ -16,6 +16,12 @@ typedef struct HTTP_Message {
     /** @brief Value representing the URI of the request line. */
     uint8_t uri;
 
+    /** @brief The major number of the HTTP version of the message. */
+    uint8_t v_major;
+
+    /** @brief The minor number of the HTTP version of the message. */
+    uint8_t v_minor;
+
     /** @brief Value representing the accept media range of the request. */
     int8_t accept;
 
@@ -144,6 +150,19 @@ static uint8_t host_port[6] = "80";
 * It should be one unit greater than the index of the last endpoint literal.
 */
 #define URI_MAX              15
+
+/**
+* @brief Read HTTP major and minor version numbers from stream.
+*
+* @param[out] req HTTP_Message variable to be updated with the message's HTTP
+*   version. Members are: @link HTTP_Message::v_major v_major@endlink and
+*   @link HTTP_Message::v_minor v_minor@endlink.
+*   stream. Which members are actually update depends on what is available.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns EOF on end of stream; @c 0 or #OTHER, otherwise.
+*/
+int8_t parse_http_version(HTTP_Message* req, uint8_t* c);
 
 /**
 * @brief Populates @p req with header values found on the stream.
