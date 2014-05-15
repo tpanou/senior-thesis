@@ -30,8 +30,8 @@ typedef struct HTTP_Message {
 */
 static uint8_t* server_consts[] = {
     /* Methods, min: 0, max: 2 */
-    "GET",
-    "POST",
+    "get",
+    "post",
     /* Headers, min: 2, max: 5 */
     "accept",
     "content-length",
@@ -55,6 +55,10 @@ static uint8_t* server_consts[] = {
 #define OTHER   -5
 
 #ifndef EOF
+#ifndef EOF
+/**
+* @brief Indicates that the End-of-File has been reached.
+*/
 #define EOF     -1
 #endif
 
@@ -106,7 +110,8 @@ static uint8_t* server_consts[] = {
 /**
 * @brief Populates @p req with header values found on the stream.
 *
-* Is uses parse2() to identify headers at the beginning of each line and then
+* Is uses stream_match() to identify headers at the beginning of each line and
+* then
 * forwards the rest of the line to the appropriate header-body handler for that
 * header. Unsupported headers are simply discarded.
 * It terminates on either EOF or a double CRLF (ie, an empty line).
@@ -204,7 +209,7 @@ int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c);
 *   last one read from the stream.
 * @returns One of:
 *   - Index of @p desc with a possible match.
-*   - #OTHER; on no match.
+*   - #OTHER; on certainty of no match.
 *   - EOF; if end of stream has been reached before hitting a match/mismatch.
 */
 int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c);
