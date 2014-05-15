@@ -83,7 +83,6 @@ static uint8_t host_port[6] = "80";
 #define OTHER   -5
 
 #ifndef EOF
-#ifndef EOF
 /**
 * @brief Indicates that the End-of-File has been reached.
 */
