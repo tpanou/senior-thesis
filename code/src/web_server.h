@@ -50,7 +50,7 @@ static uint8_t* server_consts[] = {
     "application/*",
     "application/xml",
     "text/*",
-    "text/html"
+    "text/html",
     /* HTTP tokens, index: 10, 11 */
     "http",
     "http://",
@@ -151,6 +151,8 @@ static uint8_t host_port[6] = "80";
 */
 #define URI_MAX              15
 
+int8_t handle_http_request();
+
 /**
 * @brief Extract method, request URI and HTTP version of the request line from
 * the stream.
@@ -194,13 +196,13 @@ int8_t parse_http_version(HTTP_Message* req, uint8_t* c);
 * header. Unsupported headers are simply discarded.
 * It terminates on either EOF or a double CRLF (ie, an empty line).
 *
-* @param[in,out] req HTTP_Message variable to be updated with values found on
-*   stream.
+* @param[out] req HTTP_Message variable to be updated with values found on
+*   stream. Which members are actually update depends on what is available.
 * @param[in,out] c The first character to start parsing from and the last one
 *   read from the stream.
 * @returns One of:
-*   - #CRLF; if an empty line was read. The second CRLF sequence will be dropped
-*       from the stream.
+*   - #CRLF; if an empty line was read. The double CRLF sequence will be dropped
+*       from the stream and the last LF returned in @p c.
 *   - EOF. Normally, this should not occur in the header section.
 */
 int8_t parse_headers(HTTP_Message* req, uint8_t* c);

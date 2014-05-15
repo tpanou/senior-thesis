@@ -2,7 +2,39 @@
 #include "web_server.h"
 #include "../build/util.h"
 
+#include <stdio.h>
 #include <ctype.h> /* isxdigit(), tolower() */
+
+int8_t handle_http_request() {
+    HTTP_Message req = {.method         =  0,
+                        .uri            =  0,
+                        .v_major        =  0,
+                        .v_minor        =  0,
+                        .accept         =  0,
+                        .content_type   =  0,
+                        .content_length =  0};
+    uint8_t c;
+    int8_t c_type;
+
+    /* Parse request- or status-line. */
+    c_type = s_next(&c);
+    c_type = parse_request_line(&req, &c);
+
+    /* Parse headers. */
+    c_type = s_next(&c);    /* Discard LF and load next character. */
+    c_type = parse_headers(&req, &c);
+
+
+    printf("\n--------------------\n");
+    printf("Method: %d\n", req.method);
+    printf("URI: %d\n", req.uri);
+    printf("Version: %d.%d\n", req.v_major, req.v_minor);
+    printf("Accept: %d\n", req.accept);
+    printf("Content-type: %d\n", req.content_type);
+    printf("Content-length: %d\n", req.content_length);
+    printf("return status: %d\n", c_type);
+    printf("--------------------\n");
+}
 
 int8_t parse_request_line(HTTP_Message* req, uint8_t* c) {
     int8_t c_type;
@@ -75,6 +107,8 @@ int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
             if(c_type == OTHER) {
                 if(idx == HEADER_ACCEPT) {
                     c_type = parse_header_accept(&(req->accept), &qvalue, c);
+                } else if(idx == HEADER_CONTENT_LENGTH) {
+                    c_type = parse_uint16(&(req->content_length), c);
                 }
             }
 
