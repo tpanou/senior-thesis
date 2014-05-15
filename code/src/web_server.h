@@ -152,6 +152,27 @@ static uint8_t host_port[6] = "80";
 #define URI_MAX              15
 
 /**
+* @brief Extract method, request URI and HTTP version of the request line from
+* the stream.
+*
+* This function is a congregate of the functions stream_match(), parse_uri() and
+* parse_http_version().
+*
+* @param[out] req HTTP_Message variable to be updated with values found on
+*   stream. Those members are:
+*   @link HTTP_Message::method method@endlink,
+*   @link HTTP_Message::uri uri@endlink,
+*   @link HTTP_Message::v_major v_major@endlink and
+*   @link HTTP_Message::v_minor v_minor@endlink.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - CRLF
+*   - EOF
+*/
+int8_t parse_request_line(HTTP_Message* req, uint8_t* c);
+
+/**
 * @brief Read HTTP major and minor version numbers from stream.
 *
 * @param[out] req HTTP_Message variable to be updated with the message's HTTP

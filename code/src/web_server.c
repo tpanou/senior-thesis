@@ -4,6 +4,31 @@
 
 #include <ctype.h> /* isxdigit(), tolower() */
 
+int8_t parse_request_line(HTTP_Message* req, uint8_t* c) {
+    int8_t c_type;
+
+    /* Retrieve the method and discard SP. */
+    c_type = stream_match(server_consts, METHOD_MIN, METHOD_MAX, c);
+    if(c_type >= 0) req->method = c_type;
+    while(*c == ' ') c_type = s_next(c);
+
+    /* Retrieve URI info (host, path, query) */
+    c_type = parse_uri(req, c);
+    while(*c == ' ') c_type = s_next(c);
+
+    /* Retrieve HTTP version. */
+    c_type = parse_http_version(req, c);
+
+    /* Discard the rest of the line. */
+    while(!is_CRLF(*c) && c_type != EOF) c_type = s_next(c);
+    if(*c == '\r') {
+        s_next(c);
+        c_type = CRLF;
+    }
+
+    return c_type;
+}
+
 int8_t parse_http_version(HTTP_Message* req, uint8_t* c) {
     int8_t c_type;
     uint8_t digits;
