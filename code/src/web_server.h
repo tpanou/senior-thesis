@@ -63,11 +63,6 @@ static uint8_t* server_consts[] = {
 #endif
 
 /**
-* @brief Convert character @p c to lower-case.
-*/
-#define TO_LOWER(c) if (!(c > 'Z' || c < 'A')) c |= 0x20
-
-/**
 * @brief The starting index in #server_consts of supported method literals.
 */
 #define METHOD_MIN            0

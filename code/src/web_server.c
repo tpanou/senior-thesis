@@ -2,6 +2,8 @@
 #include "webserver.h"
 #include "../build/util.h"
 
+#include <ctype.h> /* isxdigit(), tolower() */
+
 int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
     uint16_t qvalue     = 0;
     uint8_t is_emptyln  = 0;
@@ -145,7 +147,7 @@ int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c) {
         * during which the limits of the descriptor will be breached. */
         if(*c == '\0') *c = 1;
 
-        TO_LOWER(*c);
+        *c = tolower(*c);
 
         /* Omit descriptors with a character less than @c c. */
         for(i = min; i < max && desc[i][cmp_idx] < *c; ++i)
