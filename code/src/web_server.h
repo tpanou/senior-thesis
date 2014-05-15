@@ -352,6 +352,36 @@ static int8_t parse_host(uint8_t* c);
 static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c);
 
 /**
+* @brief Read up to a 4-digit unsigned number from stream (0 up to 9999).
+*
+* Any leading zeros are ignored.
+*
+* @param[out] value The number read. Defaults to @c 0.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - 0; if the last character read is not a digit or EOF.
+*   - #OTHER; if a greater number than 9999 is available.
+*   - EOF
+*/
+int8_t parse_uint16(uint16_t* value, uint8_t* c);
+
+/**
+* @brief Read up to a two-digit unsigned number from stream (0 up to 99).
+*
+* Any leading zeros are ignored.
+*
+* @param[out] value The number read. Defaults to @c 0.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - 0; if the last character read is not a digit or EOF.
+*   - #OTHER; if a greater number than 99 is available.
+*   - EOF
+*/
+int8_t parse_uint8(uint8_t* value, uint8_t* c);
+
+/**
 * @brief Read a q-value from stream.
 *
 * According to <a href="http://tools.ietf.org/html/rfc2616#section-3.9">IETF RFC

@@ -375,6 +375,42 @@ static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c) {
     return c_type;
 }
 
+int8_t parse_uint16(uint16_t* value, uint8_t* c) {
+    int8_t c_type;
+    int8_t digits;
+    *value  = 0;
+
+    while(*c == '0') c_type = s_next(c); /* Ignore any leading zeros. */
+
+    for(digits = 0 ; c_type != EOF && digits < 4 && isdigit(*c) ; ++digits) {
+        *value  *= 10;
+        *value  += *c - '0';
+        c_type = s_next(c);
+    }
+    if(isdigit(*c)) {
+        c_type = OTHER; /* Inform an additional digit is on stream. */
+    }
+    return c_type;
+}
+
+int8_t parse_uint8(uint8_t* value, uint8_t* c) {
+    int8_t c_type;
+    int8_t digits;
+    *value  = 0;
+
+    while(*c == '0') c_type = s_next(c); /* Ignore any leading zeros. */
+
+    for(digits = 0 ; c_type != EOF && digits < 2 && isdigit(*c) ; ++digits) {
+        *value  *= 10;
+        *value  += *c - '0';
+        c_type = s_next(c);
+    }
+    if(isdigit(*c)) {
+        c_type = OTHER; /* Inform an additional digit is on stream. */
+    }
+    return c_type;
+}
+
 int8_t q_value(uint16_t* value, uint8_t* c) {
     uint8_t i;
     int8_t  c_type = OTHER;
