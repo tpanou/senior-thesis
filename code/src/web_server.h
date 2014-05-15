@@ -56,6 +56,23 @@ static uint8_t* server_consts[] = {
 };
 
 /**
+* @brief The name of the server (value of `Host' header and part of absolute
+* URIs).
+*
+* It is not necessary to be an IP address. Use set_host_name() to update its
+* value at any time. It should be noted that no trailing slash should ever be
+* appended.
+*/
+static uint8_t host_name[] = "000.000.000.000";
+
+/**
+* @brief The listening port of the server; defaults to 80.
+*
+* Use set_host_port() to update its value.
+*/
+static uint8_t host_port[6] = "80";
+
+/**
 * @brief Indicates a CRLF sequence.
 */
 #define CRLF    -4
@@ -279,6 +296,11 @@ int8_t stream_match_ext(uint8_t** desc,
 /**
 * @brief Match input from stream against the available server endpoints.
 *
+* Absolute paths are recognised as well as absolute URIs; use set_host_name() to
+* provide the server name or IP address. In the case of an absolute URI, the
+* port should match that of the server, if one is specified in the request; see
+* set_host_port().
+*
 * This function is in accordance with
 * <a href="http://tools.ietf.org/html/rfc2616#section-5.1.2">IETF RFC 2616
 * p.37</a> in that if the Request-URI is encoded using the "% HEX HEX" encoding,
@@ -296,6 +318,20 @@ int8_t stream_match_ext(uint8_t** desc,
 *   - EOF
 */
 static int8_t parse_uri(HTTP_Message* req, uint8_t* c);
+
+/**
+* @brief Matches the current name of the server (host) against the stream.
+*
+* To see how to set the host name of the server, refer to set_host_name().
+*
+* @param[in,out] c The first character to start comparing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - @c 0; if @verbatim "http:" "//" host @endverbatim was matched.
+*   - #OTHER; if either the scheme or the host name failed to match.
+*   - EOF; if the end of stream was reach in the meantime.
+*/
+static int8_t parse_host(uint8_t* c);
 
 /**
 * @brief Identify and read a q-value parameter.

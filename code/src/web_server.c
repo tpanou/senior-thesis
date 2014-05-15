@@ -237,9 +237,18 @@ int8_t stream_match_ext(uint8_t** desc,
 static int8_t parse_uri(HTTP_Message* req, uint8_t* c) {
     uint8_t min     = URI_MIN;
     uint8_t max     = URI_MAX;
+    uint8_t peek;
     uint8_t cmp_idx = 0;
     uint8_t last_it = 255;
     int8_t  c_type  = 0;
+
+    /* If the request URI begins with the scheme (ie, HTTP), then an absolute
+    * URI is provided and it should match against the server (host) name. If
+    * not, an appropriate status code should be returned. */
+    s_peek(&peek, 0);
+    if(peek != '/' && peek != '*') {
+        if(c_type = parse_host(c)) return OTHER;
+    }
 
     /* Parse absolute path. */
     /* Match stream against available absolute paths taking into consideration
@@ -291,6 +300,43 @@ static int8_t parse_uri(HTTP_Message* req, uint8_t* c) {
         }
     }
 
+    return c_type;
+}
+
+static int8_t parse_host(uint8_t* c) {
+    int8_t c_type;
+    uint8_t* ptr[1];
+
+    /* Match scheme "HTTP://" */
+    c_type = stream_match(server_consts, HTTP_SCHEME_S, HTTP_SCHEME_S + 1, c);
+
+    /* If scheme is acceptable, parse the host name. */
+    if(c_type >= 0) {
+        ptr[0] = host_name;
+        c_type = stream_match(ptr, 0, 1, c);
+
+        /* Should the host name also be acceptable, parse the port, if one is
+        * specified. */
+        if(c_type >= 0) {
+
+            /* If a port was provided, ensure it matches the host's. */
+            if(*c == ':') {
+                c_type = s_next(c);  /* Get character next to colon. */
+                ptr[0] = host_port;
+                c_type = stream_match(ptr, 0, 1, c);
+
+                if(c_type >= 0) return 0;
+
+                /* An unsupported port was specified; discard it. Odd if this
+                * happened but still needs to be dealt with. */
+                else {
+                    while(isdigit(*c)) c_type = s_next(c);
+                }
+            } else {
+                return 0;
+            }
+        }
+    }
     return c_type;
 }
 
