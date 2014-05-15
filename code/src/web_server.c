@@ -181,6 +181,59 @@ int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c) {
     return OTHER;
 }
 
+int8_t stream_match_ext(uint8_t** desc,
+                        uint8_t abs_min,
+                        uint8_t* min,
+                        uint8_t* max,
+                        uint8_t* cmp_idx,
+                        uint8_t* c) {
+    uint8_t i       = 0;
+    int8_t c_type   = 0;
+    int8_t have_hit = 1;
+
+    /* The iterations continue as long as there is at least one match. */
+    while(!c_type && have_hit) {
+
+        have_hit = 0;
+        /* Null-character is used implicitly as a comparison terminator. */
+        if(*c == '\0') *c = 1;
+
+        *c = tolower(*c);
+
+        /* Omit descriptors with a character less than @c c. */
+        for(i = *min; i < *max && desc[i][*cmp_idx] < *c; ++i)
+            ;
+        *min    = i;
+
+        /* Determine position of last possible match. */
+        for(i; i < *max && desc[i][*cmp_idx] == *c ; ++i) {
+            have_hit = 1;
+        }
+
+        /* Lower upper-bound only if there had been hits. */
+        if(have_hit) *max = i;
+
+        /* Read next character if the current one provides a match. Otherwise,
+        * the caller should determine if an alternative character should be used
+        * in its place. */
+        if(*min < *max && have_hit) {
+            ++(*cmp_idx);
+            c_type = s_next(c);
+        }
+    }
+
+    /* If there's been an error reading from stream, return that error. */
+    if(c_type) return c_type;
+
+    /* @c i equals `abs_min' when the input string alphabetically precedes the
+    * first possible literal. */
+    if(i > abs_min) {
+        if(desc[i - 1][*cmp_idx] == '\0') return i - 1;
+    }
+
+    return OTHER;
+}
+
 static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c) {
     int8_t c_type;
 

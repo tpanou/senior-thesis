@@ -210,6 +210,46 @@ int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c);
 int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c);
 
 /**
+* @brief Find the closest match from an array of strings with the stream.
+*
+* It provides comparable functionality to stream_match() but with greater
+* flexibility as far as the iteration termination is concerned. More
+* specifically, new iterations take place as long as there is at least one match
+* per iteration. Upon failure, the function returns with neither @p max or @p
+* cmp_idx being updated.
+* It is the caller's responsibility to determine whether the iterations should
+* proceed as well as whether they should do so from where they had previously
+* terminated or even with which character.
+
+* stream_match() could actually be implemented as a wrapper around this one.
+*
+* @param[in] desc Array with strings (descriptors).
+* @param[in] abs_min Index of the first acceptable element of the array. It is
+*   different than @p min in that this one represents the absolute minimum value
+*   of the array (below which there is no valid descriptor).
+* @param[in,out] min The lower boundary of matches in @p desc. Upon first
+*   invocation, this should be equal to @p abs_min. As iterations take place,
+*   this may be increased internally.
+* @param[in,out] max The upper boundary of @p desc. Upon first invocation, this
+*   should be equal to the index of the last descriptor plus 1.
+* @param[in,out] cmp_idx Character index of strings found within @p desc that
+*   is to be compared against @p c and the rest of the stream. Upon first
+*   invocation, this should be 0.
+* @param[in,out] c The first character to compare against the strings and the
+*   last one read from the stream.
+* @returns One of:
+*   - Index of @p desc with a possible match.
+*   - #OTHER; on certainty of no match.
+*   - EOF; if end of stream has been reached before hitting a match/mismatch.
+*/
+int8_t stream_match_ext(uint8_t** desc,
+                        uint8_t abs_min,
+                        uint8_t* min,
+                        uint8_t* max,
+                        uint8_t* cmp_idx,
+                        uint8_t* c);
+
+/**
 * @brief Identify and read a q-value parameter.
 *
 * It should be invoked after an Accept header has been identified on (and
