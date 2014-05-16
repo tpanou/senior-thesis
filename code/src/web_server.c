@@ -111,8 +111,8 @@ int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
                 } else if(idx == HEADER_CONTENT_LENGTH) {
                     c_type = parse_uint16(&(req->content_length), c);
                 } else if(idx == HEADER_TRANSFER_ENC) {
-                    c_type =
-                        parse_transfer_coding(&(req->transfer_encoding), c);
+                    c_type = parse_header_transfer_coding(
+                                &(req->transfer_encoding), c);
                 }
             }
 
@@ -148,7 +148,7 @@ int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
     return c_type;
 }
 
-int8_t parse_transfer_coding(uint8_t* value, uint8_t* c) {
+int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c) {
     int8_t c_type;
 
     /* Combinations of transfer-codings are not supported. If none has been
@@ -175,7 +175,6 @@ int8_t parse_transfer_coding(uint8_t* value, uint8_t* c) {
         if(isalpha(*c)) *value = TRANSFER_COD_OTHER;
         c_type = s_next(c);
     }
-    if(is_CRLF(*c)) c_type = s_next(c); /* Load LF. */
 
     return c_type;
 }

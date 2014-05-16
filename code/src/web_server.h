@@ -75,7 +75,8 @@ static uint8_t* server_consts[] = {
 * value at any time. It should be noted that no trailing slash should ever be
 * appended.
 */
-static uint8_t host_name[] = "000.000.000.000";
+//static uint8_t host_name[] = "000.000.000.000";
+static uint8_t host_name[] = "192.168.1.73";
 
 /**
 * @brief The listening port of the server; defaults to 80.
@@ -218,7 +219,7 @@ int8_t parse_request_line(HTTP_Message* req, uint8_t* c);
 *   - CRLF
 *   - EOF
 */
-int8_t parse_transfer_coding(uint8_t* value, uint8_t* c);
+int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c);
 
 /**
 * @brief Read HTTP major and minor version numbers from stream.
