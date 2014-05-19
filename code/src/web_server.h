@@ -530,6 +530,18 @@ int8_t q_value(uint16_t* value, uint8_t* c);
 static int8_t discard_LWS(uint8_t* c);
 
 /**
+* @brief Discard everything up to an empty line (ie, two CRLF sequence in
+* succession).
+*
+* @param[in,out] c The first character to start discarding from and the last one
+*   read from the stream.
+* @returns One of:
+*   - #CRLF; on an empty line.
+*   - @c EOF; on end-of-stream.
+*/
+static int8_t discard_to_line(uint8_t* c);
+
+/**
 * @brief Discards the HTTP header-value parameter starting at @p c.
 *
 * Discards all characters on the stream until a ";" (end of current parameter),
@@ -579,5 +591,18 @@ int8_t is_LWS(uint8_t c);
 * @returns @c 1, if true; @c 0, otherwise.
 */
 int8_t is_CRLF(uint8_t c);
+
+/**
+* @brief Checks whether there is a CRLF sequence on stream starting with @p c.
+*
+* Unlike is_CRLF(), this function is satisfied with a CRLF sequence no matter
+* what follows next, be it a LWS-char or otherwise.
+*
+* This function does not consume bytes from the stream. It simply peeks forward.
+*
+* @param c The first character to use in the comparisons.
+* @returns @c 1, if true; @c 0, otherwise.
+*/
+int8_t is_c_CRLF(uint8_t c);
 
 #endif /* WEB_SERVER_H_INCL */

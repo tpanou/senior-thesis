@@ -609,6 +609,35 @@ static int8_t discard_LWS(uint8_t* c) {
     return EOF;
 }
 
+static int8_t discard_to_line(uint8_t* c) {
+    int8_t  c_type = 0;
+    uint8_t is_emptyln = 0;
+    uint8_t peek;
+
+    while(!is_emptyln && c_type != EOF) {
+        /* Discard bytes until a CRLF. */
+        while((c_type = s_next(c)) != EOF && !is_CRLF(*c));
+
+        /* Should a CRLF be followed by another CRLF, then an empty line has
+        * been reached. */
+        if(is_CRLF(*c)) {
+            s_peek(&peek, 1); /* If an empty line, this should be a CR. */
+
+            if(peek == '\r') {
+                s_peek(&peek, 2);
+
+                /* A second CRLF has been spotted. */
+                if(peek == '\n') {
+                    s_drop(3);  /* Discard the second LFCRLF sequence. */
+                    is_emptyln  = 1;
+                    c_type      = CRLF;
+                }
+            }
+        }
+    }
+    return c_type;
+}
+
 static int8_t discard_param(uint8_t* c) {
     /* Identifies whether a quoted-string is currently traversed. */
     uint8_t is_quoted_string = 0;
@@ -712,6 +741,17 @@ int8_t is_CRLF(uint8_t c) {
             * SPACE or HTAB. */
             if(c != ' ' && c != '\t') return 1;
         }
+    }
+
+    return 0;
+}
+
+int8_t is_c_CRLF(uint8_t c) {
+
+    if(c == '\r') {
+        if(s_peek(&c, 0)) return 0;
+
+        if(c == '\n') return 1;
     }
 
     return 0;
