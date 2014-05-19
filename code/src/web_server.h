@@ -523,6 +523,19 @@ qvalue = ( "0" [ "." 0*3DIGIT ] )
 int8_t q_value(uint16_t* value, uint8_t* c);
 
 /**
+* @brief Read the next byte from a chunked HTTP message into @p c.
+*
+* In case the bytes of a particular chunk have been depleted, the first byte of
+* the next chunk (if one exists) is returned. This function should only be
+* called if a `Tranfser-Encoding' header with a value of `@c chunked' has been
+* specified.
+*
+* @param[out] c The character read from the stream.
+* @returns @c 0 on a successful read; @c EOF, otherwise.
+*/
+int8_t c_next(uint8_t* c);
+
+/**
 * @brief Parse the size of the next chunk.
 *
 * This function is called by front-end functions.

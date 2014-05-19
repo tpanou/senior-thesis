@@ -577,6 +577,21 @@ int8_t q_value(uint16_t* value, uint8_t* c) {
     return c_type;
 }
 
+int8_t c_next(uint8_t* c) {
+    if(chunk_pos == chunk_len) {
+        update_chunk(c);
+    }
+
+    if(chunk_pos < chunk_len) {
+        ++chunk_pos;
+        return s_next(c);
+    }
+    is_chunk_on = 0;
+    chunk_len   = 0;
+    chunk_pos   = 0;
+    return EOF;
+}
+
 static int8_t update_chunk(uint8_t* c) {
     int8_t c_type = 0;
 
