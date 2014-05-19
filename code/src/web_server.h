@@ -441,6 +441,22 @@ static int8_t parse_host(uint8_t* c);
 static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c);
 
 /**
+* @brief Read up to a four-digit unsigned hexadecimal number from stream
+* (0 up to FFFF).
+*
+* Any leading zeros are ignored. Prefix "0x" is not supported.
+*
+* @param[out] value The number read. Defaults to @c 0.
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - @c 0; if the last character read is not a digit or EOF.
+*   - #OTHER; if a greater number than FFFF is available.
+*   - EOF
+*/
+int8_t parse_hex16(uint16_t* value, uint8_t* c);
+
+/**
 * @brief Read up to a 4-digit unsigned number from stream (0 up to 9999).
 *
 * Any leading zeros are ignored.
