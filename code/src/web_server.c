@@ -392,7 +392,6 @@ int8_t stream_match_ext(uint8_t** desc,
 static int8_t parse_uri(HTTP_Message* req, uint8_t* c) {
     uint8_t min     = URI_MIN;
     uint8_t max     = URI_MAX;
-    uint8_t peek;
     uint8_t cmp_idx = 0;
     uint8_t last_it = 255;
     int8_t  c_type  = 0;
@@ -400,8 +399,7 @@ static int8_t parse_uri(HTTP_Message* req, uint8_t* c) {
     /* If the request URI begins with the scheme (ie, HTTP), then an absolute
     * URI is provided and it should match against the server (host) name. If
     * not, an appropriate status code should be returned. */
-    s_peek(&peek, 0);
-    if(peek != '/' && peek != '*') {
+    if(*c != '/' && *c != '*') {
         if(c_type = parse_host(c)) return OTHER;
     }
 
