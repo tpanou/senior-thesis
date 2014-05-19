@@ -42,6 +42,6 @@ down-scaled to 4MHz, and\n
 /**
 * @brief Number of bytes dedicated to W5100 I/O.
 */
-#define NET_BUF_SIZE (100)
+#define NET_BUF_LEN (100)
 
 #endif /* DEFS_H_INCL */
