@@ -86,6 +86,21 @@ static uint8_t host_name[] = "192.168.1.73";
 static uint8_t host_port[6] = "80";
 
 /**
+* @brief Denotes whether a chunked message is already in process.
+*/
+static uint8_t is_chunk_on  = 0;
+
+/**
+* @brief Amount of total bytes to read from the current chunk.
+*/
+static uint16_t chunk_len   = 0;
+
+/**
+* @brief Amount of bytes read from the current chunk.
+*/
+static uint16_t chunk_pos   = 0;
+
+/**
 * @brief Indicates a CRLF sequence.
 */
 #define CRLF    -4
@@ -506,6 +521,40 @@ qvalue = ( "0" [ "." 0*3DIGIT ] )
 *   - EOF
 */
 int8_t q_value(uint16_t* value, uint8_t* c);
+
+/**
+* @brief Parse the size of the next chunk.
+*
+* This function is called by front-end functions.
+*
+* According to <a href="http://tools.ietf.org/html/rfc2616#section-3.6.1">IETC
+* RFC 2616 p.26</a> "All HTTP/1.1 applications MUST be able to receive and
+* decode the @c chunked transfer-coding, and MUST ignore chunk extensions they
+* do not understand". Only the size is parsed as no chunk extensions are
+* currently supported. An extract of the BNF is as follows: @verbatim
+Chunked-Body   = *chunk
+                 last-chunk
+                 trailer
+                 CRLF
+
+chunk          = chunk-size [ chunk-extension ] CRLF
+                 chunk-data CRLF
+chunk-size     = 1*HEX
+last-chunk     = 1*("0") [ chunk-extension ] CRLF
+
+chunk-data     = chunk-size(OCTET)@endverbatim
+*
+* The amount of octets of each chunk is given as a hexadecimal number (excluding
+* the CRLF sequence). The last chunk size should evaluate to 0. The trailer is
+* also ignored because, as stated by the same source as above, it consists
+* entirely of optional metadata that may be discarded before reaching the
+* client (in this case, they are discarded by the client).
+*
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns @c EOF on end of stream; @c 0, otherwise.
+*/
+static int8_t update_chunk(uint8_t* c);
 
 /**
 * @brief Advances the stream until all successive linear white space has been

@@ -577,6 +577,46 @@ int8_t q_value(uint16_t* value, uint8_t* c) {
     return c_type;
 }
 
+static int8_t update_chunk(uint8_t* c) {
+    int8_t c_type = 0;
+
+    if(!is_chunk_on) {
+        is_chunk_on = 1;
+
+        /* Discard */
+        while(!isxdigit(*c) && c_type != EOF) c_type = s_next(c);
+
+    } else {
+        /* Discard CRLF to advance to the size of the next chunk. Folding has no
+        * hold in this context, so disregard it. */
+        while(!is_c_CRLF(*c) && (c_type = s_next(c)) != EOF);
+        if(is_c_CRLF(*c)) {
+            s_drop(1); /* Drop LF. */
+            c_type = s_next(c); /* Read first digit. */
+        }
+    }
+
+    chunk_pos   = 0;
+    chunk_len   = 0;
+    c_type      = parse_hex16(&chunk_len, c);
+
+    /* Discard the rest of the line. */
+    while(c_type != EOF && !is_c_CRLF(*c)) c_type = s_next(c);
+    if(is_c_CRLF(*c)) {
+        c_type = s_next(c); /* Load LF and advance pointer to the first byte. */
+    }
+
+    /* If the last chunk was read, discard trailer headers (if any) up to, and
+    * including, the final empty line. */
+    if(chunk_len == 0) {
+        /* @c c would either be a CR (of the terminating CRLF sequence) or the
+        * start of a new header. */
+        c_type = discard_to_line(c);
+    }
+
+    return c_type;
+}
+
 static int8_t discard_LWS(uint8_t* c) {
     uint8_t peek;
 
