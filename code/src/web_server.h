@@ -75,8 +75,7 @@ static uint8_t* server_consts[] = {
 * value at any time. It should be noted that no trailing slash should ever be
 * appended.
 */
-//static uint8_t host_name[] = "000.000.000.000";
-static uint8_t host_name[] = "192.168.1.73";
+static uint8_t host_name[] = "000.000.000.000";
 
 /**
 * @brief The listening port of the server; defaults to 80.
@@ -193,6 +192,21 @@ static uint16_t chunk_pos   = 0;
 * This is not a #server_consts index.
 */
 #define TRANSFER_COD_OTHER    1
+
+/**
+* @brief Convert and set a IP address as the host name of the HTTP server.
+*
+* This function is an alternative to set_host_name(). It receives an array of
+* four bytes and converts them to an equivalent IP address string
+* (null-terminated).
+*
+* More specifically, for each address byte, an initial position is estimated and
+* then incremented dependent on the number of its digits. Then, a character is
+* passed into #host_name for each of its digits (using modulo and quotient).
+*
+* @param[in] ip A four-byte array of an IP address.
+*/
+void set_host_name_ip(uint8_t* ip);
 
 int8_t handle_http_request();
 

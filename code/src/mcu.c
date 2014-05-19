@@ -5,6 +5,7 @@
 #include "mcu.h"
 #include "defs.h"
 #include "net.h"
+#include "web_server.h"
 
 #include "w5100/w5100.h"
 #include "w5100/socket.h"
@@ -59,6 +60,8 @@ int main() {
     setSUBR(subnet);    /* This merely sets a global variable. */
     applySUBR(subnet);  /* This actually passes the address into W5100. */
     setSHAR(mac);
+
+    set_host_name_ip(inet); /* Set the HTTP server host name. */
 
     /* Mode register (MR) defaults look OK. The same applies for RTR (200ms
     * intervals) and RCR (8 retries). */

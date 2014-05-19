@@ -30,6 +30,37 @@ int8_t parse_content(int16_t len, uint8_t* c) {
     return c_type;
 }
 
+void set_host_name_ip(uint8_t* ip) {
+    uint8_t byte;   /* A single byte from @p ip. */
+    uint8_t i;      /* For each byte in @p ip. */
+    uint8_t pos;    /* Position in #host_name to write to next. */
+    uint8_t j;      /* Digit of @c byte to write next. */
+
+    for(i = 0, pos = 0 ; i < 4 ; ++i) {
+        byte = ip[i];
+        j = 0;
+        if(byte >= 10 && byte < 100) ++pos;
+        else if(byte >= 100) pos += 2;
+
+        /* Ensure this runs at least one so that a single zero may not be
+        * omitted. */
+        do {
+            host_name[pos - j] = byte % 10 + '0';
+            ++j;
+            byte /= 10;
+        } while(byte);
+
+        /* Increment for next '.' or terminating null-byte. */
+        ++pos;
+        /* If more bytes are to follow, place a '.' and further increase @c pos
+        * to point at the position to write the next digit to. */
+        if(i != 3) host_name[pos++] = '.';
+    }
+    host_name[pos] = '\0';
+
+    printf("\nNew host name: %s\n", host_name);
+}
+
 int8_t handle_http_request() {
 /*init();*/
     HTTP_Message req = {.method         =  -1,
