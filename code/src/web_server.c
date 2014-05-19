@@ -5,14 +5,41 @@
 #include <stdio.h>
 #include <ctype.h> /* isxdigit(), tolower() */
 
+void init() {
+    is_chunk_on = 0;
+    chunk_len   = 0;
+    chunk_pos   = 0;
+}
+
+int8_t display_chunks(uint8_t* c) {
+    int8_t c_type;
+
+    while((c_type = c_next(c)) != EOF) printf("%c", *c);
+    return c_type;
+}
+
+int8_t parse_content(int16_t len, uint8_t* c) {
+    int8_t c_type   = 0;
+    int16_t i       = 0;
+
+    while(i < len && c_type != EOF) {
+        printf("%c", *c);
+        c_type = s_next(c);
+    }
+
+    return c_type;
+}
+
 int8_t handle_http_request() {
-    HTTP_Message req = {.method         =  0,
+/*init();*/
+    HTTP_Message req = {.method         =  -1,
                         .uri            =  0,
                         .v_major        =  0,
                         .v_minor        =  0,
                         .accept         =  0,
                         .content_type   =  0,
-                        .content_length =  0};
+                        .content_length =  0,
+                        .transfer_encoding = 0};
     uint8_t c;
     int8_t c_type;
 
@@ -24,6 +51,16 @@ int8_t handle_http_request() {
     c_type = s_next(&c);    /* Discard LF and load next character. */
     c_type = parse_headers(&req, &c);
 
+    /* After parsing headers, if CRLF was returned, an empty line is implied. */
+
+    if(req.transfer_encoding == TRANSFER_COD_CHUNK) {
+        req.content_length = 0; /* Ignore Content-Length, if set. */
+
+        if(c_type == CRLF) {
+            printf("display_chunks exit: %d\n", display_chunks(&c));
+        }
+    }
+/*    if(req.content_length) parse_content(req.content_length, &c);*/
 
     printf("\n--------------------\n");
     printf("Method: %d\n", req.method);
@@ -34,6 +71,7 @@ int8_t handle_http_request() {
     printf("Content-length: %d\n", req.content_length);
     printf("Transfer-encoding: %d\n", req.transfer_encoding);
     printf("return status: %d\n", c_type);
+    printf("last char: %c-0x%x\n", c, c);
     printf("--------------------\n");
 }
 
