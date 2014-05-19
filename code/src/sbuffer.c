@@ -30,6 +30,65 @@ int8_t s_next(uint8_t* c) {
     return 0;
 }
 
+int8_t s_peek(uint8_t* c, uint16_t pos) {
+    /* If the offset from @c buf_RD (@p pos) exceeds the amount of available
+    * bytes then more must be loaded into the local memory first. */
+    if(pos >= buf_data) {
+        s_update();
+    }
+
+    /* Peak forward only if there are enough data loaded into @c buf. */
+    if(pos < buf_data) {
+
+        /* Return byte at @p pos when there are enough bytes between @c buf_RD
+        * and @c buf_WR or the end of the buffer. */
+        if(buf_RD < buf_WR || buf_RD + pos < NET_BUF_LEN) {
+            *c = buf[buf_RD + pos];
+
+        } else {
+            *c = buf[pos - (NET_BUF_LEN - buf_RD)];
+        }
+
+    /* If, after an update request, data are not enough then there is nothing
+    * at position @p pos. */
+    } else {
+        return EOF;
+    }
+
+    return 0;
+}
+
+int8_t s_drop(uint16_t count) {
+    /* If the offset from @c buf_RD (@p pos) exceeds the amount of available
+    * bytes then more must be loaded into the local memory first. */
+    if(count > buf_data) {
+        s_update();
+    }
+
+    /* Drop the requested amount of bytes only if there are enough loaded into
+    * @c buf. */
+    if(count <= buf_data) {
+
+        /* Return byte at @p pos when there are enough bytes between @c buf_RD
+        * and @c buf_WR or the end of the buffer. */
+        if(buf_RD < buf_WR || buf_RD + count <= NET_BUF_LEN) {
+            buf_RD += count;
+
+        } else {
+            buf_RD = buf[count - (NET_BUF_LEN - buf_RD)];
+        }
+
+        buf_data -= count;
+
+    /* If, after an update request, data are not enough then there is nothing
+    * at position @p pos. */
+    } else {
+        return EOF;
+    }
+
+    return 0;
+}
+
 static int8_t s_update() {
     uint16_t rx_size = getSn_RX_RSR(buf_Sn); /* Amount of available data. */
     uint16_t fragment; /* Actual amount of bytes to be read. */

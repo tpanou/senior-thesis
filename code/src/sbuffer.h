@@ -71,6 +71,34 @@ void set_socket_buf(uint8_t s);
 int8_t s_next(uint8_t* c);
 
 /**
+* @brief Read into @p c the byte at offset @p pos from the current position in
+* the stream.
+*
+* This function does not consume bytes from the stream, ie, the next byte read
+* by s_next() is the same as if s_peek() was not invoked at all. It does cause a
+* buffer update, if not enough bytes are present in the buffer to perform the
+* operation.
+*
+* @param[out] c The byte read at offset @p pos.
+* @param[in] pos The offset to read a byte from.
+* @returns 0 on success; @c EOF on end-of-stream.
+*/
+int8_t s_peek(uint8_t* c, uint16_t pos);
+
+/**
+* @brief Discard @p count bytes from the stream.
+*
+* It causes a buffer update, if not enough bytes are present in the buffer to
+* perform the operation. If, even a buffer update, the operation cannot be
+* completed at its entirety, it is aborted altogether (ie, no bytes are
+* discarded).
+*
+* @param[in] count The amount of bytes to discard.
+* @returns 0 on success; @c EOF on end-of-stream.
+*/
+int8_t s_drop(uint16_t count);
+
+/**
 * @brief Update the contents of the internal network input buffer.
 *
 * When this function is invoked, a fragment of the available data on the socket
