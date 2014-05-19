@@ -2,6 +2,34 @@
 #include "sbuffer.h"
 #include <stdio.h>
 
+void set_socket_buf(uint8_t s) {
+    buf_RD = 0;
+    buf_WR = 0;
+    buf_Sn = s;
+}
+
+int8_t s_next(uint8_t* c) {
+    /* When the two offsets point at the same buffer position, then all valid
+    * data has been read and more are needed to be loaded. */
+    if(buf_data == 0) {
+        s_update();
+    }
+
+    /* If there are data loaded into @c buf, */
+    if(buf_data > 0) {
+        *c = buf[buf_RD];
+        ++buf_RD;
+        --buf_data;
+        if(buf_RD == NET_BUF_LEN) buf_RD = 0;
+
+    /* If, after an update request, data are not available then there is nothing
+    * more to load from W5100. */
+    } else {
+        return EOF;
+    }
+    return 0;
+}
+
 static int8_t s_update() {
     uint16_t rx_size = getSn_RX_RSR(buf_Sn); /* Amount of available data. */
     uint16_t fragment; /* Actual amount of bytes to be read. */
