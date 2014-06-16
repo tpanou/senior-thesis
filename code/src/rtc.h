@@ -129,4 +129,19 @@ typedef struct rtc_mem {
 */
 #define RTC_RS0         0
 
+/**
+* @brief Reset the DS1307 register pointer back to the first address.
+*
+* The DS1307 utilizes an internal register pointer for all read and write
+* operations so that each time a byte is sent or received, the pointer is
+* automatically incremented to point to the memory address (*DS1307 p.12*). This
+* function helps to reset this register pointer back to @c 0.
+*
+* Note, this function does not release the TWI bus upon successful pointer
+* initialization but only in the event of a failure.
+*
+* @returns @c 0 on success; @c -1, otherwise.
+*/
+static int8_t rtc_reset_pointer();
+
 #endif /* RTC_H_INCL */
