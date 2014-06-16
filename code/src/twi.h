@@ -59,7 +59,7 @@
 #define TWI_SLA_R(x)    TWDR  = x | 1;\
                         TWI_DO_WAIT()
 
-/* @brief Sends data contained in @p x over the TWI bus.
+/** @brief Sends data contained in @p x over the TWI bus.
 *
 * The LSB of @p x is cleared to indicate a @c WRITE operation.
 *
