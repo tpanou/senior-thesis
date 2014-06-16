@@ -130,6 +130,26 @@ typedef struct rtc_mem {
 #define RTC_RS0         0
 
 /**
+* @brief Set the RTC time.
+*
+* @param[in] rtc The bytes to send to the RTC. If @c -1 is returned, not all
+* bytes may have been sent to the RTC.
+* @returns @c 0 on success; @c -1, otherwise.
+*/
+int8_t rtc_set(rtc_mem* rtc);
+
+/**
+* @brief Get the RTC time.
+*
+* Updates the member of @p rtc to reflect the RTC values.
+*
+* @param[out] rtc The bytes received from the RTC. If @c -1 is returned, the
+* contents of @p rtc may be partially updated.
+* @returns @c 0 on success; @c -1, otherwise.
+*/
+int8_t rtc_get(rtc_mem* rtc);
+
+/**
 * @brief Reset the DS1307 register pointer back to the first address.
 *
 * The DS1307 utilizes an internal register pointer for all read and write
