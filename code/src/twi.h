@@ -5,6 +5,8 @@
 #ifndef TWI_H_INCL
 #define TWI_H_INCL
 
+#include "defs.h"
+
 /**
 * @brief Busy-waits until @c TWINT of @c TWCR register is set. Status code is
 * read with #TWI_STATUS().
@@ -196,5 +198,13 @@
                                     TWI_STOP();\
                                     return -1;\
                                 }
+
+/**
+* @brief Initializes the TWI registers.
+*
+* This macro merely sets the TWI bit-rate value and the prescaler bits.
+*/
+#define TWI_INIT()              TWBR    =  TWBR_VALUE;\
+                                TWSR   |=  TWI_PRESCALER;
 
 #endif /* TWI_H_INCL */
