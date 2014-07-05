@@ -271,7 +271,8 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * to #MTR_ROUTE_X() and #MTR_ROUTE_Z()). This flag is a means to identify which
 * motor is being operated upon.
 *
-* Also, see #motor_status and #MTR_STATUS().
+* Also, see #motor_status #MTR_STATUS(), #MTR_RESET, #MTR_RESET_X_DONE,
+* #MTR_RESET_Y_DONE and #MTR_RESET_Z_DONE.
 */
 #define MTR_IS_Z            1
 
@@ -335,7 +336,7 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * @brief Convenience macro to determine whether a particular bit in
 * #motor_status is set.
 *
-* Also, see #motor_status #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z,
+* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z,
 * #MTR_RESET_X_DONE and #MTR_RESET_Y_DONE.
 */
 #define MTR_STATUS(x)      (motor_status & x)
