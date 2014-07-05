@@ -303,6 +303,15 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_RESET_Z_DONE    4
 
 /**
+* @brief Flag-bit of #motor_status to indicate a limit has been engaged while
+* under normal motor operation.
+*
+* This will designate to #motor_reset() that is should update the position to
+* #new_pos after the reset cycle has been completed.
+*/
+#define MTR_LIMIT           6
+
+/**
 * @brief Convenience macro to determine whether a particular bit in
 * #motor_status is set.
 *

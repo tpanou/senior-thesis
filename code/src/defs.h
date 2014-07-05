@@ -272,6 +272,34 @@ down-scaled to 4MHz, and\n
 #define MUX_DISABLE()       MUX_nCS_PORT   |=  _BV(MUX_nCS)
 
 /**
+* @brief Pin Change interrupt vector to enable on a limit switch change.
+*
+* This particular value is used to enable pin change interrupts on pins
+* @c PCINT\[14:8\] (*Atmel pp.74-75*). For simplicity's sake, it is assumed that
+* limits on all axes use pins of the same *port*.
+*
+* Also, see #LMT_PCMSK and LMT_PCMSK_VAL.
+*/
+#define LMT_PCIE        PCIE1
+
+/**
+* @brief PCINT mask register that corresponds to the port defined by #LMT_PCIE.
+*
+* Also, see #LMT_PCIE and LMT_PCMSK_VAL.
+*/
+#define LMT_PCMSK       PCMSK1
+
+/**
+* @brief Value of #LMT_PCMSK that enables interrupts on the pins of the limit
+* switches.
+*
+* The ones of interest are @c PCINT11 (@c PC3) and @c PCINT10 (@c PC2).
+*
+* Also, see #LMT_PCIE and #LMT_PCMSK.
+*/
+#define LMT_PCMSK_VAL   _BV(PCINT11) | _BV(PCINT10);
+
+/**
 * @brief Data Direction Register of pin Y limit strobe connects to.
 *
 * Also, see #LMT_nY_PIN and #LMT_nY.

@@ -2,6 +2,7 @@
 #include "motor.h"
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
 /**
 * @ingroup motor
@@ -61,6 +62,10 @@ void motor_init() {
 
     /* Operate PFCPWM with @c TOP value being set in @c ICR1 (WGM13:0 = 8). */
     TCCR1B          =  _BV(WGM13);
+
+    /* Enable pin change interrupts on pins connected to the limit switches. */
+    PCICR          |=  _BV(LMT_PCIE);
+    LMT_PCMSK      |=  LMT_PCMSK_VAL;
 }
 
 void motor_reset() {
@@ -249,4 +254,95 @@ static void motor_stop() {
     /* Release Lock pin from @c OC0A so it may be operated by software, if and
     * when needed. */
     TCCR0A         &= ~(_BV(COM0A0) | _BV(COM0A1));
+}
+
+/**
+* @ingroup motor
+* @brief Responds to limit switch interrupts.
+*
+* If a limit is engaged under normal motor operation (ie, while attempting to
+* reach #new_pos), it means the device has failed to properly track its state.
+* A #motor_reset() is forced in this case. Later, the device is configured to reach #new_pos
+* anew.
+*
+* This ISR also heavily affects the motor resetting cycle (#motor_reset()) by
+* setting flags #MTR_RESET_X_DONE, #MTR_RESET_Y_DONE and #MTR_RESET_Z_DONE.
+*/
+ISR(PCINT1_vect) {
+
+    /* This ISR is executed whenever there is a Pin Change, that is from @c 1 to
+    * 0 *and* vice versa! In the event of a pin settling back to @c 1 (idle)
+    * after a switch has been disengaged, simply ignore it. */
+    if(!IS_LMT_nXZ() && !IS_LMT_nY()) return;
+
+    /* Limit while in motor reset. */
+    if(bit_is_set(motor_status, MTR_RESET)) {
+        /* Local variables are set to point to the appropriate address then
+        * operated upon the exact same way. */
+        volatile uint16_t *ocr1x;
+        volatile uint8_t  *bck_port;
+        volatile uint8_t  *lmt_pin;
+        uint8_t   bck_bit;
+        uint8_t   lmt_bit;
+        uint8_t   flag;
+
+        MTR_PWM_STOP();
+
+        /* Limit X or Z detected. Axes X and Z limit switches share the same
+        * circuitry; identify which one has reached its limit. */
+        if(IS_LMT_nXZ()) {
+            ocr1x           = &OCR1B;
+            bck_port        = &BCK_XZ_PORT;
+            bck_bit         =  BCK_XZ;
+            lmt_pin         = &LMT_nXZ_PIN;
+            lmt_bit         =  LMT_nXZ;
+
+            /* Reverse the angular velocity. In case of axis Z, it should be set
+            * to #MTR_Z_DEC. */
+            if(bit_is_set(motor_status, MTR_IS_Z)) {
+                OCR1B       =  MTR_Z_DEC;
+                flag        =  MTR_RESET_Z_DONE;
+            } else {
+                OCR1B       =  MTR_X_INC;
+                flag        =  MTR_RESET_X_DONE;
+            }
+
+        /* Limit Y detected. */
+        } else if(IS_LMT_nY()) {
+            ocr1x           = &OCR1A;
+            bck_port        = &BCK_Y_PORT;
+            bck_bit         =  BCK_Y;
+            lmt_pin         = &LMT_nY_PIN;
+            lmt_bit         =  LMT_nY;
+
+            OCR1A           =  MTR_Y_INC;
+            flag            =  MTR_RESET_Y_DONE;
+        }
+
+        MTR_PWM_START();
+
+        /* Enable temporary ground connection for the specified motor (Backtrack
+        * MOSFET). */
+        *bck_port          |=  _BV(bck_bit);
+
+        /* Busy-wait until the limit has been disengaged and then disable the
+        * temporary connection to ground. Also wait until the rotary encoder
+        * reads @c 0 (black stripe) before ending backtracking. */
+        while(((*lmt_pin) & _BV(lmt_bit)) == 0);
+        loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
+        MTR_PWM_STOP();
+        *bck_port          &= ~_BV(bck_bit);    /* Disable temporary ground. */
+
+        /* Update #motor_status with the motor that has just been reset. */
+        motor_status       |=  _BV(flag);
+
+        /* Continue with the reset process. */
+        motor_reset();
+
+    /* Limit engaged while on normal motor operation. */
+    } else {
+        motor_status       |=  _BV(MTR_LIMIT);
+        motor_stop();
+        motor_reset();
+    }
 }
