@@ -143,5 +143,27 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 */
 #define IS_LMT_nXZ()      ((LMT_nXZ_PIN  &  _BV(LMT_nXZ)) == 0)
 
+/**
+* @brief Initializes all pins and registers used for motor operation.
+*
+* Motors are operated through #motor_reset(), #motor_set() and #motor_get().
+*/
+void motor_init();
+
+/**
+* @brief Wrapper around #MTR_PWM_START().
+*
+* This function is provided as a complement to #motor_stop(). As in the case of
+* #MTR_PWM_START(), which is what actually enables PWM generation, this function
+* should be called *after* applying the desired velocity settings using
+* #setup_axis().
+*/
+static void motor_start();
+
+/**
+* @brief Disables the step counter, the PWM timer and the rotary encoder.
+*/
+static void motor_stop();
+
 #endif /* MOTOR_H_INCL */
 /** @} */
