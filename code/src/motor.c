@@ -112,6 +112,31 @@ void motor_reset() {
     }
 }
 
+int8_t motor_set(Position target) {
+
+    /* Fail, if the motors are resetting or otherwise operated upon. */
+    if(MTR_STATUS(MTR_RESET) || PWM_IS_ON()) return -1;
+
+    /* Fail, if target coordinates lay outside the available device space. */
+    if(target.x < 0 || target.x > GRID_X_LEN ||
+       target.y < 0 || target.y > GRID_Y_LEN ||
+       target.z < 0 || target.z > GRID_Z_LEN) {
+        return -1;
+    }
+
+    new_pos     =  target;
+
+    return motor_update();
+}
+
+int motor_get(Position *pos) {
+    if(MTR_STATUS(MTR_RESET) || PWM_IS_ON()) return -1;
+    pos->x      =  cur_pos.x;
+    pos->y      =  cur_pos.y;
+    pos->z      =  cur_pos.z;
+    return 0;
+}
+
 static int8_t motor_update() {
     uint8_t steps       =  0;
 

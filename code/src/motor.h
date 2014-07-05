@@ -356,6 +356,33 @@ void motor_init();
 void motor_reset();
 
 /**
+* @brief Move the device to the given position.
+*
+* Calling this function will result in operating the motors and will fail should
+* the motors already be operated upon or @p target lies outside the available
+* device space (#GRID_X_LEN, #GRID_Y_LEN, #GRID_Z_LEN). Also, homing should be
+* performed (by calling #motor_reset()); otherwise, the behaviour is unknown.
+*
+* This function is non-blocking (see #motor_update()).
+*
+* @param[in] target The new device position.
+* @returns @c 0, if @p target position is valid and the apparatus will be
+*   configured to reach it; @c -1, otherwise.
+*/
+int8_t motor_set(Position target);
+
+/**
+* @brief Announces the current position of the device.
+*
+* This function will fail (return @c -1) if the motors are currently resetting
+* or otherwise operated upon.
+*
+* @param[out] pos The value of #cur_pos.
+* @returns @c 0, if @p pos was set; @c -1, otherwise.
+*/
+int motor_get(Position *pos);
+
+/**
 * @brief Activates the appropriate motors in order to reach #new_pos.
 *
 * It determines which motors should be operated and for how many steps. Motors X
