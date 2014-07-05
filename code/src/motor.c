@@ -99,7 +99,12 @@ void motor_reset() {
         cur_pos.z       =  GRID_Z_LEN;
         motor_stop();
 
-        motor_status   &= ~(_BV(MTR_RESET)
+        /* If this resetting cycle was initiated as a response to a limit being
+        * engaged while under normal motor operation, retry reaching
+        * #new_pos. */
+        if(MTR_STATUS(MTR_LIMIT)) motor_update();
+
+        motor_status   &= ~(_BV(MTR_RESET) | _BV(MTR_LIMIT)
                           | _BV(MTR_RESET_X_DONE) | _BV(MTR_RESET_Y_DONE));
 
     /* Reset is in progress. */
@@ -326,8 +331,8 @@ ISR(TIMER0_COMPA_vect) {
 *
 * If a limit is engaged under normal motor operation (ie, while attempting to
 * reach #new_pos), it means the device has failed to properly track its state.
-* A #motor_reset() is forced in this case. Later, the device is configured to reach #new_pos
-* anew.
+* A #motor_reset() is forced in this case. Later, the device is configured to
+* reach #new_pos anew.
 *
 * This ISR also heavily affects the motor resetting cycle (#motor_reset()) by
 * setting flags #MTR_RESET_X_DONE, #MTR_RESET_Y_DONE and #MTR_RESET_Z_DONE.
