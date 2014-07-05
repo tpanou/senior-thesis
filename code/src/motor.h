@@ -151,6 +151,31 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 void motor_init();
 
 /**
+* @brief Request the AutoLock to be enabled for the specified amount of steps.
+*
+* This function initiates the step counter, ie, any pulses sensed on pin #MUX_2Z
+* after calling this function will increment the step counter. Once the amount
+* of steps specified by @p steps has been reached, #MTR_nLOCK will be enabled by
+* the underline hardware blocking the transmission of the PWM signal on #MTR_XZ
+* and #MTR_Y. Also, an Output Compare Match Interrupt will trigger (for vector
+* @c TIMER0_COMPA_vect) which, ultimately, completely disables the
+* Timer/Counters.
+*
+* The AutoLock mechanism utilizes Timer/Counter0 for counting the steps and is,
+* thus, guaranteed that only the requested amount of steps will be performed,
+* even if the MCU is busy attending to other tasks when this occurs. Once the
+* MCU is available to execute the aforementioned ISR, it will either forward
+* another request or completely disable the Timer/Counters.
+*
+* @param[in] steps The amount of steps to count before the AutoLock is enabled.
+*   An additional transition is always performed, ie passing in @c 1 will
+*   trigger AutoLock after two steps and so on. This is due to "Compare Match
+*   Blocking by TCNT0 Write" feature as described by *Atmel p97*. As a special
+*   case, passing in @c 0 allows a maximum of 256 steps to be performed.
+*/
+static void setup_lock(uint8_t steps);
+
+/**
 * @brief Wrapper around #MTR_PWM_START().
 *
 * This function is provided as a complement to #motor_stop(). As in the case of

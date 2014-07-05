@@ -35,12 +35,36 @@ void motor_init() {
     TCCR1B          =  _BV(WGM13);
 }
 
+static void setup_lock(uint8_t steps) {
+
+    /* Clear any previous steps. */
+    TCNT0           =  0; /* Isn't this done automatically? */
+
+    /* Number of steps to count. A transition from white to black counts as one
+    * step. */
+    OCR0A           =  steps;
+
+    /* Toggle @c OC0A pin (ie, #MTR_nLOCK) on compare-match from high to low.
+    * This way, the PWM signal is no longer propagated to the motors after the
+    * specified amount of steps has been performed (AutoLock mechanism). In
+    * order to generate output on @c OC0A (or even, produce an interrupt) based
+    * on a *custom* value, CTC mode should be used instead of Normal mode (which
+    * always counts up to @c MAX). */
+    TCCR0A         |=  _BV(COM0A0) | _BV(WGM01);
+
+    /* Use @c T0 pin as a clock source. @c T0 is connected to the (multiplexed)
+    * @c STEP output from the optical encoders. The counter is configured to
+    * increment on every falling edge, ie, on a transition from a white stripe
+    * of the encoder belt to a black one. Force an initial compare match to set
+    * @c OC0A and disable the lock. */
+    TCCR0B         |=  _BV(FOC0A) | _BV(CS02) | _BV(CS01);
+}
+
 static void motor_start() {
     /* This is what actually enables PWM generation and should be called after
     * preparing the Timer/Counters (velocity settings). */
     MTR_PWM_START();
 }
-
 
 static void motor_stop() {
 
