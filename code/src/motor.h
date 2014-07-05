@@ -235,11 +235,61 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_Z_DEC  (358)
 
 /**
+* @brief Flag-bit of #motor_status to distinguish between motors X and Z.
+*
+* Motors X and Z receive their PWM signal from the same μC pin (although the
+* signal is actually propagated to only one at a time -- see #MTR_XZ in relation
+* to #MTR_ROUTE_X() and #MTR_ROUTE_Z()). This flag is a means to identify which
+* motor is being operated upon.
+*
+* Also, see #motor_status and #MTR_STATUS().
+*/
+#define MTR_IS_Z            1
+
+/**
+* @brief Convenience macro to determine whether a particular bit in
+* #motor_status is set.
+*
+* Also, see #motor_status #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z,
+* #MTR_RESET_X_DONE and #MTR_RESET_Y_DONE.
+*/
+#define MTR_STATUS(x)      (motor_status & x)
+
+/**
 * @brief Initializes all pins and registers used for motor operation.
 *
 * Motors are operated through #motor_reset(), #motor_set() and #motor_get().
 */
 void motor_init();
+
+/**
+* @brief Activates the appropriate motors in order to reach #new_pos.
+*
+* It determines which motors should be operated and for how many steps. Motors X
+* and Y may be set-up to operate concurrently but only for the same distance
+* (irrespective of direction); once the common part has been completed, a new
+* invocation of this function will configure the other motor to perform the
+* remainder of steps. Note that #cur_pos should be updated before this new
+* invocation occurs. Motor Z takes precedence over motors X and Y when its new
+* position (#new_pos.z) is greater than its current (#cur_pos.z) (that is, when
+* the sensor head is lowered, it must first be retracted before moving to a new
+* X-Y position).
+*
+* This function should only be called while all motors are at rest
+* (#PWM_IS_ON()). Generally, this occurs from within #motor_set(), which will
+* make sure no operation is already in process, and from the ISR that responds
+* to the completion of the specified amount of steps (@c TIMER0_COMPA_vect).
+* Typically, 3 to 4 invocations suffice; a return value of @c -1 designates that
+* #cur_pos has reached #new_pos and no set-up has been performed. In this case,
+* all the unnecessary circuitry (Timer/Counters and rotary encoder) should be
+* disabled by the callee.
+*
+* This function is non-blocking and is not safe to call while the motors are
+* being operated upon.
+*
+* @returns @c 0 upon activating the motors; @c -1 otherwise.
+*/
+static int8_t motor_update();
 
 /**
 * @brief Request the AutoLock to be enabled for the specified amount of steps.

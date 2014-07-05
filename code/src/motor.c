@@ -3,6 +3,35 @@
 
 #include <avr/io.h>
 
+/**
+* @ingroup motor
+* @brief Contains flags concerning the current status of the motors.
+*
+* See #MTR_STATUS(), #MTR_IS_Z, #MTR_RESET, #MTR_RESET_X_DONE, #MTR_RESET_Y_DONE
+* and #MTR_RESET_Z_DONE.
+*/
+static uint8_t motor_status = 0;
+
+/**
+* @ingroup motor
+* @brief The current (absolute) position of the device apparatus.
+*
+* #motor_reset() should be invoked to initialize the state of both the
+* (physical) device and of this variable.
+*
+* To move the apparatus to a new position, #motor_set() should be invoked. Also,
+* see #new_pos.
+*/
+static Position cur_pos;
+
+/**
+* @ingroup motor
+* @brief The new position the device will attempt to get to.
+*
+* It is updated via #motor_set() which will also activate the motors.
+*/
+static Position new_pos = {.x = 0, .y = 0 , .z = 0};
+
 void motor_init() {
 
     /* Set backtrack control line as output. */
@@ -32,6 +61,65 @@ void motor_init() {
 
     /* Operate PFCPWM with @c TOP value being set in @c ICR1 (WGM13:0 = 8). */
     TCCR1B          =  _BV(WGM13);
+}
+
+static int8_t motor_update() {
+    uint8_t steps       =  0;
+
+    /* Motion along axes X and Y takes precedence over motion along axis Z, when
+    * no submersion is requested on the latter. Also, only motion along axes X
+    * and Y may be combined with one another. */
+    if((new_pos.x != cur_pos.x || new_pos.y != cur_pos.y)
+     && new_pos.z <= cur_pos.z) {
+
+        /* Relative offset from #cur_pos on axes X and Y. */
+        int16_t rel_x   =  (int16_t)new_pos.x - (int16_t)cur_pos.x;
+        int16_t rel_y   =  (int16_t)new_pos.y - (int16_t)cur_pos.y;
+
+        /* Enable lines for PWM propagation to motor Y and set its speed. */
+        if(rel_y) {
+            setup_axis(AXIS_Y, rel_y); /* @c rel_y is used only for its sign. */
+        }
+
+        /* Enable lines for PWM propagation to motor X and set its speed. Motor
+        * X may only be set-up after motor Y, as noted in #setup_axis(). */
+        if(rel_x) {
+            setup_axis(AXIS_X, rel_x); /* @c rel_x is used only for its sign. */
+        }
+
+        rel_x           =  abs(rel_x);
+        rel_y           =  abs(rel_y);
+
+        if(rel_x > 0 && rel_y > 0) {
+            /* Request the common amount of steps between @c rel_x and
+            * @c rel_y. */
+            steps       =  rel_x >= rel_y ? GRID_TO_STEP(rel_y)
+                                          : GRID_TO_STEP(rel_x);
+
+        } else {
+            /* If one of @c rel_x and @c rel_y is @c 0, then calculate the
+            * amount of steps solely based on the other (non-zero) value. */
+            steps       =  rel_x > 0 ? GRID_TO_STEP(rel_x)
+                                     : GRID_TO_STEP(rel_y);
+        }
+
+    /* Configure motion along axis Z. */
+    } else if(new_pos.z != cur_pos.z) {
+
+        int16_t rel_z   =  (int16_t)new_pos.z - cur_pos.z;
+        setup_axis(AXIS_Z, rel_z); /* @c rel_z is used only for its sign. */
+        steps = GRID_TO_STEP(abs(rel_z));
+        motor_status   |=  _BV(MTR_IS_Z);
+
+    } else {
+        /* Already at #new_pos. */
+        motor_status   &= ~_BV(MTR_IS_Z);
+        return -1;
+    }
+
+    setup_lock(steps);
+    motor_start();
+    return 0;
 }
 
 static void setup_lock(uint8_t steps) {
