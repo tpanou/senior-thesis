@@ -4,6 +4,28 @@
 #ifndef DEFS_H_INCL
 #define DEFS_H_INCL
 
+#include <inttypes.h>
+
+/**
+* @brief A coordinate in device space.
+*/
+typedef struct {
+    uint8_t x;
+    uint8_t y;
+    uint8_t z;
+} Position;
+
+/**
+* @brief Discerns among the available axes.
+*
+* These constants are not to be OR-ed together.
+*/
+typedef enum {
+    AXIS_X,
+    AXIS_Y,
+    AXIS_Z
+} MotorAxis;
+
 /**
 @brief The frequency of CPU clock, required by <avr/delay.h> convenience
 functions.

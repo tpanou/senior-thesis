@@ -1,6 +1,5 @@
 
 #include "motor.h"
-#include "defs.h"
 
 #include <avr/io.h>
 
@@ -58,6 +57,41 @@ static void setup_lock(uint8_t steps) {
     * of the encoder belt to a black one. Force an initial compare match to set
     * @c OC0A and disable the lock. */
     TCCR0B         |=  _BV(FOC0A) | _BV(CS02) | _BV(CS01);
+}
+
+static void setup_axis(MotorAxis axis, MotorDir dir) {
+    uint16_t speed;
+    uint8_t  is_inc     =  dir >= MTR_INC;
+
+    switch(axis) {
+        case AXIS_Y:
+            speed       =  is_inc ? MTR_Y_INC : MTR_Y_DEC;
+
+            /* Axis Y uses OCR1A for PWM generation. */
+            OCR1A   =  speed;   /* Set angular velocity. */
+            MTR_ROUTE_Y();
+            MUX_ENABLE();       /* Enable rotary encoder. */
+            PWM_Y_ENABLE();     /* Override port operation for PWM waveform. */
+        break;
+
+        case AXIS_X:
+        case AXIS_Z:
+
+            /* Propagate PWM signal to either axis X or Z. */
+            if(axis == AXIS_Z) {
+                speed       =  is_inc ? MTR_Z_INC : MTR_Z_DEC;
+                MTR_ROUTE_Z();
+            } else {
+                speed       =  is_inc ? MTR_X_INC : MTR_X_DEC;
+                MTR_ROUTE_X();
+            }
+
+            /* Axes X and Z use OCR1B for PWM generation. */
+            OCR1B       = speed;
+            MUX_ENABLE();       /* Enable rotary encoder. */
+            PWM_XZ_ENABLE();    /* Override port operation for PWM signal. */
+        break;
+    }
 }
 
 static void motor_start() {
