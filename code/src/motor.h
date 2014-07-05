@@ -235,6 +235,26 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_Z_DEC  (358)
 
 /**
+* @brief Converts the given amount of *grid-steps* to *pulse-steps*.
+*
+* Calculates the number of pulses needed to perform the given amount of
+* transitions in device coordinate system.
+*
+* Also, see #GRID_X_LEN, #GRID_Y_LEN and #GRID_Z_LEN.
+*/
+#define GRID_TO_STEP(x)   (x*4 - 1)
+
+/**
+* @brief Converts the given amount of *pulse-steps* to *grid-steps*.
+*
+* Calculates the number of grid transitions the given amount of pulses
+* corresponds to in device coordinate system.
+*
+* Also, see #GRID_X_LEN, #GRID_Y_LEN and #GRID_Z_LEN.
+*/
+#define STEP_TO_GRID(x)   ((x + 1)/4)
+
+/**
 * @brief Flag-bit of #motor_status to indicate the motors are currently
 * resetting.
 *

@@ -258,6 +258,70 @@ static void motor_stop() {
 
 /**
 * @ingroup motor
+* @brief Responds to the completion of the specified amount of steps.
+*
+* It is responsible to update #cur_pos based on the amount of the steps
+* performed. #motor_update() is used to determine whether further motor
+* operation is required to reach the position specified by #new_pos. If not, the
+* motor circuitry is deactivated.
+*/
+ISR(TIMER0_COMPA_vect) {
+    uint8_t offset;     /* The number of grid-steps performed. */
+
+    MTR_PWM_STOP();     /* Stop PWM generation. */
+    PWM_XZ_DISABLE();   /* Release signal pins from Output Compare Registers. */
+    PWM_Y_DISABLE();
+
+    /* Determine the amount of transitions on the grid. This is the relative
+    * offset from #cur_pos not taking into consideration the direction of
+    * motion. */
+    offset          =  STEP_TO_GRID(OCR0A);
+
+    /* If @c OCR1A is set, a PWM signal was generated and propagated to motor Y.
+    * Update #cur_pos.y by the amount of steps performed. */
+    if(OCR1A) {
+        /* Alter #cur_pos.y @c by @c offset in the appropriate direction. */
+        cur_pos.y  += OCR1A == MTR_Y_INC ? offset : -offset;
+
+        /* Remove any settings of PWM generation. */
+        OCR1A       =  0;
+    }
+
+    /* If @c OCR1B is set, a PWM signal was generated and propagated to either
+    * motor X or Z. Update #cur_pos.x or #cur_pos.z by the amount of steps
+    * performed after determining which motor (X or Z) was being operated. */
+    if(OCR1B) {
+
+        if(bit_is_set(motor_status, MTR_IS_Z)) {
+            motor_status   &= ~_BV(MTR_IS_Z);
+            cur_pos.z      +=  OCR1B == MTR_Z_INC ? offset : -offset;
+
+        } else {
+            cur_pos.x      +=  OCR1B == MTR_X_INC ? offset : -offset;
+        }
+
+        /* Remove any settings of PWM generation. */
+        OCR1B       =  0;
+    }
+
+    /* Ensure there are no more steps to perform. If there are not any,
+    * completely disable the motor circuits. */
+    if(motor_update()) {
+
+        /* Deactivate the rotary encoder and propagation to X and Z. */
+        MUX_DISABLE();
+
+        /* Release Lock pin from @c OC0A so it may be operated by software, if
+        * and when needed. */
+        TCCR0A         &= ~(_BV(COM0A0) | _BV(COM0A1));
+
+        /* Stop step counter. */
+        TCCR0B         &= ~(_BV(CS02) | _BV(CS01) | _BV(CS00));
+    }
+}
+
+/**
+* @ingroup motor
 * @brief Responds to limit switch interrupts.
 *
 * If a limit is engaged under normal motor operation (ie, while attempting to
