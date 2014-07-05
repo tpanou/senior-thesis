@@ -63,6 +63,45 @@ void motor_init() {
     TCCR1B          =  _BV(WGM13);
 }
 
+void motor_reset() {
+
+    /* Begin with resetting axis Z if no reset is already in progress. It is
+    * imperative to first retract on axis Z separately from the others. Once
+    * that has been dealt with, axes X and Y may follow. */
+    if(bit_is_clear(motor_status, MTR_RESET)) {
+        motor_status   |=  _BV(MTR_RESET) | _BV(MTR_IS_Z);
+        setup_axis(AXIS_Z, MTR_INC);
+        LOCK_DISABLE();
+        motor_start();
+
+    /* Axis Z has been reset. Now, axes X and Y may follow. */
+    } else if(bit_is_set(motor_status, MTR_RESET_Z_DONE)) {
+        /* Remove flag denoting axis Z is resetting. */
+        motor_status   &= ~(_BV(MTR_IS_Z) | _BV(MTR_RESET_Z_DONE));
+
+        /* Reset axes X and Y. */
+        setup_axis(AXIS_Y, MTR_DEC);
+        setup_axis(AXIS_X, MTR_DEC);
+        LOCK_DISABLE();     /* Manually enable PWM propagation. */
+        motor_start();
+
+    /* All resetting stages have been completed. Reset #cur_pos and flags. */
+    } else if(bit_is_set(motor_status, MTR_RESET_X_DONE)
+           && bit_is_set(motor_status, MTR_RESET_Y_DONE)) {
+
+        cur_pos.x       =  0;
+        cur_pos.y       =  0;
+        cur_pos.z       =  GRID_Z_LEN;
+        motor_stop();
+
+        motor_status   &= ~(_BV(MTR_RESET)
+                          | _BV(MTR_RESET_X_DONE) | _BV(MTR_RESET_Y_DONE));
+
+    /* Reset is in progress. */
+    } else {
+    }
+}
+
 static int8_t motor_update() {
     uint8_t steps       =  0;
 

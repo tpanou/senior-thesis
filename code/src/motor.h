@@ -235,6 +235,15 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_Z_DEC  (358)
 
 /**
+* @brief Flag-bit of #motor_status to indicate the motors are currently
+* resetting.
+*
+* Also, see #motor_status, #MTR_STATUS(), #MTR_IS_Z, #MTR_RESET_X_DONE,
+* #MTR_RESET_Y_DONE and #MTR_RESET_Z_DONE.
+*/
+#define MTR_RESET           0
+
+/**
 * @brief Flag-bit of #motor_status to distinguish between motors X and Z.
 *
 * Motors X and Z receive their PWM signal from the same μC pin (although the
@@ -245,6 +254,53 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * Also, see #motor_status and #MTR_STATUS().
 */
 #define MTR_IS_Z            1
+
+/**
+* @brief Flag-bit of #motor_status to indicate the position of motor X has been
+* reset.
+*
+* This flag is set by the ISR that responds to limit switch interrupts and is
+* used by #reset_motor() to determine the state of the motor reset process.
+* Motors X and Y are reset concurrently and when both their corresponding
+* flag-bits (#MTR_RESET_X_DONE and #MTR_RESET_Y_DONE) are set, the operation is
+* finalized by #reset_motor().
+*
+* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z and
+* #MTR_RESET_Z_DONE.
+*/
+#define MTR_RESET_X_DONE    2
+
+/**
+* @brief Flag-bit of #motor_status to indicate the position of motor Y has been
+* reset.
+*
+* This flag is set by the ISR that responds to limit switch interrupts and is
+* used by #reset_motor() to determine the state of the motor reset process.
+* Motors X and Y are reset concurrently and when both their corresponding
+* flag-bits (#MTR_RESET_X_DONE and #MTR_RESET_Y_DONE) are set, the operation is
+* finalized by #reset_motor().
+*
+* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z and
+* #MTR_RESET_Z_DONE.
+*/
+#define MTR_RESET_Y_DONE    3
+
+/**
+* @brief Flag-bit of #motor_status to indicate the position of motor Z has been
+* reset.
+*
+* Like #MTR_RESET_X_DONE and #MTR_RESET_Y_DONE, this flag is set by the ISR that
+* responds to limit switch interrupts and is used by #reset_motor() to determine
+* the state of the motor reset process.
+*
+* Motor Z is always the first motor to be reset independently from the other
+* two. Once this is set (ie, motor Z has been reset), #reset_motor() will
+* initiate resetting of motors X and Y.
+*
+* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z,
+* #MTR_RESET_X_DONE and #MTR_RESET_Y_DONE.
+*/
+#define MTR_RESET_Z_DONE    4
 
 /**
 * @brief Convenience macro to determine whether a particular bit in
@@ -261,6 +317,14 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * Motors are operated through #motor_reset(), #motor_set() and #motor_get().
 */
 void motor_init();
+
+/**
+* @brief Resets the motors to a known state (homing to absolute zero).
+*
+* This function should be invoked before attempting to use the motors
+* (#motor_set() or #motor_get()).
+*/
+void motor_reset();
 
 /**
 * @brief Activates the appropriate motors in order to reach #new_pos.
