@@ -235,6 +235,13 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_Z_DEC  (358)
 
 /**
+* Velocity setting for either OCR1A or OCR1B to stop and hold current position.
+*
+* This corresponds to braking. For details, see #MTR_X_INC.
+*/
+#define MTR_BRAKE  (380)
+
+/**
 * @brief Converts the given amount of *grid-steps* to *pulse-steps*.
 *
 * Calculates the number of pulses needed to perform the given amount of

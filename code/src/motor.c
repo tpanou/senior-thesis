@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 /**
 * @ingroup motor
@@ -425,7 +426,12 @@ ISR(PCINT1_vect) {
         while(((*lmt_pin) & _BV(lmt_bit)) == 0);
         loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
         MTR_PWM_STOP();
-        *bck_port          &= ~_BV(bck_bit);    /* Disable temporary ground. */
+        *bck_port          &= ~_BV(bck_bit);
+
+        /* Temporarily brake to avoid sliding. */
+        *ocr1x              =  MTR_BRAKE;
+        MTR_PWM_START();
+        _delay_ms(500);
 
         /* Update #motor_status with the motor that has just been reset. */
         motor_status       |=  _BV(flag);
