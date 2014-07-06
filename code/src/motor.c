@@ -103,7 +103,7 @@ void motor_reset() {
         /* If this resetting cycle was initiated as a response to a limit being
         * engaged while under normal motor operation, retry reaching
         * #new_pos. */
-        if(MTR_STATUS(MTR_LIMIT)) motor_update();
+/*        if(bit_is_set(motor_status, MTR_LIMIT)) motor_update();*/
 
         motor_status   &= ~(_BV(MTR_RESET) | _BV(MTR_LIMIT)
                           | _BV(MTR_RESET_X_DONE) | _BV(MTR_RESET_Y_DONE));
@@ -116,7 +116,7 @@ void motor_reset() {
 int8_t motor_set(Position target) {
 
     /* Fail, if the motors are resetting or otherwise operated upon. */
-    if(MTR_STATUS(MTR_RESET) || PWM_IS_ON()) return -1;
+    if(bit_is_set(motor_status, MTR_RESET) || PWM_IS_ON()) return -1;
 
     /* Fail, if target coordinates lay outside the available device space. */
     if(target.x < 0 || target.x > GRID_X_LEN ||
@@ -131,7 +131,7 @@ int8_t motor_set(Position target) {
 }
 
 int motor_get(Position *pos) {
-    if(MTR_STATUS(MTR_RESET) || PWM_IS_ON()) return -1;
+    if(bit_is_set(motor_status, MTR_RESET) || PWM_IS_ON()) return -1;
     pos->x      =  cur_pos.x;
     pos->y      =  cur_pos.y;
     pos->z      =  cur_pos.z;

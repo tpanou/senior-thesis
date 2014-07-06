@@ -265,7 +265,7 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * @brief Flag-bit of #motor_status to indicate the motors are currently
 * resetting.
 *
-* Also, see #motor_status, #MTR_STATUS(), #MTR_IS_Z, #MTR_RESET_X_DONE,
+* Also, see #motor_status, #MTR_IS_Z, #MTR_RESET_X_DONE,
 * #MTR_RESET_Y_DONE and #MTR_RESET_Z_DONE.
 */
 #define MTR_RESET           0
@@ -278,7 +278,7 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * to #MTR_ROUTE_X() and #MTR_ROUTE_Z()). This flag is a means to identify which
 * motor is being operated upon.
 *
-* Also, see #motor_status #MTR_STATUS(), #MTR_RESET, #MTR_RESET_X_DONE,
+* Also, see #motor_status, #MTR_RESET, #MTR_RESET_X_DONE,
 * #MTR_RESET_Y_DONE and #MTR_RESET_Z_DONE.
 */
 #define MTR_IS_Z            1
@@ -293,7 +293,7 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * flag-bits (#MTR_RESET_X_DONE and #MTR_RESET_Y_DONE) are set, the operation is
 * finalized by #reset_motor().
 *
-* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z and
+* Also, see #motor_status, #MTR_RESET, #MTR_IS_Z and
 * #MTR_RESET_Z_DONE.
 */
 #define MTR_RESET_X_DONE    2
@@ -308,7 +308,7 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * flag-bits (#MTR_RESET_X_DONE and #MTR_RESET_Y_DONE) are set, the operation is
 * finalized by #reset_motor().
 *
-* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z and
+* Also, see #motor_status, #MTR_RESET, #MTR_IS_Z and
 * #MTR_RESET_Z_DONE.
 */
 #define MTR_RESET_Y_DONE    3
@@ -325,7 +325,7 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * two. Once this is set (ie, motor Z has been reset), #reset_motor() will
 * initiate resetting of motors X and Y.
 *
-* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z,
+* Also, see #motor_status, #MTR_RESET, #MTR_IS_Z,
 * #MTR_RESET_X_DONE and #MTR_RESET_Y_DONE.
 */
 #define MTR_RESET_Z_DONE    4
@@ -338,15 +338,6 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * #new_pos after the reset cycle has been completed.
 */
 #define MTR_LIMIT           6
-
-/**
-* @brief Convenience macro to determine whether a particular bit in
-* #motor_status is set.
-*
-* Also, see #motor_status, #MTR_STATUS(), #MTR_RESET, #MTR_IS_Z,
-* #MTR_RESET_X_DONE and #MTR_RESET_Y_DONE.
-*/
-#define MTR_STATUS(x)      (motor_status & x)
 
 /**
 * @brief Initializes all pins and registers used for motor operation.
