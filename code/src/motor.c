@@ -375,71 +375,74 @@ ISR(PCINT1_vect) {
 
     /* Limit while in motor reset. */
     if(bit_is_set(motor_status, MTR_RESET)) {
-        /* Local variables are set to point to the appropriate address then
-        * operated upon the exact same way. */
-        volatile uint16_t *ocr1x;
-        volatile uint8_t  *bck_port;
-        volatile uint8_t  *lmt_pin;
-        uint8_t   bck_bit;
-        uint8_t   lmt_bit;
+        /* _BV() of one of #MTR_RESET_[X|Y|Z]_DONE. */
         uint8_t   flag;
 
+        /* Remove Clock Select to stop counter and make updates in OCR1A/B. */
         MTR_PWM_STOP();
 
         /* Limit X or Z detected. Axes X and Z limit switches share the same
         * circuitry; identify which one has reached its limit. */
         if(IS_LMT_nXZ()) {
-            ocr1x           = &OCR1B;
-            bck_port        = &BCK_XZ_PORT;
-            bck_bit         =  BCK_XZ;
-            lmt_pin         = &LMT_nXZ_PIN;
-            lmt_bit         =  LMT_nXZ;
 
             /* Reverse the angular velocity. In case of axis Z, it should be set
             * to #MTR_Z_DEC. */
             if(bit_is_set(motor_status, MTR_IS_Z)) {
                 OCR1B       =  MTR_Z_DEC;
-                flag        =  MTR_RESET_Z_DONE;
+                flag        =  _BV(MTR_RESET_Z_DONE);
+
             } else {
+
                 OCR1B       =  MTR_X_INC;
-                flag        =  MTR_RESET_X_DONE;
+                flag        =  _BV(MTR_RESET_X_DONE);
             }
+            BCK_XZ_PORT    |=  _BV(BCK_XZ);
+            MTR_PWM_START();
+
+            loop_until_bit_is_set(LMT_nXZ_PIN, LMT_nXZ);
+            loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
+
+            MTR_PWM_STOP();
+            BCK_XZ_PORT    &= ~_BV(BCK_XZ);
+            OCR1B       =  MTR_BRAKE;
 
         /* Limit Y detected. */
         } else if(IS_LMT_nY()) {
-            ocr1x           = &OCR1A;
-            bck_port        = &BCK_Y_PORT;
-            bck_bit         =  BCK_Y;
-            lmt_pin         = &LMT_nY_PIN;
-            lmt_bit         =  LMT_nY;
 
             OCR1A           =  MTR_Y_INC;
-            flag            =  MTR_RESET_Y_DONE;
+            flag            =  _BV(MTR_RESET_Y_DONE);
+
+            BCK_Y_PORT     |=  _BV(BCK_Y);
+            MTR_PWM_START();
+
+            loop_until_bit_is_set(LMT_nY_PIN, LMT_nY);
+
+            /* Motors X and Y reset at the same time while feedback is available
+            * from the rotary encoder for X (#MTR_ROUTE_X()). Now that
+            * backtracking is required on axis Y, it should receive feedback
+            * from its appropriate encoder. */
+            MTR_ROUTE_Y();
+            loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
+
+            MTR_PWM_STOP();
+
+            /* Reinstate feedback from motor X rotary encoder. Even if motor X
+            * has already been reset, #motor_reset() is responsible for
+            * deactivating all necessary circuitry, including that of
+            * #MTR_ROUTE_X(). */
+            MTR_ROUTE_X();
+            BCK_Y_PORT     &= ~_BV(BCK_Y);
+            OCR1A       =  MTR_BRAKE;
+
+        } else {
+            /*  */
+            puts("@");
+            return;
         }
 
         MTR_PWM_START();
+        motor_status       |=  flag;
 
-        /* Enable temporary ground connection for the specified motor (Backtrack
-        * MOSFET). */
-        *bck_port          |=  _BV(bck_bit);
-
-        /* Busy-wait until the limit has been disengaged and then disable the
-        * temporary connection to ground. Also wait until the rotary encoder
-        * reads @c 0 (black stripe) before ending backtracking. */
-        while(((*lmt_pin) & _BV(lmt_bit)) == 0);
-        loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
-        MTR_PWM_STOP();
-        *bck_port          &= ~_BV(bck_bit);
-
-        /* Temporarily brake to avoid sliding. */
-        *ocr1x              =  MTR_BRAKE;
-        MTR_PWM_START();
-        _delay_ms(500);
-
-        /* Update #motor_status with the motor that has just been reset. */
-        motor_status       |=  _BV(flag);
-
-        /* Continue with the reset process. */
         motor_reset();
 
     /* Limit engaged while on normal motor operation. */
