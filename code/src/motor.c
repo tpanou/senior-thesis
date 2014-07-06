@@ -365,6 +365,9 @@ ISR(TIMER0_COMPA_vect) {
 */
 ISR(PCINT1_vect) {
 
+    /* Force a small delay during which the signal stabilizes. */
+    _delay_ms(50);
+
     /* This ISR is executed whenever there is a Pin Change, that is from @c 1 to
     * 0 *and* vice versa! In the event of a pin settling back to @c 1 (idle)
     * after a switch has been disengaged, simply ignore it. */
