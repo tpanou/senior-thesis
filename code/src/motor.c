@@ -101,9 +101,15 @@ void motor_reset() {
         motor_stop();
 
         /* If this resetting cycle was initiated as a response to a limit being
-        * engaged while under normal motor operation, retry reaching
-        * #new_pos. */
-/*        if(bit_is_set(motor_status, MTR_LIMIT)) motor_update();*/
+        * engaged while under normal motor operation, retry reaching #new_pos
+        * anew. */
+        if(bit_is_set(motor_status, MTR_LIMIT)) {
+            motor_update();
+            /* This is to ensure the AutoLock is disabled (bug). */
+            TCCR0B     |=  _BV(FOC0A);
+        } else {
+            new_pos     =  cur_pos;
+        }
 
         motor_status   &= ~(_BV(MTR_RESET) | _BV(MTR_LIMIT)
                           | _BV(MTR_RESET_X_DONE) | _BV(MTR_RESET_Y_DONE));
