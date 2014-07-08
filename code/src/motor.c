@@ -281,6 +281,10 @@ static void motor_stop() {
     PWM_Y_DISABLE();
     PWM_XZ_DISABLE();
 
+    /* Make sure no interrupt will execute after motor operation is terminated
+    * via software. Such is the case of unexpectedly engaging a limit switch. */
+    TIFR0          |=  _BV(OCF0A);
+
     /* Deactivate roatry encoders. */
     MUX_DISABLE();
 
@@ -431,16 +435,7 @@ ISR(TIMER0_COMPA_vect) {
     /* Ensure there are no more steps to perform. If there are not any,
     * completely disable the motor circuits. */
     if(motor_update()) {
-
-        /* Deactivate the rotary encoder and propagation to X and Z. */
-        MUX_DISABLE();
-
-        /* Release Lock pin from @c OC0A so it may be operated by software, if
-        * and when needed. */
-        TCCR0A         &= ~(_BV(COM0A0) | _BV(COM0A1));
-
-        /* Stop step counter. */
-        TCCR0B         &= ~(_BV(CS02) | _BV(CS01) | _BV(CS00));
+        motor_stop();
     }
 }
 
