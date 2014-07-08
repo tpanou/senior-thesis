@@ -288,6 +288,93 @@ static void motor_stop() {
 }
 
 /**
+* @brief Backtrack a motor that has engaged a limit switch.
+*
+* In order for this to operate correctly, @c OCR1A/B and #MTR_IS_Z, if needed,
+* must be populated with an appropriate value beforehand. This means that this
+* function cannot be used to backtrack on an axis the limit switch of which has
+* been engaged *before* the initiation of motion (such as before device
+* power-on).
+*
+* Note that the position of the backtracked motor in #cur_pos is not updated.
+* This function should be followed by another operation to update the position
+* (eg, reset).
+*
+* @returns The axis that has been backtracked; @c 0 in the event that no limit
+*   switch signal read as logic low.
+*/
+static MotorAxis motor_backtrack() {
+    /* _BV() of one of #MTR_RESET_[X|Y|Z]_DONE. */
+    MotorAxis   axis;
+
+    /* Remove Clock Select to stop counter and make updates in @c OCR1A/B. */
+    MTR_PWM_STOP();
+
+    /* Limit X or Z detected. Axes X and Z limit switches share the same
+    * circuitry; identify which one has reached its limit. */
+    if(IS_LMT_nXZ()) {
+
+        /* Reverse the (direction) of the angular velocity. */
+        if(bit_is_set(motor_status, MTR_IS_Z)) {
+            OCR1B       =  OCR1B == MTR_Z_INC ? MTR_Z_DEC : MTR_Z_INC;
+            axis        =  AXIS_Z;
+
+        } else {
+
+            OCR1B       =  OCR1B == MTR_X_INC ? MTR_X_DEC : MTR_X_INC;
+            axis        =  AXIS_X;
+        }
+        BCK_XZ_PORT    |=  _BV(BCK_XZ);
+        MTR_PWM_START();
+
+        /* Wait until the limit switch is disengaged (active low pin). */
+        loop_until_bit_is_set(LMT_nXZ_PIN, LMT_nXZ);
+        /* Then wait for a logic low from the rotary encoder (black stripe). */
+        loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
+
+        MTR_PWM_STOP();
+        BCK_XZ_PORT    &= ~_BV(BCK_XZ);
+        OCR1B       =  MTR_BRAKE;
+        MTR_PWM_START();
+
+    /* Limit Y detected. */
+    } else if(IS_LMT_nY()) {
+
+        OCR1A           =  MTR_Y_INC;
+        axis            =  AXIS_Y;
+
+        BCK_Y_PORT     |=  _BV(BCK_Y);
+        MTR_PWM_START();
+
+        loop_until_bit_is_set(LMT_nY_PIN, LMT_nY);
+
+        /* Motors X and Y reset at the same time while feedback is available
+        * from the rotary encoder for X (#MTR_ROUTE_X()). Now that backtracking
+        * is required on axis Y, it should receive feedback from its appropriate
+        * encoder. */
+        MTR_ROUTE_Y();
+        loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
+
+        MTR_PWM_STOP();
+
+        /* Reinstate feedback from motor X rotary encoder. Even if motor X has
+        * already been reset, #motor_reset() is responsible for deactivating all
+        * necessary circuitry, including that of MTR_ROUTE_X(). */
+        MTR_ROUTE_X();
+        BCK_Y_PORT     &= ~_BV(BCK_Y);
+        OCR1A           =  MTR_BRAKE;
+        MTR_PWM_START();
+
+    } else {
+        /*  */
+        puts("@");
+        axis            =  0;
+    }
+
+    return axis;
+}
+
+/**
 * @ingroup motor
 * @brief Responds to the completion of the specified amount of steps.
 *
@@ -373,82 +460,37 @@ ISR(PCINT1_vect) {
     * after a switch has been disengaged, simply ignore it. */
     if(!IS_LMT_nXZ() && !IS_LMT_nY()) return;
 
+    MotorAxis axis  =  motor_backtrack();
+
     /* Limit while in motor reset. */
     if(bit_is_set(motor_status, MTR_RESET)) {
-        /* _BV() of one of #MTR_RESET_[X|Y|Z]_DONE. */
-        uint8_t   flag;
 
-        /* Remove Clock Select to stop counter and make updates in OCR1A/B. */
-        MTR_PWM_STOP();
-
-        /* Limit X or Z detected. Axes X and Z limit switches share the same
-        * circuitry; identify which one has reached its limit. */
-        if(IS_LMT_nXZ()) {
-
-            /* Reverse the angular velocity. In case of axis Z, it should be set
-            * to #MTR_Z_DEC. */
-            if(bit_is_set(motor_status, MTR_IS_Z)) {
-                OCR1B       =  MTR_Z_DEC;
-                flag        =  _BV(MTR_RESET_Z_DONE);
-
-            } else {
-
-                OCR1B       =  MTR_X_INC;
-                flag        =  _BV(MTR_RESET_X_DONE);
-            }
-            BCK_XZ_PORT    |=  _BV(BCK_XZ);
-            MTR_PWM_START();
-
-            loop_until_bit_is_set(LMT_nXZ_PIN, LMT_nXZ);
-            loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
-
-            MTR_PWM_STOP();
-            BCK_XZ_PORT    &= ~_BV(BCK_XZ);
-            OCR1B       =  MTR_BRAKE;
-
-        /* Limit Y detected. */
-        } else if(IS_LMT_nY()) {
-
-            OCR1A           =  MTR_Y_INC;
-            flag            =  _BV(MTR_RESET_Y_DONE);
-
-            BCK_Y_PORT     |=  _BV(BCK_Y);
-            MTR_PWM_START();
-
-            loop_until_bit_is_set(LMT_nY_PIN, LMT_nY);
-
-            /* Motors X and Y reset at the same time while feedback is available
-            * from the rotary encoder for X (#MTR_ROUTE_X()). Now that
-            * backtracking is required on axis Y, it should receive feedback
-            * from its appropriate encoder. */
-            MTR_ROUTE_Y();
-            loop_until_bit_is_clear(MUX_2Z_PIN, MUX_2Z);
-
-            MTR_PWM_STOP();
-
-            /* Reinstate feedback from motor X rotary encoder. Even if motor X
-            * has already been reset, #motor_reset() is responsible for
-            * deactivating all necessary circuitry, including that of
-            * #MTR_ROUTE_X(). */
-            MTR_ROUTE_X();
-            BCK_Y_PORT     &= ~_BV(BCK_Y);
-            OCR1A       =  MTR_BRAKE;
-
-        } else {
-            /*  */
-            puts("@");
-            return;
+        switch(axis) {
+            case AXIS_X:
+                motor_status       |=  _BV(MTR_RESET_X_DONE);
+                break;
+            case AXIS_Y:
+                motor_status       |=  _BV(MTR_RESET_Y_DONE);
+                break;
+            case AXIS_Z:
+                motor_status       |=  _BV(MTR_RESET_Z_DONE);
+                break;
+            default:
+                puts("\n >> BACKTRACK ERROR : no axis <<\n");
+                return;
         }
 
-        MTR_PWM_START();
-        motor_status       |=  flag;
-
-        motor_reset();
-
-    /* Limit engaged while on normal motor operation. */
+    /* Limit engaged while under normal motor operation. */
     } else {
         motor_status       |=  _BV(MTR_LIMIT);
         motor_stop();
-        motor_reset();
+        puts("Unexpected limit");
+
+        /* Special case: If unexpected limit occurs right after resetting; it
+        * means that position is unreachable (probably because somebody has
+        * altered the physical limits). Dealing with this also means the device
+        * will not fall into an infinite loopm should an insurmountable obstacle
+        * happen in its path. */
     }
+    motor_reset();
 }
