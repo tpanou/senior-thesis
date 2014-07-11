@@ -104,15 +104,14 @@ void motor_reset() {
         * engaged while under normal motor operation, retry reaching #new_pos
         * anew. */
         if(bit_is_set(motor_status, MTR_LIMIT)) {
-            motor_update();
-            /* This is to ensure the AutoLock is disabled (bug). */
-            TCCR0B     |=  _BV(FOC0A);
+            if(motor_update()) motor_stop();
         } else {
             new_pos     =  cur_pos;
         }
 
         motor_status   &= ~(_BV(MTR_RESET) | _BV(MTR_LIMIT)
                           | _BV(MTR_RESET_X_DONE) | _BV(MTR_RESET_Y_DONE));
+        motor_status   |=  _BV(MTR_IS_RST_FRESH);
 
     /* Reset is in progress. */
     } else {
@@ -314,8 +313,7 @@ static void motor_stop() {
 *   switch signal read as logic low.
 */
 static MotorAxis motor_backtrack() {
-    /* _BV() of one of #MTR_RESET_[X|Y|Z]_DONE. */
-    MotorAxis   axis;
+    MotorAxis   axis;   /* _BV() of one of #MTR_RESET_[X|Y|Z]_DONE. */
 
     /* Remove Clock Select to stop counter and make updates in @c OCR1A/B. */
     MTR_PWM_STOP();
@@ -436,6 +434,10 @@ ISR(TIMER0_COMPA_vect) {
     * completely disable the motor circuits. */
     if(motor_update()) {
         motor_stop();
+
+        /* The motors have successfully reached their destination. Remove
+        * #MTR_FRESH_RST flag as they are not reset any more. */
+        motor_status   &= ~_BV(MTR_IS_RST_FRESH);
     }
 }
 
@@ -481,17 +483,26 @@ ISR(PCINT1_vect) {
                 return;
         }
 
+    /* Limits have been engaged after two successive resets. */
+    } else if(bit_is_set(motor_status, MTR_IS_RST_FRESH)) {
+        /* Special case: If unexpected limit occurs right after resetting, it
+        * means that position is unreachable (probably because somebody has
+        * altered the physical limits). Dealing with this also means the device
+        * will not fall into an infinite loop should an insurmountable obstacle
+        * happen in its path. */
+
+        /* Maybe it would be of interest to redefine the device-space dimensions
+        * based on the actual current working space. Otherwise, no particular
+        * action should be taken, other than *not* setting #MTR_LIMIT (which
+        * indicates that getting to #new_pos should be attempted again. */
+        puts("Destination unreachable");
+        motor_stop();
+
     /* Limit engaged while under normal motor operation. */
     } else {
         motor_status       |=  _BV(MTR_LIMIT);
         motor_stop();
         puts("Unexpected limit");
-
-        /* Special case: If unexpected limit occurs right after resetting; it
-        * means that position is unreachable (probably because somebody has
-        * altered the physical limits). Dealing with this also means the device
-        * will not fall into an infinite loopm should an insurmountable obstacle
-        * happen in its path. */
     }
     motor_reset();
 }

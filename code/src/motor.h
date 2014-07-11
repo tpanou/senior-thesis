@@ -331,6 +331,18 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_RESET_Z_DONE    4
 
 /**
+* @brief Flag-bit of #motor_status to indicate that no other actions has been
+* performed since the last motor reset.
+*
+* It is cleared once #new_pos has been reached (ie, all steps have been
+* performed). This flag is important in determining whether a particular
+* position is unreachable. A position is deemed 'unreachable' and no further
+* attempts take place when the first attempt to reach it after a fresh reset
+* results in engaging a limit.
+*/
+#define MTR_IS_RST_FRESH    5
+
+/**
 * @brief Flag-bit of #motor_status to indicate a limit has been engaged while
 * under normal motor operation.
 *
