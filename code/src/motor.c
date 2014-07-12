@@ -100,6 +100,8 @@ void motor_reset() {
         cur_pos.z       =  GRID_Z_LEN;
         motor_stop();
 
+        LOCK_ENABLE();
+
         /* If this resetting cycle was initiated as a response to a limit being
         * engaged while under normal motor operation, retry reaching #new_pos
         * anew. */
@@ -294,6 +296,8 @@ static void motor_stop() {
     /* Release Lock pin from @c OC0A so it may be operated by software, if and
     * when needed. */
     TCCR0A         &= ~(_BV(COM0A0) | _BV(COM0A1));
+
+    LOCK_ENABLE();
 }
 
 /**
@@ -462,6 +466,11 @@ ISR(PCINT1_vect) {
     * 0 *and* vice versa! In the event of a pin settling back to @c 1 (idle)
     * after a switch has been disengaged, simply ignore it. */
     if(!IS_LMT_nXZ() && !IS_LMT_nY()) return;
+
+    /* Deactivate step counter for it is not needed while backtracking or
+    * resetting. */
+    TCCR0A         &= ~(_BV(COM0A0) | _BV(COM0A1) | _BV(WGM01));
+    LOCK_DISABLE();
 
     MotorAxis axis  =  motor_backtrack();
 
