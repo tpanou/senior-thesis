@@ -286,7 +286,7 @@ static void motor_stop() {
     * via software. Such is the case of unexpectedly engaging a limit switch. */
     TIFR0          |=  _BV(OCF0A);
 
-    /* Deactivate roatry encoders. */
+    /* Deactivate rotary encoders. */
     MUX_DISABLE();
 
     /* Reset PWM duty cycle settings. */
@@ -494,7 +494,7 @@ ISR(PCINT1_vect) {
 
     /* Limits have been engaged after two successive resets. */
     } else if(bit_is_set(motor_status, MTR_IS_RST_FRESH)) {
-        /* Special case: If unexpected limit occurs right after resetting, it
+        /* Special case: If an unexpected limit occurs right after resetting, it
         * means that position is unreachable (probably because somebody has
         * altered the physical limits). Dealing with this also means the device
         * will not fall into an infinite loop should an insurmountable obstacle
@@ -503,7 +503,8 @@ ISR(PCINT1_vect) {
         /* Maybe it would be of interest to redefine the device-space dimensions
         * based on the actual current working space. Otherwise, no particular
         * action should be taken, other than *not* setting #MTR_LIMIT (which
-        * indicates that getting to #new_pos should be attempted again. */
+        * indicates that getting to #new_pos should be attempted again after a
+        * motor reset. */
         puts("Destination unreachable");
         motor_stop();
 
