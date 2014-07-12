@@ -227,6 +227,15 @@ static void setup_lock(uint8_t steps) {
     * of the encoder belt to a black one. Force an initial compare match to set
     * @c OC0A and disable the lock. */
     TCCR0B         |=  _BV(FOC0A) | _BV(CS02) | _BV(CS01);
+
+    /* Due to unknown reasons, when the lock (#MTR_nLOCK) is manually operated
+    * (while Timer/Counter0 is, of course, disabled), there seems to be a false
+    * outcome of @c FOC0A. In particular, though @c OC0A is initially set,
+    * after a few cycles, it returns to @c 0. The small delay below is enough to
+    * to determine whether the forced compare match has rendered a logic high.
+    * If not, it is forced again. */
+    _delay_us(100);
+    if(bit_is_clear(MTR_nLOCK_PIN, MTR_nLOCK))  TCCR0B    |=  _BV(FOC0A);
 }
 
 static void setup_axis(MotorAxis axis, MotorDir dir) {
@@ -281,10 +290,6 @@ static void motor_stop() {
     /* Release ports from PWM operation. */
     PWM_Y_DISABLE();
     PWM_XZ_DISABLE();
-
-    /* Make sure no interrupt will execute after motor operation is terminated
-    * via software. Such is the case of unexpectedly engaging a limit switch. */
-    TIFR0          |=  _BV(OCF0A);
 
     /* Deactivate rotary encoders. */
     MUX_DISABLE();

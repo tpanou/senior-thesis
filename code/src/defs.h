@@ -134,6 +134,13 @@ down-scaled to 4MHz, and\n
 #define MTR_nLOCK_PORT  PORTD
 
 /**
+* @brief The pin port the AutoLock MOSFET's Gate connects to.
+*
+* Also, see #MTR_nLOCK_PORT and #MTR_nLOCK.
+*/
+#define MTR_nLOCK_PIN   PIND
+
+/**
 * @brief Pin of #MTR_nLOCK_PORT the AutoLock MOSFET's Gate connects to.
 *
 * This pin enables and disables the Lock and, in order for the AutoLock
