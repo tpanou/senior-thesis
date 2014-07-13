@@ -26,8 +26,7 @@ void socket0_handler(uint8_t status) {
 
         if(getSn_RX_RSR(0) > 0 ) {
             set_socket_buf(0);
-            handle_http_request();
-            send(0, "HTTP/1.1 200\r\nContent-Type: text/html; charset: US-ASCII\r\nConnection: close\r\nContent-Length: 1\r\n\r\n@", 99);
+            http_parse_request();
         }
     }
 

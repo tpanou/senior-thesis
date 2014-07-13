@@ -9,7 +9,7 @@
 /**
 * @brief A representation of an HTTP message.
 */
-typedef struct HTTP_Message {
+typedef struct {
     /** @brief Value representing the method of the request. */
     uint8_t method;
 
@@ -33,7 +33,7 @@ typedef struct HTTP_Message {
 
     /** @brief The length (in octets) of the message. */
     uint16_t content_length;
-} HTTP_Message;
+} HTTPRequest;
 
 /**
 * @brief Array of server strings.
@@ -208,7 +208,25 @@ static uint16_t chunk_pos   = 0;
 */
 void set_host_name_ip(uint8_t* ip);
 
-int8_t handle_http_request();
+/**
+* @brief Parse the input stream and return an #HTTPRequest representation of it.
+*
+* The contents of the input stream are considered to be an HTTP request. First,
+* the request line is parsed (see #parse_request_line()). Then, the headers
+* follow (see #parse_headers()). Headers that are not supported are ignored.
+*
+* Generally, the input stream should be left in its initial (intact) state when
+* calling this function. Upon completion, the next byte read from the stream
+* with #s_next() is the first byte of the message-body, if one exists.
+*
+* In case #HTTPRequest.transer_encoding is set to #TRANSFER_COD_CHUNK, use of
+* #c_next() gives direct (transparent) access to the entity-body and should be
+* preferred over #s_next().
+*
+* @returns An #HTTPRequest representation of the HTTP request found in the input
+*   stream.
+*/
+HTTPRequest http_parse_request();
 
 /**
 * @brief Extract method, request URI and HTTP version of the request line from
@@ -217,19 +235,19 @@ int8_t handle_http_request();
 * This function is a congregate of the functions stream_match(), parse_uri() and
 * parse_http_version().
 *
-* @param[out] req HTTP_Message variable to be updated with values found on
+* @param[out] req HTTPRequest variable to be updated with values found on
 *   stream. Those members are:
-*   @link HTTP_Message::method method@endlink,
-*   @link HTTP_Message::uri uri@endlink,
-*   @link HTTP_Message::v_major v_major@endlink and
-*   @link HTTP_Message::v_minor v_minor@endlink.
+*   @link HTTPRequest::method method@endlink,
+*   @link HTTPRequest::uri uri@endlink,
+*   @link HTTPRequest::v_major v_major@endlink and
+*   @link HTTPRequest::v_minor v_minor@endlink.
 * @param[in,out] c The first character to start parsing from and the last one
 *   read from the stream.
 * @returns One of:
 *   - CRLF
 *   - EOF
 */
-int8_t parse_request_line(HTTP_Message* req, uint8_t* c);
+int8_t parse_request_line(HTTPRequest* req, uint8_t* c);
 
 /**
 * @brief Read the specified transfer-coding from stream.
@@ -253,15 +271,15 @@ int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c);
 /**
 * @brief Read HTTP major and minor version numbers from stream.
 *
-* @param[out] req HTTP_Message variable to be updated with the message's HTTP
-*   version. Members are: @link HTTP_Message::v_major v_major@endlink and
-*   @link HTTP_Message::v_minor v_minor@endlink.
+* @param[out] req HTTPRequest variable to be updated with the message's HTTP
+*   version. Members are: @link HTTPRequest::v_major v_major@endlink and
+*   @link HTTPRequest::v_minor v_minor@endlink.
 *   stream. Which members are actually update depends on what is available.
 * @param[in,out] c The first character to start parsing from and the last one
 *   read from the stream.
 * @returns EOF on end of stream; @c 0 or #OTHER, otherwise.
 */
-int8_t parse_http_version(HTTP_Message* req, uint8_t* c);
+int8_t parse_http_version(HTTPRequest* req, uint8_t* c);
 
 /**
 * @brief Populates @p req with header values found on the stream.
@@ -272,7 +290,7 @@ int8_t parse_http_version(HTTP_Message* req, uint8_t* c);
 * header. Unsupported headers are simply discarded.
 * It terminates on either EOF or a double CRLF (ie, an empty line).
 *
-* @param[out] req HTTP_Message variable to be updated with values found on
+* @param[out] req HTTPRequest variable to be updated with values found on
 *   stream. Which members are actually update depends on what is available.
 * @param[in,out] c The first character to start parsing from and the last one
 *   read from the stream.
@@ -281,7 +299,7 @@ int8_t parse_http_version(HTTP_Message* req, uint8_t* c);
 *       from the stream and the last LF returned in @p c.
 *   - EOF. Normally, this should not occur in the header section.
 */
-int8_t parse_headers(HTTP_Message* req, uint8_t* c);
+int8_t parse_headers(HTTPRequest* req, uint8_t* c);
 
 /**
 * @brief Parse Accept header body-value is search of media ranges.
@@ -426,15 +444,15 @@ int8_t stream_match_ext(uint8_t** desc,
 * (ie, a hexadecimal number), the decoded character is fed back into
 * stream_match_ext() and the operation continues as normal.
 *
-* @param[out] req HTTP_Message variable to be updated with the endpoint value
-*   found on (@link HTTP_Message::uri uri@endlink).
+* @param[out] req HTTPRequest variable to be updated with the endpoint value
+*   found on (@link HTTPRequest::uri uri@endlink).
 * @param[in,out] c The first character to start parsing from and the last one
 *   read from the stream.
 * @returns One of:
 *   - CRLF
 *   - EOF
 */
-static int8_t parse_uri(HTTP_Message* req, uint8_t* c);
+static int8_t parse_uri(HTTPRequest* req, uint8_t* c);
 
 /**
 * @brief Matches the current name of the server (host) against the stream.

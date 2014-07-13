@@ -61,18 +61,18 @@ void set_host_name_ip(uint8_t* ip) {
     printf("\nNew host name: %s\n", host_name);
 }
 
-int8_t handle_http_request() {
-/*init();*/
-    HTTP_Message req = {.method         =  -1,
-                        .uri            =  0,
-                        .v_major        =  0,
-                        .v_minor        =  0,
-                        .accept         =  0,
-                        .content_type   =  0,
-                        .content_length =  0,
-                        .transfer_encoding = 0};
+HTTPRequest http_parse_request() {
     uint8_t c;
     int8_t c_type;
+    HTTPRequest req = {.method                  = -1,
+                       .uri                     =  0,
+                       .v_major                 =  0,
+                       .v_minor                 =  0,
+                       .accept                  =  0,
+                       .content_type            =  0,
+                       .content_length          =  0,
+                       .transfer_encoding       =  0};
+
 
     /* Parse request- or status-line. */
     c_type = s_next(&c);
@@ -87,26 +87,17 @@ int8_t handle_http_request() {
     if(req.transfer_encoding == TRANSFER_COD_CHUNK) {
         req.content_length = 0; /* Ignore Content-Length, if set. */
 
-        if(c_type == CRLF) {
-            printf("display_chunks exit: %d\n", display_chunks(&c));
-        }
+        /* Since the current request is in chunked coding, it is highly likely
+        * that chunk parsing will be necessary. Reset chunk variables to be
+        * ready for it. */
+        is_chunk_on = 0;
+        chunk_len   = 0;
+        chunk_pos   = 0;
     }
-/*    if(req.content_length) parse_content(req.content_length, &c);*/
-
-    printf("\n--------------------\n");
-    printf("Method: %d\n", req.method);
-    printf("URI: %d\n", req.uri);
-    printf("Version: %d.%d\n", req.v_major, req.v_minor);
-    printf("Accept: %d\n", req.accept);
-    printf("Content-type: %d\n", req.content_type);
-    printf("Content-length: %d\n", req.content_length);
-    printf("Transfer-encoding: %d\n", req.transfer_encoding);
-    printf("return status: %d\n", c_type);
-    printf("last char: %c-0x%x\n", c, c);
-    printf("--------------------\n");
+    return req;
 }
 
-int8_t parse_request_line(HTTP_Message* req, uint8_t* c) {
+int8_t parse_request_line(HTTPRequest* req, uint8_t* c) {
     int8_t c_type;
 
     /* Retrieve the method and discard SP. */
@@ -131,7 +122,7 @@ int8_t parse_request_line(HTTP_Message* req, uint8_t* c) {
     return c_type;
 }
 
-int8_t parse_http_version(HTTP_Message* req, uint8_t* c) {
+int8_t parse_http_version(HTTPRequest* req, uint8_t* c) {
     int8_t c_type;
     uint8_t digits;
 
@@ -154,7 +145,7 @@ int8_t parse_http_version(HTTP_Message* req, uint8_t* c) {
     return c_type;
 }
 
-int8_t parse_headers(HTTP_Message* req, uint8_t* c) {
+int8_t parse_headers(HTTPRequest* req, uint8_t* c) {
     uint16_t qvalue     = 0;
     uint8_t is_emptyln  = 0;
     int8_t c_type       = 0;
@@ -420,7 +411,7 @@ int8_t stream_match_ext(uint8_t** desc,
     return OTHER;
 }
 
-static int8_t parse_uri(HTTP_Message* req, uint8_t* c) {
+static int8_t parse_uri(HTTPRequest* req, uint8_t* c) {
     uint8_t min     = URI_MIN;
     uint8_t max     = URI_MAX;
     uint8_t cmp_idx = 0;
