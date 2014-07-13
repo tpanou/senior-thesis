@@ -1,5 +1,8 @@
 /**
 * @file
+* @addtogroup sbuffer Stream Buffer
+* @ingroup http_server
+* @{
 */
 
 #ifndef SBUFFER_H_INCL
@@ -11,7 +14,7 @@
 /**
 * @brief The internal input buffer.
 *
-* Maintins a fragment of the available network data for immediate access.
+* Maintains a fragment of the available network data for immediate access.
 */
 static uint8_t buf[NET_BUF_LEN];
 
@@ -119,3 +122,4 @@ int8_t s_drop(uint16_t count);
 static int8_t s_update();
 
 #endif /* SBUFFER_H_INCL */
+/** @} */

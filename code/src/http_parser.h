@@ -1,5 +1,8 @@
 /**
-@file
+* @file
+* @addtogroup http_parser HTTP Parser
+* @ingroup http_server
+* @{
 */
 #ifndef WEB_SERVER_H_INCL
 #define WEB_SERVER_H_INCL
@@ -700,3 +703,4 @@ int8_t is_CRLF(uint8_t c);
 int8_t is_c_CRLF(uint8_t c);
 
 #endif /* WEB_SERVER_H_INCL */
+/** @} */
