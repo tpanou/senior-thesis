@@ -1,34 +1,9 @@
 
 #include "web_server.h"
-#include "../build/util.h"
+#include "sbuffer.h"
 
 #include <stdio.h>
 #include <ctype.h> /* isxdigit(), tolower() */
-
-void init() {
-    is_chunk_on = 0;
-    chunk_len   = 0;
-    chunk_pos   = 0;
-}
-
-int8_t display_chunks(uint8_t* c) {
-    int8_t c_type;
-
-    while((c_type = c_next(c)) != EOF) printf("%c", *c);
-    return c_type;
-}
-
-int8_t parse_content(int16_t len, uint8_t* c) {
-    int8_t c_type   = 0;
-    int16_t i       = 0;
-
-    while(i < len && c_type != EOF) {
-        printf("%c", *c);
-        c_type = s_next(c);
-    }
-
-    return c_type;
-}
 
 void set_host_name_ip(uint8_t* ip) {
     uint8_t byte;   /* A single byte from @p ip. */
@@ -57,8 +32,6 @@ void set_host_name_ip(uint8_t* ip) {
         if(i != 3) host_name[pos++] = '.';
     }
     host_name[pos] = '\0';
-
-    printf("\nNew host name: %s\n", host_name);
 }
 
 HTTPRequest http_parse_request() {
