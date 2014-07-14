@@ -1,15 +1,32 @@
-/**
-* @file
-*/
-
+#include "net.h"
 #include "defs.h"
 #include "w5100/w5100.h"
-#include "web_server.h"
+#include "http_parser.h"
 #include "sbuffer.h"
 
 #include <avr/io.h>
 #include <stdio.h>
 #include <inttypes.h>
+
+/**
+* @ingroup http_server
+* @brief Holds the callback functions registered with
+* #srvr_resource_handler_set().
+*/
+static ResourceHandler srvr_resource_handlers[URI_MAX - URI_MIN];
+
+void srvr_resource_handler_set(uint8_t uri,
+                               uint8_t methods,
+                               void (*handler)(HTTPRequest*)) {
+
+    uint8_t index; /* Index of #resource_handlers to write to. */
+
+    if(uri >= URI_MIN && uri < URI_MAX) {
+        index   =  uri - URI_MIN;
+        srvr_resource_handlers[index].methods    =  methods;
+        srvr_resource_handlers[index].fn         =  handler;
+    }
+}
 
 void socket0_handler(uint8_t status) {
 

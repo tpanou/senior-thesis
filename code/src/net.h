@@ -32,9 +32,31 @@ typedef enum {
 /**
 * @brief Responsible for dealing with interrupts at socket 0.
 *
-* Eventually, it will forward incoming data to HTTP server.
+* Eventually, it will forward incoming data to the HTTP server.
 */
 void socket0_handler(uint8_t status);
+
+/**
+* @brief Register a @p handler for specific @p methods directed to a particular
+* @p uri.
+*
+* Note that URIs not registered this way, will cause the server to return a 500
+* (Server Internal Error) response to the requester entity. To replace a
+* previously set handler with a new one, simply call this function again with
+* the appropriate settings.
+*
+* Also, see #MethodFlag and #ResourceHandler.
+*
+* @param[in] uri A value among #URI_MIN and #URI_MAX describing one of the
+*   available server resources.
+* @param[in] methods Any bit-wise OR combination of acceptable #MethodFlag bits
+*   for @p uri.
+* @param[in] handler The function to call when an acceptable method for this @p
+*   uri is received.
+*/
+void srvr_resource_handler_set(uint8_t uri,
+                               uint8_t methods,
+                               void (*handler)(HTTPRequest*));
 
 /**
 * @brief Callback function for a particular absolute path.
@@ -51,7 +73,7 @@ void socket0_handler(uint8_t status);
 * of a #server_consts string literal.
 *
 * All paths supported by the server must be issued exactly one handler. Use
-* #srvr_set_resource_handler() to that end. Failing to do so for some paths will
+* #srvr_resource_handler_set() to that end. Failing to do so for some paths will
 * result in a 500 (Internal Server Error) response being returned to the
 * requester entity for those paths.
 */
