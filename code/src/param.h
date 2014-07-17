@@ -1,17 +1,80 @@
 /**
 * @file
+* @brief Link between resource handlers and stream parsers.
+*
+* Resource handlers are triggered to serve a request made on a particular
+* endpoint (or absolute path). Some of those handlers may require additional
+* input in order to perform their intended tasks. That input should be present
+* in the request itself but, in all probability, not in a format readily
+* processable by the handler but, more likely, in a serialized format that
+* facilitates data interchange and interoperability.
+*
+* That serialized input needs to be converted into something more familiar to
+* the nature of the handler (such as variables of integers and strings) by
+* modules specifically designed to parse and analyse the serialized input of a
+* particular format; the parsers.
+* On one end, the parsers - familiar with the structure and semantics of a
+* data format - can gain access to the values that are direly needed by the
+* handlers on the other end, while both entities are housed within an
+* environment of limited resources.
+*
+* The current approach is for the handlers to prepare the variables to be
+* populated with values from the serialized input as well as a set of
+* descriptions to inform the parsers what they should look for. The descriptions
+* include:
+*   - A parameter-token (or simply, token), which is the name of a variable
+*       as it is expected to appear in the serialized input.
+*   - A data type, which would allow the parser to delegate the actual value
+*       processing to external utilities (which could be shared among all
+*       parsers and other components).
+*   - A storage location where a parsed value of a parameter should be stored.
+*       Typically, this should be the address of a variable within the scope of
+*       the handler (to avoid the need for a parser to dynamically allocate
+*       memory and return that to the handler).
+*   - A means to communicate additional settings (such as the maximum allowable
+*       data size that may be stored in the provided storage location) as well
+*       as the outcome of the operation for each parameter-token separately (for
+*       example, parameter "X" has been assigned a valid value, whereas there
+*       was no sign of parameter "Y").
+*
+* These are achieved by the @c params module (this module). For starters, it
+* provides the ParamValue data structure that may be used to specify some of the
+* above requirements for a parameter. A variable of this type should be created
+* for every parameter-token that is to be identified on the stream. It contains
+* members to specify the type (#ParamValue::type), the storage location
+* (#ParamValue::data_ptr) and the additional settings and outcome
+* (#ParamValue::status_len) (the last two intermixed in one byte to conserve
+* space). For a complete description, see #ParamValue.
+*
+* The first requirement stated in the list above, though, (the parameter-token)
+* is not handled by this structure. The reason behind this is the knowledge of
+* the underlying API that is used to identify character sequences from a stream
+* (basically, the network module). That API needs to be provided a contiguous
+* block of tokens (array of strings). If the parameter-token was specified in
+* #ParamValue, it would instantly render it incompatible with that API. So,
+* alternatively, a second wrapper structure is defined, #ParamInfo, one that
+* encompasses the array of strings (#ParamInfo::tokens) and the array of
+* #ParamValue (#ParamInfo::values), the two being related on a one-to-one basis.
+* Lastly, there is an additional member that specifies the size of the two
+* arrays (#ParamInfo::len).
 */
 
 /**
 * @brief Parameter value data types.
 *
-* Mostly needed to specify the data type for a particular parameter (and load
+* Mostly needed to specify the data type for a particular parameter (to load
 * the appropriate value parser).
 *
 * Currently, only unsigned integers and strings are specified.
 */
 typedef enum {
-    /** @brief Unsigned integer (8- or 16-bit). */
+    /**
+    * @brief Unsigned integer (typically, 8- or 16-bit).
+    *
+    * The size of the integer could be greater than 16 bits. It depends on the
+    * requirements of the application and the availability of appropriate
+    * parsers.
+    */
     DTYPE_UINT,
 
     /** @brief Null-terminated character sequence. */
