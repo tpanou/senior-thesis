@@ -111,5 +111,34 @@ member = string name-separator value@endverbatim
 */
 static int8_t json_parse_object(ParamInfo* info, uint8_t* c);
 
+/**
+* @brief Parses the stream for a member whose key is one of those found in @p
+* info.
+*
+* When calling this, @p c should point to '"' (double quote) to designate the
+* start of a key (keys are defined as strings and are, thus, enclosed within
+* quotation marks). The input stream is matched against the values included in
+* @p info (member @link #ParamInfo::tokens tokens@endlink) using the externally
+* provided
+* stream_match()
+* function in an attempt to locate one of those keys/tokens. If it succeeds, the
+* return value (status) of this function depends on the outcome of parsing the
+* identified key's value by #json_parse_value(). On the contrary, if it happens
+* upon a key that is not included in @p info, the operation stops (fails) and
+* #OTHER is returned.
+*
+* @param[in,out] info Provides the acceptable keys and a additional information
+*   (for an explanation, see #ParamInfo).
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream. Upon invocation, it should point to '"' (string).
+* @returns One of:
+*   - @c 0; if a member (key/value pair) with a key defined in @p info was
+*       successfully parsed.
+*   - #OTHER; if an invalid character has occurred at any stage during
+*       processing.
+*   - #EOF; if end-of-stream was reached at any point.
+*/
+static int8_t json_parse_member(ParamInfo* info, uint8_t* c) {
+
 #endif /* JSON_PARSER_H_INCL */
 /** @} */
