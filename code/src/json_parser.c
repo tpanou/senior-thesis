@@ -98,3 +98,66 @@ static int8_t json_parse_member(ParamInfo* info, uint8_t* c) {
     }
     return c_type;
 }
+
+static int8_t json_parse_value(ParamValue* pvalue, uint8_t* c) {
+    int8_t c_type;
+
+    /* Acceptable length (if string) or resolution (if uint) of value. */
+    uint8_t size            =  pvalue->status_len & 0x3F;
+
+    /* Status to apply to this param; default is  to assume it is valid. */
+    uint8_t status          =  PARAM_VALID;
+
+    switch(pvalue->type) {
+        case DTYPE_UINT:
+
+            if(size == 8) {
+                c_type  = parse_uint8((uint8_t*)(pvalue->data_ptr), c);
+            } else if(size == 16) {
+/*                c_type  = parse_uint16((uint16_t*)(pvalue->data_ptr), c);*/
+            }
+
+            /* `parse_uint' returns #OTHER when there are more digits available
+            * than the supported resolution. */
+            if(c_type == OTHER) {
+                status  =  PARAM_TOO_LONG;
+
+            /* Check whether termination occurred due to invalid character. */
+            } else if(!JSON_IS_WS(*c) && *c != ',' && *c != 0x7d /* } */ ) {
+                status  =  PARAM_INVALID;
+                c_type  =  OTHER;
+            }
+        break;
+
+        case DTYPE_STRING:
+            /* In JSON, strings begin with a '"'. If there is not one, then it
+            * is not a valid string. */
+            if(*c == '"') {
+                status  =  PARAM_INVALID;
+                c_type  =  OTHER;
+                break;
+            }
+
+            /* Read the first character after '"' and start copying into the
+            * assigned buffer. */
+            c_type = (*nchar)(c); if(c_type == EOF) break;
+            c_type = copy_until((uint8_t*)(pvalue->data_ptr), '"', size, c);
+
+            /* `copy_until' returns #OTHER upon failing to read the delimiter
+            * before exceeding its allowed amount of characters. */
+            if(c_type == OTHER) {
+                status  =  PARAM_TOO_LONG;
+
+            /* Read the character after the terminating '"' to return it to the
+            * callee. */
+            } else {
+                c_type = (*nchar)(c);
+            }
+        break;
+    }
+
+    /* Apply value conformance status to it. Note that the two MSB are used to
+    * that end. */
+    pvalue->status_len |=  status;
+    return c_type;
+}

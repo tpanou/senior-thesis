@@ -71,6 +71,15 @@ enum JSONStage {
 };
 
 /**
+* @brief Check whether @p x is a JSON white-space character.
+*
+* @p x is compared against the four characters defined a white-space: space
+* (0x20), horizontal tab (0x09), line feed (0x0A) and carriage return (0x0D).
+* (*RFC 7159 p.5*)
+*/
+#define JSON_IS_WS(x)  (x == ' ' || x == '\t' || x == '\n' || x == '\r' )
+
+/**
 * @brief Parse the stream for a serialized JSON object.
 *
 * Nested objects are not supported at this time.
@@ -138,7 +147,43 @@ static int8_t json_parse_object(ParamInfo* info, uint8_t* c);
 *       processing.
 *   - #EOF; if end-of-stream was reached at any point.
 */
-static int8_t json_parse_member(ParamInfo* info, uint8_t* c) {
+static int8_t json_parse_member(ParamInfo* info, uint8_t* c);
+
+/**
+* @brief Parse the stream for a value of type and size defined by @p pvalue.
+*
+* @c pvalue.@link ParamValue::type type@endlink is used to determine the
+* appropriate value parser to call (currently, one of the externally supplied
+* #parse_uint8() or #copy_until()). According to the return value of those
+* functions, the two most-significant bits in @c
+* pvalue.@link ParamValue::status_len status_len@endlink are set to one of
+* #PARAM_INVALID, #PARAM_TOO_LONG or #PARAM_VALID. In case #PARAM_VALID is set,
+* the actual value can be read from @c
+* pvalue.@link ParamValue::data_ptr data_ptr@endlink. Do note that @c
+* pvalue.@link ParamValue::data_ptr data_ptr@endlink is *not* allocated within
+* this function but *should* have been set to point to a valid memory location
+* *before* the execution of this function. For details, see #ParamValue.
+*
+* Also note that even though the status of @c
+* pvalue.@link ParamValue::status_len status_len@endlink may have been set to
+* #PARAM_INVALID or #PARAM_TOO_LONG, the data pointed to by @c
+* pvalue.@link ParamValue::data_ptr data_ptr@endlink
+* may have been altered during processing. In any case, they should still be
+* considered invalid.
+*
+* @param[in,out] pvalue Provides the type and size of the acceptable value as
+*   well as access to its storage memory (for an explanation, see #ParamValue).
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream.
+* @returns One of:
+*   - @c 0; if a value in accordance to @p pvalue has been read from the stream
+*       and stored into pvalue.@link ParamValue::data_ptr data_ptr@endlink.
+*   - #OTHER; if an invalid character has occurred at any stage during
+*       processing. This will also be reflected by #PARAM_INVALID being set into
+*       pvalue.@link ParamValue::status_len status_len@endlink.
+*   - #EOF; if end-of-stream was reached at any point.
+*/
+static int8_t json_parse_value(ParamValue* pvalue, uint8_t* c);
 
 #endif /* JSON_PARSER_H_INCL */
 /** @} */
