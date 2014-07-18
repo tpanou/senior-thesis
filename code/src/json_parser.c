@@ -3,6 +3,34 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len) {
+    int8_t c_type;      /* Operation status (return value). */
+    uint8_t c;          /* Passed from one stream parser function to another. */
+    uint8_t i;
+
+    /* A wrapper around tokens (strings) and ParamValues used by the underlying
+    * API. */
+    ParamInfo match = {.tokens = tokens, .values = values, .len = len};
+
+    /* Reset the status bits of the params that are being searched for. */
+    for(i = 0 ; i < len ; ++i) {
+        values[i].status_size  &= ~PARAM_STATUS_MASK;
+    }
+
+    /* Discard leading white-space from the stream. An initial white-space
+    * character is faked by setting @c c to space. */
+    c = ' ';
+    c_type = json_discard_WS(&c);
+
+    if(!c_type) {
+        /* Only objects are supported at this time. It the content is not a
+        * valid object, #OTHER will be returned. */
+        c_type = json_parse_object(&match, &c);
+    }
+
+    return c_type;
+}
+
 static int8_t json_parse_object(ParamInfo* info, uint8_t* c) {
     int8_t stage = JSON_OBJECT_BEGIN;
     int8_t go_on = 1;

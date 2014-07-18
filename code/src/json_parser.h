@@ -80,6 +80,29 @@ enum JSONStage {
 #define JSON_IS_WS(x)  (x == ' ' || x == '\t' || x == '\n' || x == '\r' )
 
 /**
+* @brief Search the specified parameters on a JSON formatted input stream.
+*
+* For a list of limitations and features of the current implementation, refer to
+* the details section.
+*
+* @param[in] tokens An array of parameter-tokens (strings) that are to be
+*   searched on the stream.
+* @param[in,out] values An array of #ParamValue that describe the semantics
+*   around each string provided in @p tokens.
+* @param[in] len The amount of elements in @p tokens and @c values (obviously,
+*   the same for both).
+* @returns One of:
+*   - 0; if the stream was successfully parsed. The status bits of each
+*       #ParamValue in @p values, provide details for each parameter.
+*   - #OTHER; if parsing failed at any stage (eg, unexpected parameter-token).
+*       If an unacceptable value was provided for an acceptable token, its
+*       corresponding status bits are set (#PARAM_INVALID or #PARAM_TOO_LONG).
+*   - #EOF; if end-of-stream occurred prematurely while parsing the serialized
+*       input.
+*/
+int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
+
+/**
 * @brief Advance the stream till a non-white-space character.
 *
 * In JSON,a white-space character is one of: space (0x20), horizontal tab
