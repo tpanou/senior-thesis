@@ -31,6 +31,15 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len) {
     return c_type;
 }
 
+int8_t json_discard_WS(uint8_t* c) {
+    int8_t c_type = 0;
+
+    while(!c_type && JSON_IS_WS(*c)) {
+        c_type = (*nchar)(c);
+    }
+    return c_type;
+}
+
 static int8_t json_parse_object(ParamInfo* info, uint8_t* c) {
     int8_t stage = JSON_OBJECT_BEGIN;
     int8_t go_on = 1;
@@ -187,14 +196,5 @@ static int8_t json_parse_value(ParamValue* pvalue, uint8_t* c) {
     /* Apply value conformance status to it. Note that the two MSB are used to
     * that end. */
     pvalue->status_len |=  status;
-    return c_type;
-}
-
-int8_t json_discard_WS(uint8_t* c) {
-    int8_t c_type = 0;
-
-    while(!c_type && JSON_IS_WS(*c)) {
-        c_type = (*nchar)(c);
-    }
     return c_type;
 }
