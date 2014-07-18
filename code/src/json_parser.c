@@ -161,3 +161,12 @@ static int8_t json_parse_value(ParamValue* pvalue, uint8_t* c) {
     pvalue->status_len |=  status;
     return c_type;
 }
+
+int8_t json_discard_WS(uint8_t* c) {
+    int8_t c_type = 0;
+
+    while(!c_type && JSON_IS_WS(*c)) {
+        c_type = (*nchar)(c);
+    }
+    return c_type;
+}

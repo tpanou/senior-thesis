@@ -80,6 +80,21 @@ enum JSONStage {
 #define JSON_IS_WS(x)  (x == ' ' || x == '\t' || x == '\n' || x == '\r' )
 
 /**
+* @brief Advance the stream till a non-white-space character.
+*
+* In JSON,a white-space character is one of: space (0x20), horizontal tab
+* (0x09), line feed (0x0A) and carriage return (0x0D) (*RFC 7159 p.5*).
+*
+* @param[in,out] c The first character to start parsing from and the last one
+*   read from the stream. When called, if it is not a white-space, it
+*   immediately returns.
+* @returns One of:
+*   - 0; if a non-white-space character was read from the stream.
+*   - #EOF; if the end-of-stream has occurred.
+*/
+int8_t json_discard_WS(uint8_t* c);
+
+/**
 * @brief Parse the stream for a serialized JSON object.
 *
 * Nested objects are not supported at this time.
