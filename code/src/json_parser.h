@@ -59,14 +59,33 @@ begin-object    = ws %x7B ws  ; { left curly bracket
 #ifndef JSON_PARSER_H_INCL
 #define JSON_PARSER_H_INCL
 
-enum JSONStage {
+
+/**
+* @brief Represents the current stage during various levels of input parsing.
+*/
+enum JSONState {
+    /** @brief An object opening section may have been found. */
     JSON_OBJECT_BEGIN,
+
+    /** @brief An object closing section has been found. */
     JSON_OBJECT_END,
+
+    /** @brief A member opening section may have been found. */
     JSON_MEMBER_BEGIN,
+
+    /** @brief A member closing section has been found. */
     JSON_MEMBER_END,
+
+    /** @brief A member key (token) start may have been found. */
     JSON_KEY_BEGIN,
+
+    /** @brief A member key (token) end may have been found. */
     JSON_KEY_END,
+
+    /** @brief A value opening section has been found. */
     JSON_VALUE_BEGIN,
+
+    /** @brief A value has been parsed. */
     JSON_VALUE_END
 };
 
