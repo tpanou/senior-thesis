@@ -98,6 +98,33 @@ enum JSONState {
 */
 #define JSON_IS_WS(x)  (x == ' ' || x == '\t' || x == '\n' || x == '\r' )
 
+#ifndef EOF
+/** @brief Indicates that the End-of-File has been reached. */
+#define EOF     -1
+#endif
+
+/**
+* @brief Sets the function that supplies this module with bytes from the input
+* stream.
+*
+* Sets the value of #gnext.
+* The provided function should accept a single byte address into which to store
+* the next byte found on the stream. It should return @c 0 if the contents of
+* that byte had been successfully updated or #EOF, if no more bytes are
+* available on the stream for this particular processing cycle.
+*
+* It should give access to the serialized JSON object regardless of
+* transformations that may have been applied to the actual input (eg,
+* compression, chunked input, local buffering).
+*
+* Note that if any of the provided functions of this module are invoked without
+* prior setting the function pointer will, in all probability, cause the
+* application to fail.
+*
+* @param[in] input_source Pointer to input function.
+*/
+void json_set_source(int8_t (*input_source)(uint8_t*));
+
 /**
 * @brief Search the specified parameters on a JSON formatted input stream.
 *

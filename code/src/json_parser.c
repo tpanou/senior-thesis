@@ -3,6 +3,21 @@
 #include <stdio.h>
 #include <inttypes.h>
 
+/**
+* @ingroup json_parser
+* @brief Function pointer to access the next character to parse.
+*
+* It provides this module's components access to the input stream. In a typical
+* application, this should be the same stream that supplies characters to
+* external helper functions (such as stream_match()). It is set using
+* json_set_source().
+*/
+static int8_t (*gnext)(uint8_t*);
+
+void json_set_source(int8_t (*input_source)(uint8_t*)) {
+    gnext = input_source;
+}
+
 int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len) {
     int8_t c_type;      /* Operation status (return value). */
     uint8_t c;          /* Passed from one stream parser function to another. */
@@ -35,7 +50,7 @@ int8_t json_discard_WS(uint8_t* c) {
     int8_t c_type = 0;
 
     while(!c_type && JSON_IS_WS(*c)) {
-        c_type = (*nchar)(c);
+        c_type = (*gnext)(c);
     }
     return c_type;
 }
@@ -52,7 +67,7 @@ static int8_t json_parse_object(ParamInfo* info, uint8_t* c) {
         switch(state) {
             case JSON_OBJECT_BEGIN:
                 if(*c == 0x7b) {    /* { */
-                    c_type  = (*nchar)(c);
+                    c_type  = (*gnext)(c);
                     state   = JSON_MEMBER_BEGIN;
                 } else {
                     c_type = OTHER;
@@ -71,7 +86,7 @@ static int8_t json_parse_object(ParamInfo* info, uint8_t* c) {
             break;
             case JSON_MEMBER_END:
                 if(*c == ',') {
-                    c_type  = (*nchar)(c);
+                    c_type  = (*gnext)(c);
                     state   = JSON_MEMBER_BEGIN;
                 } else if(*c == 0x7d) {
                     go_on   = 0;
@@ -92,7 +107,7 @@ static int8_t json_parse_member(ParamInfo* info, uint8_t* c) {
     int8_t go_on = 1;   /* @c 0 indicates member parsing has been completed. */
 
     if(*c == '"') {
-        c_type = (*nchar)(c);
+        c_type = (*gnext)(c);
         state  = JSON_KEY_BEGIN;
     } else {
         c_type = OTHER;
@@ -112,7 +127,7 @@ static int8_t json_parse_member(ParamInfo* info, uint8_t* c) {
                 * further white-space before calling the value-parser. */
                 if(*c == '"') {
                     match   = c_type;
-                    c_type  = (*nchar)(c);
+                    c_type  = (*gnext)(c);
                     state   = JSON_KEY_END;
                 } else {
                     c_type = OTHER;
@@ -120,7 +135,7 @@ static int8_t json_parse_member(ParamInfo* info, uint8_t* c) {
             break;
             case JSON_KEY_END:
                 if(*c == ':') {
-                    c_type  = (*nchar)(c);
+                    c_type  = (*gnext)(c);
                     state   = JSON_VALUE_BEGIN;
                 } else {
                     c_type = OTHER;
@@ -177,7 +192,7 @@ static int8_t json_parse_value(ParamValue* pvalue, uint8_t* c) {
 
             /* Read the first character after '"' and start copying into the
             * assigned buffer. */
-            c_type = (*nchar)(c); if(c_type == EOF) break;
+            c_type = (*gnext)(c); if(c_type == EOF) break;
             c_type = copy_until((uint8_t*)(pvalue->data_ptr), '"', size, c);
 
             /* `copy_until' returns #OTHER upon failing to read the delimiter
@@ -188,7 +203,7 @@ static int8_t json_parse_value(ParamValue* pvalue, uint8_t* c) {
             /* Read the character after the terminating '"' to return it to the
             * callee. */
             } else {
-                c_type = (*nchar)(c);
+                c_type = (*gnext)(c);
             }
         break;
     }
