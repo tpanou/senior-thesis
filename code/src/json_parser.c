@@ -184,7 +184,7 @@ static int8_t json_parse_value(ParamValue* pvalue, uint8_t* c) {
         case DTYPE_STRING:
             /* In JSON, strings begin with a '"'. If there is not one, then it
             * is not a valid string. */
-            if(*c == '"') {
+            if(*c != '"') {
                 status  =  PARAM_INVALID;
                 c_type  =  OTHER;
                 break;
