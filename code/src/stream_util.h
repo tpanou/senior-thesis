@@ -73,6 +73,30 @@ int8_t parse_uint16(uint16_t* value, uint8_t* c);
 int8_t parse_uint8(uint8_t* value, uint8_t* c);
 
 /**
+* @brief Copy from the stream into the specified buffer.
+*
+* The process is terminated when @p delim is read from the stream or a total of
+* (@p max - 1) bytes have been copied, whichever occurs first. The last byte
+* inserted into @p buf is always byte @c 0 (null-byte or string-terminator). If
+* the termination occurs due to reaching @p max and not reading the delimiter,
+* #OTHER is returned.
+*
+* @param[out] buf The memory address to start copying bytes into.
+* @param[in] delim The copy terminator, which will be replaced by a null-byte
+*   into @p buf.
+* @param[in] max Maximum numbers of bytes (including null-byte) to copy into @p
+*   buf, if @c delim is not found first.
+* @param[in,out] The first byte to start copying from and the last one read from
+*   the stream.
+* @returns One of:
+*   - @c 0; if @c delim was found without exceeding @c max.
+*   - #OTHER; if more bytes are available on the stream, but @p max has been
+*       reached.
+*   - #EOF; if End-of-stream has been reached while copying bytes.
+*/
+int8_t copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c);
+
+/**
 * @brief Find the closest match from an array of strings with the stream.
 *
 * Accepts an array of strings (descriptors) and compares the against the input

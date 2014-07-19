@@ -63,6 +63,26 @@ int8_t parse_uint8(uint8_t* value, uint8_t* c) {
     return c_type;
 }
 
+int8_t copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c) {
+    int8_t c_type   = 0;
+    uint8_t i       = 0;
+
+    while(*c != delim && !c_type) {
+        if(i == max - 1) {
+            c_type == OTHER;
+            break;
+        }
+
+        buf[i] = *c;
+        c_type = (*gnext)(c);
+        ++i;
+    }
+
+    /* Append a string delimiter. */
+    buf[i]  =  0;
+    return c_type;
+}
+
 int8_t stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c) {
     uint8_t abs_min = min; /* The initial value (before moving boundaries). */
     uint8_t cmp_idx = 0;
