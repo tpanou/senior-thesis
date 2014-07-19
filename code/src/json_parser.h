@@ -4,61 +4,99 @@
 * @ingroup http_server
 * @{
 *
-* TODO General description
+* @brief A rudimentary JSON parser.
 *
-* Currently, only limited support for serialized JSON streams is provided,
-* loosely based on \"<a href="tools.ietf.org/html/rfc7159">RFC 7159 - The
-* JavaScript Object Notation (JSON) Data Interchange Format</a>\".
-* More specifically,
+* @section sec_json_parser_reason The reason
+* JSON parsing is required as this data format is used as a lightweight
+* container to receive the parameters needed to perform operations on the
+* exposed resources of the device through the use of HTTP. These parameters are
+* to be supplied as member names of a serialized JSON object, the latter of
+* which would constitute the entity-body of the request itself. The main
+* requirements for such a parser (other than recognising the JSON @c object
+* value), are to:
+*   - Parse input as it becomes available without the need to be provided a
+*       buffer upon which to operate.
+*   - Convert serialized data to appropriate data types for use by the
+*       application, specifying which where set and which were erroneous.
+*   - Produce as little overhead as possible (mainly as far as program space
+*       consumption is concerned).
 *
-* TODO Specify what *is* supported. Basically, objects (not nested) with values
-*   of type integer (unsigned) and string, of the specified keys and
-*   resolution/size.
+* It was, thus, deemed necessary to design and implement a specific JSON parser
+* for this application.
+*
+* @section sec_json_parser_current_status Current status
+* Only limited support for serialized JSON formatted data is provided, loosely
+* based on \"<a href="tools.ietf.org/html/rfc7159">RFC 7159 - The JavaScript
+* Object Notation (JSON) Data Interchange Format</a>\", as this implementation
+* is not meant to be a full-fledged, general purpose parser; it is specifically
+* designed to meet the current needs of the application with as little overhead
+* as possible, even to the expense of conformance to that RFC.
+*
+* As a result, out of the seven defined JSON values (@c object, @c array, @c
+* number, @c string, @c false, @c null and @c true), only objects, numbers and
+* strings are recognised, liable to the following restrictions:
+*   - Objects are not nested (ie, no object is set as a member value within
+*       another object).
+*   - Object members contain a key of type @c string. All strings begin and end
+*       with quotation marks (RFC 7159 p.8).
+*   - A predefined set of possible member names (tokens) is provided along with
+*       their expected data type and storage memory (see param.h). Should the
+*       parser come across a member name, type or size other than those in the
+*       set, parsing stops.
+*   - Numbers are unsigned integers of specified resolution (8- or 16-bit).
+*   - Escaped Unicode characters in strings are not recognised. If present, they
+*       are preserved as a plain text.
+*
+* Other than those restrictions, it is irrelevant to the parser whether any of
+* the specified members (tokens) were present, the order in which, or how many
+* times they have occurred. The caller may identify whether a member was
+* specified by checking its corresponding status bits (see ParamValue#status_len
+* in param.h). If set multiple times, the value from the last member occurrence
+* is preserved.
 *
 * According to the specification, any number of insignificant white-space may
-* occur around a structural character the latter being a sequence of a
+* occur around a structural character, the latter being a sequence of a
 * white-space followed by a reserved character and another white-space (*RFC
 * 7159 p.5*), eg:@verbatim
 begin-object    = ws %x7B ws  ; { left curly bracket
 @endverbatim
-* None of the parser functions will fail if either of the above specified
-* leading or trailing white-space is not present.
+* None of the parser functions within this module will fail if either of the
+* above specified leading or trailing white-space is not present.
 *
-* TODO Complete the following:
-* The predominant function is #json_parse() which
+* This module is separated into more specific functions, each responsible for a
+* different section of a serialised JSON object. All of them are strict in the
+* sense they fail fast upon any unexpected occurrence. This lack of leniency
+* provides greater minimalism and, thus, requires less program space. Successful
+* completion is indicated by a return value of @c 0, whereas failure, by a
+* negative value (typically, #OTHER or #EOF). These functions, of course, use
+* one another. Currently, should any one of them fail will cause the others to
+* fail, as well; #json_parse() -- the root function -- returns that value.
+* In case of an error, the stream will not be advanced any further. The
+* character that caused the failure, though, will not be reinstated back into
+* the stream.
 *
-* TODO Change this "All the provided…" to something more appropriate, since most
-*   of them are static (global within this compilation unit):
-* All the provided json_parse_* functions are strict in the sense they fail fast
-* upon any unexpected occurrence. This lack of leniency provides greater
-* minimalism and, thus, requires less program space. Successful completion is
-* indicated by a return value of @c 0, whereas failure, by a negative value
-* (typically, #OTHER or #EOF). These functions, of course, use one another.
-* Currently, should any one of them fail will cause the others to fail, as well;
-* #json_parse() will return that value.
+* @section sec_json_parser_use Use
+* The predominant function of this module is json_parse() which will initiate
+* parsing on the input stream. To use it, one must first set the input stream.
+* This is done by calling json_set_source() at least once, supplying a function
+* address. One should not attempt to call json_parse() without setting a valid
+* function pointer. Failing to do so would compromise the entire application.
 *
-* Members contain a key of type @c string. All strings begin and end with
-* quotation marks (RFC 7159 p.8). See #json_parse_object().
-*
-* TODO Specify what are the required *extern* components (for instance, function
-*   to read one character at a time and a string matcher) and the overall
-*   architecture, which brings to the following:
-*
-* In order for this component to be operable it needs to be provided with the
-* following:
-*   - @code int8_t (*gnext)(uint8_t*)@endcode
-*   - @code int8_t (*gmatch)(uint8_t**, uint8_t, uint8_t, uint8_t*)@endcode
-*
-*/
-
-/*
-* TODO Include definition of #OTHER (and perhaps #EOF), *after* they have been
-*   defined in appropriate files.
+* @subsection sec_json_parser_dependencies Dependencies
+* In order for this component to be operable, some additional components are
+* required, such as the ability to compare an incoming string from the stream
+* against the specified set of tokens (stream match), and a number of functions
+* to convert serialized data to variable values (integer parser, and string
+* copy). These requirements are summarised below:
+*   - stream_match(uint8_t** tokens, uint8_t min, uint8_t max, uint8_t* c)
+*   - parse_uint8(uint8_t* value, uint8_t* c)
+*   - copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c)
 */
 
 #ifndef JSON_PARSER_H_INCL
 #define JSON_PARSER_H_INCL
 
+#include "param.h"
 
 /**
 * @brief Represents the current stage during various levels of input parsing.
