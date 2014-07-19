@@ -59,6 +59,11 @@
 * arrays (#ParamInfo::len).
 */
 
+#ifndef PARAM_H_INCL
+#define PARAM_H_INCL
+
+#include <inttypes.h>
+
 /**
 * @brief Parameter value data types.
 *
@@ -212,3 +217,5 @@ typedef struct {
 * Also, see #PARAM_STATUS_MASK, #PARAM_NOT_SET, #PARAM_INVALID, #PARAM_TOO_LONG.
 */
 #define PARAM_VALID        (0xC0)
+
+#endif /* PARAM_H_INCL */
