@@ -98,6 +98,8 @@ begin-object    = ws %x7B ws  ; { left curly bracket
 
 #include "param.h"
 
+#include <inttypes.h>
+
 /**
 * @brief Represents the current stage during various levels of input parsing.
 */
@@ -140,6 +142,15 @@ enum JSONState {
 /** @brief Indicates that the End-of-File has been reached. */
 #define EOF     -1
 #endif
+
+#ifndef OTHER
+#define OTHER   -5
+#endif
+
+extern int8_t stream_match(uint8_t** desc,
+                           uint8_t min,
+                           uint8_t max,
+                           uint8_t* c);
 
 /**
 * @brief Sets the function that supplies this module with bytes from the input

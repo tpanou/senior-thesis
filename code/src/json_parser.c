@@ -29,7 +29,7 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len) {
 
     /* Reset the status bits of the params that are being searched for. */
     for(i = 0 ; i < len ; ++i) {
-        values[i].status_size  &= ~PARAM_STATUS_MASK;
+        values[i].status_len  &= ~PARAM_STATUS_MASK;
     }
 
     /* Discard leading white-space from the stream. An initial white-space
