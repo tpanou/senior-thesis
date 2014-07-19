@@ -46,7 +46,7 @@ typedef struct {
 static uint8_t* server_consts[] = {
     /* Methods, min: 0, max: 2 */
     "get",
-    "post",
+    "put",
     /* Headers, min: 2, max: 6 */
     "accept",
     "content-length",
@@ -119,7 +119,7 @@ static uint16_t chunk_pos   = 0;
 */
 #define METHOD_MIN            0
 #define METHOD_GET            0 /**< @brief Method @c GET. */
-#define METHOD_POST           1 /**< @brief Method @c POST. */
+#define METHOD_PUT            1 /**< @brief Method @c PUT. */
 /**
 * @brief The upper-bound of method literals.
 * It should be one unit greater than the index of the last method literal.
@@ -392,52 +392,6 @@ static int8_t parse_host(uint8_t* c);
 *   - EOF
 */
 static int8_t parse_header_param_qvalue(uint16_t* qvalue, uint8_t* c);
-
-/**
-* @brief Read up to a four-digit unsigned hexadecimal number from stream
-* (0 up to FFFF).
-*
-* Any leading zeros are ignored. Prefix "0x" is not supported.
-*
-* @param[out] value The number read. Defaults to @c 0.
-* @param[in,out] c The first character to start parsing from and the last one
-*   read from the stream.
-* @returns One of:
-*   - @c 0; if the last character read is not a digit or EOF.
-*   - #OTHER; if a greater number than FFFF is available.
-*   - EOF
-*/
-int8_t parse_hex16(uint16_t* value, uint8_t* c);
-
-/**
-* @brief Read up to a 4-digit unsigned number from stream (0 up to 9999).
-*
-* Any leading zeros are ignored.
-*
-* @param[out] value The number read. Defaults to @c 0.
-* @param[in,out] c The first character to start parsing from and the last one
-*   read from the stream.
-* @returns One of:
-*   - 0; if the last character read is not a digit or EOF.
-*   - #OTHER; if a greater number than 9999 is available.
-*   - EOF
-*/
-int8_t parse_uint16(uint16_t* value, uint8_t* c);
-
-/**
-* @brief Read up to a two-digit unsigned number from stream (0 up to 99).
-*
-* Any leading zeros are ignored.
-*
-* @param[out] value The number read. Defaults to @c 0.
-* @param[in,out] c The first character to start parsing from and the last one
-*   read from the stream.
-* @returns One of:
-*   - 0; if the last character read is not a digit or EOF.
-*   - #OTHER; if a greater number than 99 is available.
-*   - EOF
-*/
-int8_t parse_uint8(uint8_t* value, uint8_t* c);
 
 /**
 * @brief Read a q-value from stream.
