@@ -1,6 +1,7 @@
 
 #include "http_parser.h"
 #include "sbuffer.h"
+#include "stream_util.h"
 
 #include <stdio.h>
 #include <ctype.h> /* isxdigit(), tolower() */
@@ -276,112 +277,6 @@ int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c) {
     } while(*c == ',');
 
     return c_type;
-}
-
-int stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c) {
-    uint8_t abs_min = min; /* The initial value (before moving boundaries). */
-    uint8_t cmp_idx = 0;
-    uint8_t i;
-    int8_t c_type   = 0;
-
-    /* When @c min is equal to @c max, the descriptor at position max-1 is a
-    * possible match. What is left is to check whether the last character read
-    * corresponds to an appropriate delimiter for this particular operation. */
-    while(!c_type && min < max) {
-
-        /* The last byte of the descriptors (null-character) is used as an
-        * implicit iteration terminator when all the previous characters have
-        * been matched. If a null-character is read from the stream when a
-        * comparison with the last character of a matching descriptor is due,
-        * the comparison will succeed and a new iteration will take place
-        * during which the limits of the descriptor will be breached. */
-        if(*c == '\0') *c = 1;
-
-        *c = tolower(*c);
-
-        /* Omit descriptors with a character less than @c c. */
-        for(i = min; i < max && desc[i][cmp_idx] < *c; ++i)
-            ;
-        min     = i;
-
-        /* Determine position of last possible match. */
-        for(i; i < max && desc[i][cmp_idx] == *c ; ++i)
-            ;
-        max     = i;
-
-        /* Avoid reading the next character for stream, if lower and upper limit
-        * have converged. */
-        if(min < max) {
-            ++cmp_idx;
-            c_type = s_next(c);
-        }
-    }
-
-    /* If there's been an error reading from stream, return that error.
-    * Currently, @c EOF is the only possible error. */
-    if(c_type) return c_type;
-
-    /* @c i equals `abs_min' when the input string alphabetically precedes the
-    * first currently available. */
-    if(i > abs_min && *c != '\0') {
-
-        if(desc[i - 1][cmp_idx] == '\0') return i - 1;
-    }
-
-    return OTHER;
-}
-
-int8_t stream_match_ext(uint8_t** desc,
-                        uint8_t abs_min,
-                        uint8_t* min,
-                        uint8_t* max,
-                        uint8_t* cmp_idx,
-                        uint8_t* c) {
-    uint8_t i       = 0;
-    int8_t c_type   = 0;
-    int8_t have_hit = 1;
-
-    /* The iterations continue as long as there is at least one match. */
-    while(!c_type && have_hit) {
-
-        have_hit = 0;
-        /* Null-character is used implicitly as a comparison terminator. */
-        if(*c == '\0') *c = 1;
-
-        *c = tolower(*c);
-
-        /* Omit descriptors with a character less than @c c. */
-        for(i = *min; i < *max && desc[i][*cmp_idx] < *c; ++i)
-            ;
-        *min    = i;
-
-        /* Determine position of last possible match. */
-        for(i; i < *max && desc[i][*cmp_idx] == *c ; ++i) {
-            have_hit = 1;
-        }
-
-        /* Lower upper-bound only if there had been hits. */
-        if(have_hit) *max = i;
-
-        /* Read next character if the current one provides a match. Otherwise,
-        * the caller should determine if an alternative character should be used
-        * in its place. */
-        if(*min < *max && have_hit) {
-            ++(*cmp_idx);
-            c_type = s_next(c);
-        }
-    }
-
-    /* If there's been an error reading from stream, return that error. */
-    if(c_type) return c_type;
-
-    /* @c i equals `abs_min' when the input string alphabetically precedes the
-    * first possible literal. */
-    if(i > abs_min) {
-        if(desc[i - 1][*cmp_idx] == '\0') return i - 1;
-    }
-
-    return OTHER;
 }
 
 static int8_t parse_uri(HTTPRequest* req, uint8_t* c) {
