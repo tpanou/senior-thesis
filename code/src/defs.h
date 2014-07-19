@@ -144,7 +144,7 @@ down-scaled to 4MHz, and\n
 * @brief Pin of #MTR_nLOCK_PORT the AutoLock MOSFET's Gate connects to.
 *
 * This pin enables and disables the Lock and, in order for the AutoLock
-* mechanism to operate, it must coincide with pin @OC0A. It is active low.
+* mechanism to operate, it must coincide with pin @c OC0A. It is active low.
 *
 * Also, see #MTR_nLOCK_PORT and #MTR_nLOCK.
 */

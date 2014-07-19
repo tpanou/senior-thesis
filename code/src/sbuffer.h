@@ -65,11 +65,11 @@ void set_socket_buf(uint8_t s);
 * a buffer update (see s_update()) when all bytes have been depleted and a new
 * one is requested.
 *
-* @EOF is returned when no bytes are available even after requesting a buffer
+* #EOF is returned when no bytes are available even after requesting a buffer
 * update.
 *
-* @params[out] The byte read from stream.
-* @returns @c 0 on success; @c EOF on end-of-stream.
+* @param[out] c The byte read from stream.
+* @returns @c 0 on success; #EOF on end-of-stream.
 */
 int8_t s_next(uint8_t* c);
 
@@ -84,7 +84,7 @@ int8_t s_next(uint8_t* c);
 *
 * @param[out] c The byte read at offset @p pos.
 * @param[in] pos The offset to read a byte from.
-* @returns 0 on success; @c EOF on end-of-stream.
+* @returns 0 on success; #EOF on end-of-stream.
 */
 int8_t s_peek(uint8_t* c, uint16_t pos);
 
@@ -97,7 +97,7 @@ int8_t s_peek(uint8_t* c, uint16_t pos);
 * discarded).
 *
 * @param[in] count The amount of bytes to discard.
-* @returns 0 on success; @c EOF on end-of-stream.
+* @returns 0 on success; #EOF on end-of-stream.
 */
 int8_t s_drop(uint16_t count);
 
@@ -109,7 +109,7 @@ int8_t s_drop(uint16_t count);
 * the fragment is the least amount of bytes between the bytes available on the
 * socket and the available space (ie, consumed bytes) of the internal buffer.
 *
-* If s_update() is invoked when no data are available on the socket, @c EOF is
+* If s_update() is invoked when no data are available on the socket, #EOF is
 * returned and the internal buffer remains intact. If s_update() is invoked when
 * the internal buffer is full, the function completes successfully although no
 * new bytes are actually loaded.
@@ -117,7 +117,7 @@ int8_t s_drop(uint16_t count);
 * To set the size of the internal input buffer, refer to #NET_BUF_LEN. To set
 * input buffering for a particular socket, refer to set_socket_buf().
 *
-* @returns @c 0 if new data were available; @c EOF on end-of-stream.
+* @returns @c 0 if new data were available; #EOF on end-of-stream.
 */
 static int8_t s_update();
 

@@ -217,7 +217,7 @@ void set_host_name_ip(uint8_t* ip);
 * calling this function. Upon completion, the next byte read from the stream
 * with #s_next() is the first byte of the message-body, if one exists.
 *
-* In case #HTTPRequest.transer_encoding is set to #TRANSFER_COD_CHUNK, use of
+* In case #HTTPRequest.transfer_encoding is set to #TRANSFER_COD_CHUNK, use of
 * #c_next() gives direct (transparent) access to the entity-body and should be
 * preferred over #s_next().
 *

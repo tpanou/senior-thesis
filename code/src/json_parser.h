@@ -1,5 +1,6 @@
 /**
 * @file
+* @brief A rudimentary JSON parser.
 * @addtogroup json_parser JSON Parser
 * @ingroup http_server
 * @{
@@ -87,16 +88,21 @@ begin-object    = ws %x7B ws  ; { left curly bracket
 * required, such as the ability to compare an incoming string from the stream
 * against the specified set of tokens (stream match), and a number of functions
 * to convert serialized data to variable values (integer parser, and string
-* copy). These requirements are summarised below:
+* copy). These requirements are satisfied by the following functions of
+* stream_util.h:
 *   - stream_match(uint8_t** tokens, uint8_t min, uint8_t max, uint8_t* c)
 *   - parse_uint8(uint8_t* value, uint8_t* c)
 *   - copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c)
+*
+* Care must be taken than the input function of that module is set to the
+* appropriate one *before* invoking json_parse().
 */
 
 #ifndef JSON_PARSER_H_INCL
 #define JSON_PARSER_H_INCL
 
 #include "param.h"
+#include "stream_utils.h"
 
 #include <inttypes.h>
 
@@ -138,20 +144,6 @@ enum JSONState {
 */
 #define JSON_IS_WS(x)  (x == ' ' || x == '\t' || x == '\n' || x == '\r' )
 
-#ifndef EOF
-/** @brief Indicates that the End-of-File has been reached. */
-#define EOF     -1
-#endif
-
-#ifndef OTHER
-#define OTHER   -5
-#endif
-
-extern int8_t stream_match(uint8_t** desc,
-                           uint8_t min,
-                           uint8_t max,
-                           uint8_t* c);
-
 /**
 * @brief Sets the function that supplies this module with bytes from the input
 * stream.
@@ -167,7 +159,7 @@ extern int8_t stream_match(uint8_t** desc,
 * compression, chunked input, local buffering).
 *
 * Note that if any of the provided functions of this module are invoked without
-* prior setting the function pointer will, in all probability, cause the
+* previously setting the function pointer will, in all probability, cause the
 * application to fail.
 *
 * @param[in] input_source Pointer to input function.

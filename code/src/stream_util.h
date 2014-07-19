@@ -1,6 +1,6 @@
 /**
 * @file
-* @addtogroup stream_utils Stream Utilities
+* @addtogroup stream_util Stream Utilities
 * @ingroup http_server
 *
 * @brief Utility functions that operate on an input stream, typically from the
@@ -24,7 +24,23 @@
 #define EOF     -1
 #endif
 
-void stream_set_source(int8_t (*next_char)(uint8_t*));
+/**
+* @brief Sets the function that supplies this module with bytes from the input
+* stream.
+*
+* Sets the value of #gnext.
+* The provided function should accept a single byte address into which to store
+* the next byte found on the stream. It should return @c 0 if the contents of
+* that byte had been successfully updated or #EOF, if no more bytes are
+* available on the stream for this particular processing cycle.
+*
+* Note that if any of the provided functions of this module are invoked without
+* previously setting the function pointer will, in all probability, cause the
+* application to fail.
+*
+* @param[in] input_source Pointer to input function.
+*/
+void stream_set_source(int8_t (*input_source)(uint8_t*));
 
 /**
 * @brief Read up to a four-digit unsigned hexadecimal number from stream
@@ -86,8 +102,8 @@ int8_t parse_uint8(uint8_t* value, uint8_t* c);
 *   into @p buf.
 * @param[in] max Maximum numbers of bytes (including null-byte) to copy into @p
 *   buf, if @c delim is not found first.
-* @param[in,out] The first byte to start copying from and the last one read from
-*   the stream.
+* @param[in,out] c The first byte to start copying from and the last one read
+*   from the stream.
 * @returns One of:
 *   - @c 0; if @c delim was found without exceeding @c max.
 *   - #OTHER; if more bytes are available on the stream, but @p max has been

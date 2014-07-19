@@ -1,6 +1,14 @@
-
 #include "stream_util.h"
 
+/**
+* @ingroup stream_util
+* @brief Function pointer to access the next character to parse.
+*
+* It provides this module's components access to the input stream. It is set
+* using stream_set_source(). Attempting to invoke any of the functions included
+* in this module without previously setting it to a known value will, in all
+* probability, cause the application to fail.
+*/
 static int8_t (*gnext)(uint8_t*);
 
 void stream_set_source(int8_t (*next_char)(uint8_t*)) {

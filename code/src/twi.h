@@ -189,7 +189,7 @@
 * is released (#TWI_STOP()) and @c -1 is returned. Note that this is a macro
 * and, so, the returning function is the 'callee'.
 *
-* @parm[in] x Arbitrary code to execute. Typically, one of the TWI convenience
+* @param[in] x Arbitrary code to execute. Typically, one of the TWI convenience
 *   macros.
 * @param[in] s Status code that is expected upon successful completion of @p x.
 */
