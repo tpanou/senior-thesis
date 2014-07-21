@@ -42,7 +42,7 @@ typedef struct ResourceHandler {
 * This basically registers the resource tokens and handler function to the HTTP
 * server so that they may be invoked every time a resource token is matched.
 *
-* It suffices to call this only once. Even if a particular handler is replaced
+* It suffices to call this only once; even if a particular handler is replaced
 * by another, there is no need for an update.
 */
 void rsrc_init();

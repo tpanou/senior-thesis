@@ -10,7 +10,7 @@
 * @ingroup resource
 * @brief The number of token-handler pairs in #resources.
 */
-#define RSRC_LEN    5
+#define RSRC_LEN    8
 
 /**
 * @ingroup resource
@@ -25,7 +25,16 @@ static int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len);
 * @ingroup resource
 * @brief Absolute path tokens of resources exposed by the HTTP server.
 */
-static uint8_t* rsrc_tokens[] = {};
+static uint8_t* rsrc_tokens[RSRC_LEN] = {
+    "*",
+    "/",
+    "/client.js",
+    "/configuration",
+    "/coordinates",
+    "/index",
+    "/measurement",
+    "/style.css"
+};
 
 /**
 * @ingroup resource
@@ -33,7 +42,7 @@ static uint8_t* rsrc_tokens[] = {};
 *
 * This array and #rsrc_tokens are correlated through #resources.
 */
-static ResourceHandler rsrc_handlers[]; /* See the definition further below. */
+static ResourceHandler rsrc_handlers[RSRC_LEN]; /* Definition is in the end. */
 
 void rsrc_init() {
     srvr_set_resources(rsrc_tokens, rsrc_handlers, RSRC_LEN);
@@ -49,9 +58,45 @@ void rsrc_set_handler(uint8_t uri,
                       void (*handler)(HTTPRequest*)) {
 
     if(uri < RSRC_LEN) {
-        rsrc_resources.handlers[uri].methods = methods;
-        rsrc_resources.handlers[uri].call    = handler;
+        rsrc_handlers[uri].methods = methods;
+        rsrc_handlers[uri].call    = handler;
     }
 }
 
-static ResourceHandler rsrc_handlers[] = {};
+void rsrc_handle_server(HTTPRequest* req) {
+}
+
+void rsrc_handle_root(HTTPRequest* req) {
+}
+
+void rsrc_handle_client_js(HTTPRequest* req) {
+}
+
+void rsrc_handle_configuration(HTTPRequest* req) {
+}
+
+void rsrc_handle_coordinates(HTTPRequest* req) {
+}
+
+void rsrc_handle_index(HTTPRequest* req) {
+}
+
+void rsrc_handle_measurement(HTTPRequest* req) {
+}
+
+void rsrc_handle_style_css(HTTPRequest* req) {
+}
+
+static ResourceHandler rsrc_handlers[RSRC_LEN] = {
+    {.methods = HTTP_OPTIONS,   .call = &rsrc_handle_server},
+    {.methods = HTTP_GET,       .call = &rsrc_handle_root},
+    {.methods = HTTP_GET,       .call = &rsrc_handle_client_js},
+    {.methods = HTTP_GET
+              | HTTP_PUT,       .call = &rsrc_handle_configuration},
+    {.methods = HTTP_GET
+              | HTTP_POST,      .call = &rsrc_handle_coordinates},
+    {.methods = HTTP_GET,       .call = &rsrc_handle_index},
+    {.methods = HTTP_GET
+              | HTTP_POST,      .call = &rsrc_handle_measurement},
+    {.methods = HTTP_GET,       .call = &rsrc_handle_style_css}
+};
