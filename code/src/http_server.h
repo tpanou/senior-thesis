@@ -136,8 +136,8 @@ typedef struct HTTPRequest {
 #define METHOD_MIN            0
 #define METHOD_CONNECT        0 /**< @brief Method @c CONNECT. */
 #define METHOD_DELETE         1 /**< @brief Method @c DELETE. */
-#define METHOD_HEAD           2 /**< @brief Method @c HEAD. */
-#define METHOD_GET            3 /**< @brief Method @c GET. */
+#define METHOD_GET            2 /**< @brief Method @c GET. */
+#define METHOD_HEAD           3 /**< @brief Method @c HEAD. */
 #define METHOD_OPTIONS        4 /**< @brief Method @c OPTIONS. */
 #define METHOD_POST           5 /**< @brief Method @c POST. */
 #define METHOD_PUT            6 /**< @brief Method @c PUT. */
