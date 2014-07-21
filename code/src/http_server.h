@@ -11,11 +11,20 @@ struct ResourceHandler;
 
 #include <inttypes.h>
 
+/**
+* @brief Maximum server name length (including null-byte).
+*/
 #define HOST_NAME_LEN   16
 
+/**
+* @brief Maximum server port length (including null-byte).
+*/
 #define HOST_PORT_LEN   6
 
 #ifndef NULL
+/**
+* Specify that a pointer has not been set to a valid address.
+*/
 #define NULL            0
 #endif
 
@@ -223,6 +232,13 @@ typedef enum {
     /** @brief Method POST flag-bit. */
     HTTP_POST       =  TO_METHOD_FLAG(METHOD_POST)
 } MethodFlag;
+
+/**
+* @brief Initialise HTTP server modules.
+*
+* It is enough to call this only once.
+*/
+void srvr_init();
 
 /**
 * @brief Register the specified resource tokens and handlers with the server.

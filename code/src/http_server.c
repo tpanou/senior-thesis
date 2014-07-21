@@ -75,6 +75,16 @@ ServerSettings settings = {
     .rsrc_len       =  0
 };
 
+void srvr_init() {
+    /* Provide a reference of server settings to the HTTP parser. */
+    http_parser_set_server(&settings);
+
+    /* Specify which parser should be used by the resource handlers. Generally,
+    * this should be done every time before calling a resource handler. But, in
+    * the current implementation, only JSON formatted data are supported. */
+    rsrc_set_parser(&json_parse);
+}
+
 void srvr_set_resources(uint8_t** tokens,
                         ResourceHandler* handlers,
                         uint8_t len) {
