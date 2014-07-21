@@ -75,6 +75,21 @@ ServerSettings settings = {
     .rsrc_len       =  0
 };
 
+void srvr_set_resources(uint8_t** tokens,
+                        ResourceHandler* handlers,
+                        uint8_t len) {
+
+    if(tokens && handlers && len) {
+        settings.rsrc_tokens    =  tokens;
+        settings.rsrc_handlers  =  handlers;
+        settings.rsrc_len       =  len;
+    } else {
+        settings.rsrc_tokens    =  NULL;
+        settings.rsrc_handlers  =  NULL;
+        settings.rsrc_len       =  0;
+    }
+}
+
 void srvr_set_host_name_ip(uint8_t* ip) {
     uint8_t byte;   /* A single byte from @p ip. */
     uint8_t i;      /* For each byte in @p ip. */

@@ -8,13 +8,16 @@
 #define HTTP_SERVER_H_INCL
 
 struct ResourceHandler;
-struct ServerResources;
 
 #include <inttypes.h>
 
 #define HOST_NAME_LEN   16
 
 #define HOST_PORT_LEN   6
+
+#ifndef NULL
+#define NULL            0
+#endif
 
 /**
 * @brief Various HTTP server settings.
@@ -220,6 +223,28 @@ typedef enum {
     /** @brief Method POST flag-bit. */
     HTTP_POST       =  TO_METHOD_FLAG(METHOD_POST)
 } MethodFlag;
+
+/**
+* @brief Register the specified resource tokens and handlers with the server.
+*
+* All paths supported by the server must be issued exactly one handler this way.
+* Failing to do so for some paths will result in a 404 (Not Found) response
+* being returned to the requester entity for those paths. This function need
+* only be invoked once, unless the address of the arrays changes (ie, switching
+* individual handlers during run-time -- via rsrc_set_handler() -- does not
+* affect the array address).
+*
+* Passing @c NULL or @c 0 to any of the parameters discards all resource
+* references.
+*
+* @param[in] tokens Supported absolute path tokens.
+* @param[in] handlers Array of functions to call for each string in @p tokens.
+* @param[in] len The number of token-handler pairs found in @p tokens and @p
+* handlers.
+*/
+void srvr_set_resources(uint8_t** tokens,
+                        struct ResourceHandler* handlers,
+                        uint8_t len);
 
 /**
 * @brief Convert and set an IP address as the host name of the HTTP server.

@@ -37,35 +37,6 @@ typedef struct ResourceHandler {
 } ResourceHandler;
 
 /**
-* @brief Defines callbacks for the absolute paths supported by the HTTP server.
-*
-* All paths supported by the server must be issued exactly one handler. Failing
-* to do so for some paths will result in a 404 (Not Found) response being
-* returned to the requester entity for those paths. srvr_set_resources() should
-* be used to register them to the HTTP server.
-*
-* Use rsrc_set_handler() to switch handlers during run-time.
-*
-*/
-typedef struct ServerResources {
-    /** @brief Supported absolute path tokens. */
-    uint8_t** tokens;
-
-    /**
-    * @brief Function to call for each string in @c tokens.
-    *
-    * Each handler in this array will be invoked when the token in the
-    * corresponding position of @c tokens is found in the HTTP request URI. */
-    ResourceHandler* handlers;
-
-    /**
-    * @brief The number of token-handler pairs found in @c tokens and @c
-    * handlers.
-    */
-    uint8_t len;
-} ServerResources;
-
-/**
 * @brief Initialise the Resource module.
 *
 * This basically registers the resource tokens and handler function to the HTTP

@@ -35,22 +35,8 @@ static uint8_t* rsrc_tokens[] = {};
 */
 static ResourceHandler rsrc_handlers[]; /* See the definition further below. */
 
-/**
-* @ingroup resource
-* @brief The resources to be exposed by the HTTP server.
-*
-* Each string (which is an absolute path) in @c tokens corresponds to a
-* ResourceHandler in @c rsrc_handlers.
-*/
-static ServerResources rsrc_resources = {
-    .tokens     = rsrc_tokens,
-    .handlers   = rsrc_handlers,
-    .len        = RSRC_LEN
-};
-
 void rsrc_init() {
-    /* TODO */
-    #error rsrc_init not implemented.
+    srvr_set_resources(rsrc_tokens, rsrc_handlers, RSRC_LEN);
 }
 
 void rsrc_set_parser(int8_t
