@@ -92,10 +92,9 @@ int8_t copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c) {
 }
 
 int8_t stream_match(uint8_t** desc, uint8_t max, uint8_t* c) {
-    uint8_t abs_min = 0; /* The initial value (before moving boundaries). */
+    int8_t c_type   = 0;
     uint8_t cmp_idx = 0;
     uint8_t i;
-    int8_t c_type   = 0;
     uint8_t min     = 0;
 
     /* When @c min is equal to @c max, the descriptor at position max-1 is a
@@ -135,10 +134,9 @@ int8_t stream_match(uint8_t** desc, uint8_t max, uint8_t* c) {
     * Currently, @c EOF is the only possible error. */
     if(c_type) return c_type;
 
-    /* @c i equals `abs_min' when the input string alphabetically precedes the
-    * first currently available. */
-    if(i > abs_min && *c != '\0') {
-
+    /* @c i equals @c 0 when the input string alphabetically precedes the first
+    * currently available. */
+    if(i > 0 && *c != '\0') {
         if(desc[i - 1][cmp_idx] == '\0') return i - 1;
     }
 
