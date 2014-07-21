@@ -34,7 +34,7 @@
 * of tokens within each affected group. Note, that any new token should be given
 * in the same letter case as the rest of the tokens.
 */
-uint8_t* server_consts[] = {
+static uint8_t* server_consts[] = {
     /* METHODS, min: 0 max: 8 */
     "connect",
     "delete",
@@ -56,15 +56,15 @@ uint8_t* server_consts[] = {
     "text/*",
     "text/html",
     "text/json",
-    /* TRANFSER_CODINGS, min: METHODS+HEADERS+MEDIA_RANGES, max: 2 */
+    /* TRANFSER_CODING, min: METHODS+HEADERS+MEDIA_RANGES, max: 2 */
     "chunked",
     "identity",
-    /* HTTP TOKENS, indices: METHODS+HEADERS+MEDIA_RANGES+T_CONDINGS, +1 */
+    /* HTTP TOKENS, indices: METHODS+HEADERS+MEDIA_RANGES+T_CODING, +1 */
     "http",
     "http://"
 };
 
-ServerSettings settings = {
+static ServerSettings srvr = {
     .consts         =  server_consts,
 
     .host_name      =  "000.000.000.000",
@@ -77,7 +77,7 @@ ServerSettings settings = {
 
 void srvr_init() {
     /* Provide a reference of server settings to the HTTP parser. */
-    http_parser_set_server(&settings);
+    http_parser_set_server(&srvr);
 
     /* Specify which parser should be used by the resource handlers. Generally,
     * this should be done every time before calling a resource handler. But, in
@@ -90,13 +90,13 @@ void srvr_set_resources(uint8_t** tokens,
                         uint8_t len) {
 
     if(tokens && handlers && len) {
-        settings.rsrc_tokens    =  tokens;
-        settings.rsrc_handlers  =  handlers;
-        settings.rsrc_len       =  len;
+        srvr.rsrc_tokens    =  tokens;
+        srvr.rsrc_handlers  =  handlers;
+        srvr.rsrc_len       =  len;
     } else {
-        settings.rsrc_tokens    =  NULL;
-        settings.rsrc_handlers  =  NULL;
-        settings.rsrc_len       =  0;
+        srvr.rsrc_tokens    =  NULL;
+        srvr.rsrc_handlers  =  NULL;
+        srvr.rsrc_len       =  0;
     }
 }
 
@@ -105,7 +105,7 @@ void srvr_set_host_name_ip(uint8_t* ip) {
     uint8_t i;      /* For each byte in @p ip. */
     uint8_t pos;    /* Position in ServerSettings#host_name to write to next. */
     uint8_t j;      /* Digit of @c byte to write next. */
-    uint8_t* host = settings.host_name;
+    uint8_t* host = srvr.host_name;
 
     for(i = 0, pos = 0 ; i < 4 ; ++i) {
         byte = ip[i];

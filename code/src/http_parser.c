@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <ctype.h> /* isxdigit(), tolower() */
 
-ServerSettings* srvr;
+static ServerSettings* srvr;
 
 /**
 * @ingroup http_parser
