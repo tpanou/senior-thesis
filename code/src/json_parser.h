@@ -90,7 +90,7 @@ begin-object    = ws %x7B ws  ; { left curly bracket
 * to convert serialized data to variable values (integer parser, and string
 * copy). These requirements are satisfied by the following functions of
 * stream_util.h:
-*   - stream_match(uint8_t** tokens, uint8_t min, uint8_t max, uint8_t* c)
+*   - stream_match(uint8_t** tokens, uint8_t max, uint8_t* c)
 *   - parse_uint8(uint8_t* value, uint8_t* c)
 *   - copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c)
 *
@@ -102,7 +102,7 @@ begin-object    = ws %x7B ws  ; { left curly bracket
 #define JSON_PARSER_H_INCL
 
 #include "param.h"
-#include "stream_utils.h"
+#include "stream_util.h"
 
 #include <inttypes.h>
 

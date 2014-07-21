@@ -151,8 +151,6 @@ int8_t copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c);
 * there is no match, in which case, it returns #OTHER.
 *
 * @param[in] desc Array with strings (descriptors).
-* @param[in] min The lower boundary of @p desc; index of the first literal to
-*   use in the comparisons.
 * @param[in] max The upper boundary of @p desc; index of the last literal to use
 *   in the comparisons, incremented by 1.
 * @param[in,out] c The first character to compare against the strings and the
@@ -162,7 +160,7 @@ int8_t copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c);
 *   - #OTHER; on certainty of no match.
 *   - EOF; if end of stream has been reached before hitting a match/mismatch.
 */
-int8_t stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c);
+int8_t stream_match(uint8_t** desc, uint8_t max, uint8_t* c);
 
 /**
 * @brief Find the closest match from an array of strings with the stream.

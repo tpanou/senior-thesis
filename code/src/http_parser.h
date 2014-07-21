@@ -7,85 +7,9 @@
 #ifndef WEB_SERVER_H_INCL
 #define WEB_SERVER_H_INCL
 
+#include "http_server.h"
+
 #include <inttypes.h>
-
-/**
-* @brief A representation of an HTTP message.
-*/
-typedef struct {
-    /** @brief Value representing the method of the request. */
-    uint8_t method;
-
-    /** @brief Value representing the URI of the request line. */
-    uint8_t uri;
-
-    /** @brief The major number of the HTTP version of the message. */
-    uint8_t v_major;
-
-    /** @brief The minor number of the HTTP version of the message. */
-    uint8_t v_minor;
-
-    /** @brief Value representing the accept media range of the request. */
-    int8_t accept;
-
-    /** @brief Value representing the transfer encoding of the message. */
-    uint8_t transfer_encoding;
-
-    /** @brief Value representing the content type of the message. */
-    uint8_t content_type;
-
-    /** @brief The length (in octets) of the message. */
-    uint16_t content_length;
-} HTTPRequest;
-
-/**
-* @brief Array of server strings.
-*
-* Values include supported methods, header names and media ranges.
-*/
-static uint8_t* server_consts[] = {
-    /* Methods, min: 0, max: 2 */
-    "get",
-    "put",
-    /* Headers, min: 2, max: 6 */
-    "accept",
-    "content-length",
-    "content-type",
-    "transfer-encoding",
-    /* Media range, min: 6, max: 11 */
-    "*/*",
-    "application/*",
-    "application/xml",
-    "text/*",
-    "text/html",
-    /* HTTP tokens, index: 11, 12 */
-    "http",
-    "http://",
-    /* Transfer-codings, min: 13, max: 15 */
-    "chunked",
-    "identity",
-    /* Absolute paths, min: 15, max: 18 */
-    "*",
-    "/",
-    "/index.html"
-};
-
-/**
-* @brief The name of the server (value of `Host' header and part of absolute
-* URIs).
-*
-* It is not necessary to be an IP address. Use set_host_name() to update its
-* value at any time. It should be noted that no trailing slash should ever be
-* appended.
-*/
-static uint8_t host_name[] = "000.000.000.000";
-
-/**
-* @brief The listening port of the server; defaults to 80.
-*
-* Use set_host_port() to update its value.
-*/
-static uint8_t host_port[6] = "80";
 
 /**
 * @brief Denotes whether a chunked message is already in process.
@@ -115,96 +39,16 @@ static uint16_t chunk_pos   = 0;
 #endif
 
 /**
-* @brief The starting index in #server_consts of supported method literals.
-*/
-#define METHOD_MIN            0
-#define METHOD_GET            0 /**< @brief Method @c GET. */
-#define METHOD_PUT            1 /**< @brief Method @c PUT. */
-/**
-* @brief The upper-bound of method literals.
-* It should be one unit greater than the index of the last method literal.
-*/
-#define METHOD_MAX            2
-
-/**
-* @brief The starting index in #server_consts of supported header literals.
-*/
-#define HEADER_MIN            2
-#define HEADER_ACCEPT         2 /**< @brief Header @c Accept. */
-#define HEADER_CONTENT_LENGTH 3 /**< @brief Header @c Content-Length. */
-#define HEADER_CONTENT_TYPE   4 /**< @brief Header @c Content-Type. */
-#define HEADER_TRANSFER_ENC   5 /**< @brief Header @c Transfer-Encoding. */
-/**
-* @brief The upper-bound of header literals.
-* It should be one unit greater than the index of the last header literal.
-*/
-#define HEADER_MAX            6
-
-/**
-* @brief The starting index in #server_consts of supported media range literals.
-*/
-#define MIME_MIN              6
-#define MIME_ANY              6 /**< @brief Media range "* / *". */
-#define MIME_APP_ANY          7 /**< @brief Media range "application/any". */
-#define MIME_APP_XML          8 /**< @brief Media range "application/xml". */
-#define MIME_TEXT_ANY         9 /**< @brief Media range "text/ *". */
-#define MIME_TEXT_HTML       10 /**< @brief Media range "text/html". */
-/**
-* @brief The upper-bound of media range literals.
-* It should be one unit greater than the index of the last media range literal.
-*/
-#define MIME_MAX             11
-
-#define HTTP_SCHEME          11 /**< @brief HTTP literal. */
-#define HTTP_SCHEME_S        12 /**< @brief HTTP scheme with separator. */
-
-/**
-* @brief The starting index in #server_consts of available transfer-coding.
-*/
-#define TRANSFER_COD_MIN     13
-#define TRANSFER_COD_CHUNK   13 /**< @brief Chunked transfer-coding. */
-#define TRANSFER_COD_IDENT   14 /**< @brief Identity transfer-conding. */
-/**
-* @brief The upper-bound of transfer-coding literals.
-* It should be one unit greater than the index of the last transfer-coding
-* literal.
-*/
-#define TRANSFER_COD_MAX     18
-
-/**
-* @brief The starting index in #server_consts of available endpoints.
-*/
-#define URI_MIN              15
-#define URI_SERVER           15 /**< @brief Server "*". */
-#define URI_ROOT             16 /**< @brief Server root "/". */
-#define URI_INDEX_HTML       17 /**< @brief Endpoint "/index.html". */
-/**
-* @brief The upper-bound of endpoint literals.
-* It should be one unit greater than the index of the last endpoint literal.
-*/
-#define URI_MAX              18
-
-/**
-* @brief Describes an unsupported transfer-coding value or combination thereof.
+* @brief Provide a reference to the HTTP server settings.
 *
-* This is not a #server_consts index.
+* The HTTP parser requires access to HTTP tokens (such as header names),
+* resource absolute paths, server host name and port in order to analyse
+* incoming HTTP messages. In no way does it alter the contents of the supplied
+* varialbe.
+*
+* @param[in] srvr Pointer to a valid ServerSettings variable.
 */
-#define TRANSFER_COD_OTHER    1
-
-/**
-* @brief Convert and set a IP address as the host name of the HTTP server.
-*
-* This function is an alternative to set_host_name(). It receives an array of
-* four bytes and converts them to an equivalent IP address string
-* (null-terminated).
-*
-* More specifically, for each address byte, an initial position is estimated and
-* then incremented dependent on the number of its digits. Then, a character is
-* passed into #host_name for each of its digits (using modulo and quotient).
-*
-* @param[in] ip A four-byte array of an IP address.
-*/
-void set_host_name_ip(uint8_t* ip);
+void http_parser_set_server(ServerSettings* srvr);
 
 /**
 * @brief Parse the input stream and return an #HTTPRequest representation of it.

@@ -119,7 +119,7 @@ static int8_t json_parse_member(ParamInfo* info, uint8_t* c) {
 
         switch(state) {
             case JSON_KEY_BEGIN:
-                c_type = stream_match(info->tokens, 0, info->len, c);
+                c_type = stream_match(info->tokens, info->len, c);
 
                 /* If #stream_match() found a candidate token (c_type > 0) with
                 * a proper terminator ('"', in this case), then an acceptable

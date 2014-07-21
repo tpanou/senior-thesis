@@ -6,47 +6,23 @@
 #include <stdio.h>
 #include <ctype.h> /* isxdigit(), tolower() */
 
-void set_host_name_ip(uint8_t* ip) {
-    uint8_t byte;   /* A single byte from @p ip. */
-    uint8_t i;      /* For each byte in @p ip. */
-    uint8_t pos;    /* Position in #host_name to write to next. */
-    uint8_t j;      /* Digit of @c byte to write next. */
+ServerSettings* srvr;
 
-    for(i = 0, pos = 0 ; i < 4 ; ++i) {
-        byte = ip[i];
-        j = 0;
-        if(byte >= 10 && byte < 100) ++pos;
-        else if(byte >= 100) pos += 2;
-
-        /* Ensure this runs at least one so that a single zero may not be
-        * omitted. */
-        do {
-            host_name[pos - j] = byte % 10 + '0';
-            ++j;
-            byte /= 10;
-        } while(byte);
-
-        /* Increment for next '.' or terminating null-byte. */
-        ++pos;
-        /* If more bytes are to follow, place a '.' and further increase @c pos
-        * to point at the position to write the next digit to. */
-        if(i != 3) host_name[pos++] = '.';
-    }
-    host_name[pos] = '\0';
+void http_parser_set_server(ServerSettings* new_settings) {
+    srvr    = new_settings;
 }
 
 HTTPRequest http_parse_request() {
     uint8_t c;
     int8_t c_type;
-    HTTPRequest req = {.method                  = -1,
-                       .uri                     =  0,
-                       .v_major                 =  0,
-                       .v_minor                 =  0,
-                       .accept                  =  0,
-                       .content_type            =  0,
-                       .content_length          =  0,
-                       .transfer_encoding       =  0};
-
+    HTTPRequest req = {.method                  =  SRVR_NOT_SET,
+                       .uri                     =  SRVR_NOT_SET,
+                       .v_major                 =  SRVR_NOT_SET,
+                       .v_minor                 =  SRVR_NOT_SET,
+                       .accept                  =  SRVR_NOT_SET,
+                       .content_type            =  SRVR_NOT_SET,
+                       .content_length          =  SRVR_NOT_SET,
+                       .transfer_encoding       =  SRVR_NOT_SET};
 
     /* Parse request- or status-line. */
     c_type = s_next(&c);
@@ -75,7 +51,7 @@ int8_t parse_request_line(HTTPRequest* req, uint8_t* c) {
     int8_t c_type;
 
     /* Retrieve the method and discard SP. */
-    c_type = stream_match(server_consts, METHOD_MIN, METHOD_MAX, c);
+    c_type = stream_match(&srvr->consts[METHOD_MIN], METHOD_MAX, c);
     if(c_type >= 0) req->method = c_type;
     while(*c == ' ') c_type = s_next(c);
 
@@ -100,7 +76,7 @@ int8_t parse_http_version(HTTPRequest* req, uint8_t* c) {
     int8_t c_type;
     uint8_t digits;
 
-    c_type = stream_match(server_consts, HTTP_SCHEME, HTTP_SCHEME + 1, c);
+    c_type = stream_match(&srvr->consts[HTTP_SCHEME], HTTP_SCHEME + 1, c);
 
     if(c_type >= 0 && *c == '/') {
 
@@ -128,7 +104,7 @@ int8_t parse_headers(HTTPRequest* req, uint8_t* c) {
 
     while(c_type != EOF && !is_emptyln) {
         /* Attempt to identify a header */
-        c_type = stream_match(server_consts, HEADER_MIN, HEADER_MAX, c);
+        c_type = stream_match(&srvr->consts[HEADER_MIN], HEADER_MAX, c);
 
         /* If there is a potential match terminated by a ":", then that match is
         * valid. (No sort spacing is allowed in the header-name.) */
@@ -190,15 +166,13 @@ int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c) {
     if(*value == 0) {
 
         c_type =
-            stream_match(server_consts, TRANSFER_COD_MIN, TRANSFER_COD_MAX, c);
+            stream_match(&srvr->consts[TRANSFER_COD_MIN], TRANSFER_COD_MAX, c);
 
         /* An acceptable transfer-coding has been found; pass it into @p req.
         * As a note, punctuation characters (comma, in particular) is used to
         * specify multiple values in a list header. */
         if(c_type >= 0 && !isalpha(*c) && !ispunct(*c) ) {
             *value = c_type;
-        } else {
-            *value = TRANSFER_COD_OTHER;
         }
     }
 
@@ -206,7 +180,7 @@ int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c) {
     * specified, simply fail all values. */
     while(c_type != EOF && !is_CRLF(*c)) {
 
-        if(isalpha(*c)) *value = TRANSFER_COD_OTHER;
+        if(isalpha(*c)) *value = SRVR_NOT_SET;
         c_type = s_next(c);
     }
 
@@ -229,7 +203,7 @@ int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c) {
         }
 
         /* Identify the first media range. */
-        idx = stream_match(server_consts, MIME_MIN, MIME_MAX, c);
+        idx = stream_match(&srvr->consts[MIME_MIN], MIME_MAX, c);
         c_type = discard_LWS(c);
 
         /* In case that a potential match was terminated by a valid delimiter,
@@ -280,8 +254,8 @@ int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c) {
 }
 
 static int8_t parse_uri(HTTPRequest* req, uint8_t* c) {
-    uint8_t min     = URI_MIN;
-    uint8_t max     = URI_MAX;
+    uint8_t min     = 0;
+    uint8_t max     = srvr->rsrc_len;
     uint8_t cmp_idx = 0;
     uint8_t last_it = 255;
     int8_t  c_type  = 0;
@@ -298,7 +272,7 @@ static int8_t parse_uri(HTTPRequest* req, uint8_t* c) {
     * possible percent-encoding. */
     while(c_type != EOF && min < max) {
         c_type =
-            stream_match_ext(server_consts, URI_MIN, &min, &max, &cmp_idx, c);
+            stream_match_ext(srvr->rsrc_tokens, 0, &min, &max, &cmp_idx, c);
 
         /* If there is a failed match for the second time for a particular
         * iteration (ie, after attempting a percent-decoding, if a percent sign
@@ -351,12 +325,12 @@ static int8_t parse_host(uint8_t* c) {
     uint8_t* ptr[1];
 
     /* Match scheme "HTTP://" */
-    c_type = stream_match(server_consts, HTTP_SCHEME_S, HTTP_SCHEME_S + 1, c);
+    c_type = stream_match(&srvr->consts[HTTP_SCHEME_S], HTTP_SCHEME_S + 1, c);
 
     /* If scheme is acceptable, parse the host name. */
     if(c_type >= 0) {
-        ptr[0] = host_name;
-        c_type = stream_match(ptr, 0, 1, c);
+        ptr[0] = srvr->host_name;
+        c_type = stream_match(ptr, 1, c);
 
         /* Should the host name also be acceptable, parse the port, if one is
         * specified. */
@@ -365,8 +339,8 @@ static int8_t parse_host(uint8_t* c) {
             /* If a port was provided, ensure it matches the host's. */
             if(*c == ':') {
                 c_type = s_next(c);  /* Get character next to colon. */
-                ptr[0] = host_port;
-                c_type = stream_match(ptr, 0, 1, c);
+                ptr[0] = srvr->host_port;
+                c_type = stream_match(ptr, 1, c);
 
                 if(c_type >= 0) return 0;
 

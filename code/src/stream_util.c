@@ -91,11 +91,12 @@ int8_t copy_until(uint8_t* buf, uint8_t delim, uint8_t max, uint8_t* c) {
     return c_type;
 }
 
-int8_t stream_match(uint8_t** desc, uint8_t min, uint8_t max, uint8_t* c) {
-    uint8_t abs_min = min; /* The initial value (before moving boundaries). */
+int8_t stream_match(uint8_t** desc, uint8_t max, uint8_t* c) {
+    uint8_t abs_min = 0; /* The initial value (before moving boundaries). */
     uint8_t cmp_idx = 0;
     uint8_t i;
     int8_t c_type   = 0;
+    uint8_t min     = 0;
 
     /* When @c min is equal to @c max, the descriptor at position max-1 is a
     * possible match. What is left is to check whether the last character read
