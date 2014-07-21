@@ -8,6 +8,24 @@
 
 ServerSettings* srvr;
 
+/**
+* @ingroup http_parser
+* @brief Denotes whether a chunked message is already in process.
+*/
+static uint8_t is_chunk_on;
+
+/**
+* @ingroup http_parser
+* @brief Amount of total bytes to read from the current chunk.
+*/
+static uint16_t chunk_len;
+
+/**
+* @ingroup http_parser
+* @brief Amount of bytes read from the current chunk.
+*/
+static uint16_t chunk_pos;
+
 void http_parser_set_server(ServerSettings* new_settings) {
     srvr    = new_settings;
 }

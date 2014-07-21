@@ -12,21 +12,6 @@
 #include <inttypes.h>
 
 /**
-* @brief Denotes whether a chunked message is already in process.
-*/
-static uint8_t is_chunk_on  = 0;
-
-/**
-* @brief Amount of total bytes to read from the current chunk.
-*/
-static uint16_t chunk_len   = 0;
-
-/**
-* @brief Amount of bytes read from the current chunk.
-*/
-static uint16_t chunk_pos   = 0;
-
-/**
 * @brief Indicates a CRLF sequence.
 */
 #define CRLF    -4
@@ -89,7 +74,7 @@ HTTPRequest http_parse_request();
 *   - CRLF
 *   - EOF
 */
-int8_t parse_request_line(HTTPRequest* req, uint8_t* c);
+static int8_t parse_request_line(HTTPRequest* req, uint8_t* c);
 
 /**
 * @brief Read the specified transfer-coding from stream.
@@ -108,7 +93,7 @@ int8_t parse_request_line(HTTPRequest* req, uint8_t* c);
 *   - CRLF
 *   - EOF
 */
-int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c);
+static int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c);
 
 /**
 * @brief Read HTTP major and minor version numbers from stream.
@@ -121,7 +106,7 @@ int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c);
 *   read from the stream.
 * @returns EOF on end of stream; @c 0 or #OTHER, otherwise.
 */
-int8_t parse_http_version(HTTPRequest* req, uint8_t* c);
+static int8_t parse_http_version(HTTPRequest* req, uint8_t* c);
 
 /**
 * @brief Populates @p req with header values found on the stream.
@@ -141,7 +126,7 @@ int8_t parse_http_version(HTTPRequest* req, uint8_t* c);
 *       from the stream and the last LF returned in @p c.
 *   - EOF. Normally, this should not occur in the header section.
 */
-int8_t parse_headers(HTTPRequest* req, uint8_t* c);
+static int8_t parse_headers(HTTPRequest* req, uint8_t* c);
 
 /**
 * @brief Parse Accept header body-value is search of media ranges.
@@ -176,7 +161,9 @@ int8_t parse_headers(HTTPRequest* req, uint8_t* c);
 *   - #CRLF
 *   - EOF
 */
-int parse_header_accept(int8_t* media_range, uint16_t* qvalue, uint8_t* c);
+static int parse_header_accept(int8_t* media_range,
+                               uint16_t* qvalue,
+                               uint8_t* c);
 
 /**
 * @brief Match input from stream against the available server endpoints.
@@ -375,7 +362,7 @@ static int8_t discard_param(uint8_t* c);
 * @param c The first character to use in the comparisons.
 * @returns @c 1, if true; @c 0, otherwise.
 */
-int8_t is_LWS(uint8_t c);
+static int8_t is_LWS(uint8_t c);
 
 /**
 * @brief Checks whether there is a CRLF sequence on stream starting with @p c.
@@ -388,7 +375,7 @@ int8_t is_LWS(uint8_t c);
 * @param c The first character to use in the comparisons.
 * @returns @c 1, if true; @c 0, otherwise.
 */
-int8_t is_CRLF(uint8_t c);
+static int8_t is_CRLF(uint8_t c);
 
 /**
 * @brief Checks whether there is a CRLF sequence on stream starting with @p c.
@@ -401,7 +388,7 @@ int8_t is_CRLF(uint8_t c);
 * @param c The first character to use in the comparisons.
 * @returns @c 1, if true; @c 0, otherwise.
 */
-int8_t is_c_CRLF(uint8_t c);
+static int8_t is_c_CRLF(uint8_t c);
 
 #endif /* WEB_SERVER_H_INCL */
 /** @} */
