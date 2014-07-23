@@ -124,6 +124,19 @@ typedef struct HTTPRequest {
     uint16_t content_length;
 } HTTPRequest;
 
+/**
+* @brief The total amount of text fragments that may be used with
+* srvr_compile().
+*/
+#define TXF_MAX               8
+#define TXF_SPACE             0 /**< @brief A single space. */
+#define TXF_COLON             1 /**< @brief A single colon. */
+#define TXF_CRLF              2 /**< @brief A CRLF sequence (0x0D, 0x0A). */
+#define TXF_STATUS_200        3 /**< @brief The text: 200 OK */
+#define TXF_STATUS_404        4 /**< @brief The text: 404 Not Found */
+#define TXF_STATUS_405        5 /**< @brief The text: 405 Method Not Allowed */
+#define TXF_STATUS_501        6 /**< @brief The text: 501 Not Implemented */
+#define TXF_ALLOW             7 /**< @brief The text: Allow */
 
 /**
 * @brief General-context macro for any parameter not set to a known value.
@@ -277,5 +290,46 @@ void srvr_set_resources(uint8_t** tokens,
 */
 void srvr_set_host_name_ip(uint8_t* ip);
 
+/**
+* @brief Compiles a response based on the specified text fragments.
+*
+* The header section of all HTTP responses should be compiled from pieces of
+* text taken from a common pool of fragments and put together in the appropriate
+* order. This is done through this function to avoid re-definition of similar
+* fragments and blocks of code, as well as to hide any internal caching
+* mechanisms applied on them.
+*
+* Internally, this function uses send() to communicate the corresponding text
+* fragments to the network module which, in turn, preserves them until send() is
+* called with its @c flush argument set to a non-zero value. This could be done
+* through this function when @p flush holds a non-zero value or directly with
+* send(). Additional data may be sent directly to the network module (with
+* send()) at any time, regardless whether this function has previously been or
+* will be called again.
+*
+* As stated in the prototype, this function receives any amount of optional
+* arguments which correspond to the text fragments to write to the network
+* module. For a list of available fragments, see the TXF_* macros specified
+* herein. Obviously, the order in which the macros are specified is important
+* because it affects the order in which the corresponding text fragments are
+* written to the network module. The arbitrary list of optional arguments is
+* terminated by passing #SRVR_NOT_SET as the *last argument*. Failing to do so
+* involves the risk of stack overflow and arbitrary text fragments sent to the
+* network module.
+*
+* @param[in] flush Designates whether send() should be called with the intention
+*   to return its buffered data to the requester entity, after the specified
+*   fragments of this function have been sent to it.
+* @param[in] ... Any series of TXF_* macros that specify which text fragments
+*   and in what order should be sent to the network module. The last argument
+*   *should always* be #SRVR_NOT_SET.
+* @returns The outcome of send(): a non-negative number is the amount of
+*   available bytes in the networks module's output buffer after appending the
+*   specified fragments; a negative number indicates that appending the
+*   specified fragments has stopped because one of them could not fit in the
+*   network module's currently available buffer space due to lack of as many
+*   bytes as the returned value.
+*/
+int srvr_compile(uint8_t flush, ...);
 #endif /* HTTP_SERVER_H_INCL */
 /** @} */

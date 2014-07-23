@@ -3,6 +3,38 @@
 #include "json_parser.h"
 #include "resource.h"
 
+#include "w5100/socket.h"
+
+#include <avr/pgmspace.h>
+#include <stdarg.h>
+
+uint8_t txf_space[] PROGMEM         = " ";
+uint8_t txf_colon[] PROGMEM         = ":";
+uint8_t txf_CRLF[] PROGMEM          = "\r\n";
+uint8_t txf_status_200[] PROGMEM    = "200 OK";
+uint8_t txf_status_404[] PROGMEM    = "404 Not Found";
+uint8_t txf_status_405[] PROGMEM    = "405 Method Not Allowed";
+uint8_t txf_status_501[] PROGMEM    = "501 Not Implemented";
+uint8_t txf_allow[] PROGMEM         = "Allow";
+
+/**
+* @ingroup http_server
+* @brief Text fragments stored in program space (Flash memory).
+*
+* In order to conserve main memory (SRAM), some text fragments are store into
+* the more abound program memory and loaded into main memory, as needed.
+*/
+PGM_P srvr_text[] PROGMEM = {
+    txf_space,
+    txf_colon,
+    txf_CRLF,
+    txf_status_200,
+    txf_status_404,
+    txf_status_405,
+    txf_status_501,
+    txf_allow
+};
+
 /**
 * @ingroup http_server
 * @brief Array of server strings.
@@ -128,4 +160,34 @@ void srvr_set_host_name_ip(uint8_t* ip) {
         if(i != 3) host[pos++] = '.';
     }
     host[pos] = '\0';
+}
+
+int16_t srvr_compile(uint8_t flush, ...) {
+    int16_t  outcome    =  0;   /* As returned from send(). */
+    uint16_t text_id;           /* Value of any optional argument. */
+    uint8_t  buf[TXF_MAX];      /* Stores a fragment until it is sent. */
+    uint8_t  size;              /* Content size in @c buf. */
+    va_list  ap;                /* Reference to optional argument. */
+
+    va_start(ap, flush);
+
+    /* Send fragments to the network module until #SRVR_NOT_SET is met or the
+    * network's module buffer is depleted. */
+    while(text_id != SRVR_NOT_SET && outcome >= 0) {
+        text_id = va_arg(ap, unsigned int);
+
+        if(text_id < TXF_MAX) {
+            strcpy_P(buf, (PGM_P)pgm_read_word(&srvr_text[text_id]));
+            outcome = send(0, buf, strlen(buf), 0);
+
+        }
+    }
+
+    /* Flush all buffered data, if so specified. This should be avoided in case
+    * any of the mentioned text fragments could not be written, because, then,
+    * the text would not be complete / correct. */
+    if(flush && outcome >= 0) outcome = send(0, buf, 0, flush);
+
+    va_end(ap);
+    return outcome;
 }
