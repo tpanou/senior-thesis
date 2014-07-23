@@ -2,6 +2,7 @@
 #include "http_parser.h"
 #include "json_parser.h"
 #include "resource.h"
+#include "sbuffer.h"
 
 #include "w5100/socket.h"
 
@@ -190,4 +191,60 @@ int16_t srvr_compile(uint8_t flush, ...) {
 
     va_end(ap);
     return outcome;
+}
+
+void srvr_call() {
+    uint8_t uri;
+    HTTPRequest req;
+
+    /* Always reset to s_next() as it may have been altered due to a different
+    * transfer coding of the previous request. */
+    stream_set_source(&s_next);
+    json_set_source(&s_next);
+
+    req     =  http_parse_request();
+    uri     =  req.uri;
+
+    /* TODO: If multiple content types of incoming messages are to be supported,
+    * the appropriate parser for each request should be set here, *before*
+    * calling the resource handler, below. Currently, only JSON is supported and
+    * its parser is set only once, during initialisation. See srvr_init() and
+    * its line with rsrc_set_parser(). */
+
+    /* If the URI is not available or if no hander is specified, return 404 (Not
+    * Found). */
+    if(uri == SRVR_NOT_SET || !srvr.rsrc_handlers[uri].call) {
+        /* TODO: Return status code. */
+        puts(" >> 404 <<");
+        return;
+    }
+
+    /* Method not recognised by the server. Return 501 (Not Implemented). */
+    if(req.method == SRVR_NOT_SET) {
+        /* TODO: Return status code. Maybe, provide the supported methods? */
+        puts(" >> 501 <<");
+        return;
+    }
+
+    /* Call the handler, if the requested method has a bit-flag set. */
+    if(TO_METHOD_FLAG(req.method) & srvr.rsrc_handlers[uri].methods) {
+        puts("Calling resource handler");
+
+        /* Set-up reading a chunked message, if it was so specified in the
+        * header. */
+        if(req.transfer_encoding == TRANSFER_COD_CHUNK) {
+            stream_set_source(&c_next);
+            json_set_source(&c_next);
+        }
+
+        /* Call the appropriate handler. */
+        (*(srvr.rsrc_handlers[uri].call))(&req);
+
+    /* Otherwise, return a 405 (Method Not Allowed), along with an`Allow'
+    * header. */
+    } else {
+        /* TODO: Return status code. */
+        puts(" >> 405 <<");
+        return;
+    }
 }

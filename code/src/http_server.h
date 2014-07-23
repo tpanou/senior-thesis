@@ -331,5 +331,16 @@ void srvr_set_host_name_ip(uint8_t* ip);
 *   bytes as the returned value.
 */
 int srvr_compile(uint8_t flush, ...);
+
+/**
+* @brief Notify data have arrived on the HTTP server's socket.
+*
+* This function is responsible for performing all necessary initialisation,
+* parsing the incoming data as an HTTP request and returning an appropriate
+* response to the requester entity, either via the use of a user-defined handler
+* (see, #ResourceHandler) or one of predefined messages in case of an exception.
+*/
+void srvr_call();
+
 #endif /* HTTP_SERVER_H_INCL */
 /** @} */
