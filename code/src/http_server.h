@@ -21,6 +21,17 @@ struct ResourceHandler;
 */
 #define HOST_PORT_LEN   6
 
+/**
+* @brief Size of the longest TXF_* macro.
+*
+* To conserve SRAM, some text fragments (TXF_* macros) are stored in program
+* space (Flash memory) and only loaded into main memory when required. This
+* macro defines the size of the automatic (local) buffer that will be populated
+* with any requested text fragments and should be large enough to contain the
+* longest TXF_* string.
+*/
+#define TXF_BUF_LEN     32
+
 #ifndef NULL
 /**
 * Specify that a pointer has not been set to a valid address.
@@ -142,6 +153,21 @@ typedef struct HTTPRequest {
 #define TXF_CONTENT_LENGTH   10 /**< @brief The text: Content-Length */
 #define TXF_CONTENT_TYPE     11 /**< @brief The text: Content-Type */
 #define TXF_SERVER           12 /**< @brief Header Server and its value. */
+
+/**
+* @brief Alias of #TXF_SPACE.
+*/
+#define TXF_SP                  TXF_SPACE
+
+/**
+* @brief Header separator (colon,space).
+*/
+#define TXF_HS                  TXF_COLON, TXF_SPACE
+
+/**
+* @brief Empty line (CRLF,CRLF).
+*/
+#define TXF_LN                  TXF_CRLF, TXF_CRLF
 
 /**
 * @brief General-context macro for any parameter not set to a known value.

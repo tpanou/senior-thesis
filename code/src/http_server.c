@@ -176,30 +176,28 @@ void srvr_set_host_name_ip(uint8_t* ip) {
 }
 
 int16_t srvr_compile(uint8_t flush, ...) {
-    int16_t  outcome    =  0;   /* As returned from send(). */
-    uint16_t text_id;           /* Value of any optional argument. */
-    uint8_t  buf[TXF_MAX];      /* Stores a fragment until it is sent. */
-    uint8_t  size;              /* Content size in @c buf. */
-    va_list  ap;                /* Reference to optional argument. */
+    int16_t outcome = 0;        /* As returned from send(). */
+    uint8_t buf[TXF_BUF_LEN];   /* Stores a fragment until it is sent. */
+    unsigned int txf_id;        /* Value of any optional argument; txf index. */
+    va_list ap;                 /* Optional argument reference. */
 
     va_start(ap, flush);
+    txf_id = va_arg(ap, unsigned int);
 
-    /* Send fragments to the network module until #SRVR_NOT_SET is met or the
-    * network's module buffer is depleted. */
-    while(text_id != SRVR_NOT_SET && outcome >= 0) {
-        text_id = va_arg(ap, unsigned int);
+    while(txf_id != SRVR_NOT_SET && outcome >= 0) {
 
-        if(text_id < TXF_MAX) {
-            strcpy_P(buf, (PGM_P)pgm_read_word(&srvr_text[text_id]));
+        if(txf_id < TXF_MAX) {
+            strcpy_P(buf, (PGM_P)pgm_read_word(&srvr_txf[txf_id]));
             outcome = send(0, buf, strlen(buf), 0);
-
         }
+
+        txf_id = va_arg(ap, unsigned int);
     }
 
     /* Flush all buffered data, if so specified. This should be avoided in case
     * any of the mentioned text fragments could not be written, because, then,
     * the text would not be complete / correct. */
-    if(flush && outcome >= 0) outcome = send(0, buf, 0, flush);
+    if(flush && outcome >= 0) outcome = send(0, buf, 0, 1);
 
     va_end(ap);
     return outcome;
