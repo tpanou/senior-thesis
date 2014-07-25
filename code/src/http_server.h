@@ -128,7 +128,7 @@ typedef struct HTTPRequest {
 * @brief The total amount of text fragments that may be used with
 * srvr_compile().
 */
-#define TXF_MAX               8
+#define TXF_MAX              13
 #define TXF_SPACE             0 /**< @brief A single space. */
 #define TXF_COLON             1 /**< @brief A single colon. */
 #define TXF_CRLF              2 /**< @brief A CRLF sequence (0x0D, 0x0A). */
@@ -136,7 +136,12 @@ typedef struct HTTPRequest {
 #define TXF_STATUS_404        4 /**< @brief The text: 404 Not Found */
 #define TXF_STATUS_405        5 /**< @brief The text: 405 Method Not Allowed */
 #define TXF_STATUS_501        6 /**< @brief The text: 501 Not Implemented */
-#define TXF_ALLOW             7 /**< @brief The text: Allow */
+#define TXF_HTTPv             7 /**< @brief The text: HTTP/1.1 */
+#define TXF_ALLOW             8 /**< @brief The text: Allow */
+#define TXF_CONNECTION_CLOSE  9 /**< @brief The text: Connection: close */
+#define TXF_CONTENT_LENGTH   10 /**< @brief The text: Content-Length */
+#define TXF_CONTENT_TYPE     11 /**< @brief The text: Content-Type */
+#define TXF_SERVER           12 /**< @brief Header Server and its value. */
 
 /**
 * @brief General-context macro for any parameter not set to a known value.

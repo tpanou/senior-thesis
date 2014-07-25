@@ -16,7 +16,14 @@ uint8_t txf_status_200[] PROGMEM    = "200 OK";
 uint8_t txf_status_404[] PROGMEM    = "404 Not Found";
 uint8_t txf_status_405[] PROGMEM    = "405 Method Not Allowed";
 uint8_t txf_status_501[] PROGMEM    = "501 Not Implemented";
+uint8_t txf_HTTPv[] PROGMEM         = "HTTP/1.1";
 uint8_t txf_allow[] PROGMEM         = "Allow";
+uint8_t txf_connection_close[] PROGMEM
+                                    = "Connection: close";
+uint8_t txf_content_length[] PROGMEM
+                                    = "Content-Length";
+uint8_t txf_content_type[] PROGMEM  = "Content-Type";
+uint8_t txf_server[] PROGMEM        = "Server: uServer (TEIA)";
 
 /**
 * @ingroup http_server
@@ -25,7 +32,7 @@ uint8_t txf_allow[] PROGMEM         = "Allow";
 * In order to conserve main memory (SRAM), some text fragments are store into
 * the more abound program memory and loaded into main memory, as needed.
 */
-PGM_P srvr_text[] PROGMEM = {
+PGM_P srvr_txf[] PROGMEM = {
     txf_space,
     txf_colon,
     txf_CRLF,
@@ -33,7 +40,12 @@ PGM_P srvr_text[] PROGMEM = {
     txf_status_404,
     txf_status_405,
     txf_status_501,
-    txf_allow
+    txf_HTTPv,
+    txf_allow,
+    txf_connection_close,
+    txf_content_length,
+    txf_content_type,
+    txf_server
 };
 
 /**
