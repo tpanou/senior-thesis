@@ -298,11 +298,34 @@ void srvr_call() {
         /* Call the appropriate handler. */
         (*(srvr.rsrc_handlers[uri].call))(&req);
 
-    /* Otherwise, return a 405 (Method Not Allowed), along with an`Allow'
+    /* Otherwise, return a 405 (Method Not Allowed), along with an `Allow'
     * header. */
     } else {
-        /* TODO: Return status code. */
-        puts(" >> 405 <<");
+        uint8_t i;
+
+        /* Send the initial headers. */
+        srvr_prep(TXF_RESPONSE_LINE_ln(405),
+                  TXF_STANDARD_HEADERS_ln,
+                  TXF_CONTENT_LENGTH_ZERO_ln,
+                  TXF_ALLOW, TXF_HS);
+
+        /* Loop and print all the available methods (in upper-case). */
+        for(i = 0 ; i < METHOD_MAX ; ++i) {
+            if(methods & 1) {
+                srvr_prep(TXFx_TO_ALLCAP, TXFx_FROMRAM, METHOD_MIN + i);
+
+                methods >>= 1;
+
+                /* If there are more methods available, print the list-value
+                * separator (comma) and proceed. */
+                if(methods) srvr_prep(TXF_COMMA, TXF_SP);
+
+            } else {
+                methods >>= 1;
+            }
+        }
+        srvr_send(TXF_lnln);
+
         return;
     }
 }
