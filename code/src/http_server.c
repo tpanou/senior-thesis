@@ -180,20 +180,61 @@ void srvr_set_host_name_ip(uint8_t* ip) {
 int16_t srvr_compile(uint8_t flush, ...) {
     int16_t outcome = 0;        /* As returned from send(). */
     uint8_t buf[TXF_BUF_LEN];   /* Stores a fragment until it is sent. */
+    uint8_t* str;               /* Pointer to the string to actually send. */
     unsigned int txf_id;        /* Value of any optional argument; txf index. */
     va_list ap;                 /* Optional argument reference. */
+    uint8_t do_allcap = 0;      /* Flag to make next fragment all upper-case. */
+    uint8_t do_send;            /* Flag to call send() in current iteration. */
 
     va_start(ap, flush);
     txf_id = va_arg(ap, unsigned int);
 
     while(txf_id != SRVR_NOT_SET && outcome >= 0) {
+        str     =  buf;
+        do_send =  1;
 
-        if(txf_id < TXF_MAX) {
-            strcpy_P(buf, (PGM_P)pgm_read_word(&srvr_txf[txf_id]));
-            outcome = send(0, buf, strlen(buf), 0);
+        /* Specify that all capitals is required and bring the next argument. */
+        if(txf_id == TXFx_TO_ALLCAP) {
+            do_allcap   =  1;
+            txf_id      =  va_arg(ap, unsigned int);
         }
 
-        txf_id = va_arg(ap, unsigned int);
+        /* If the fragment resides in program memory, fetch it from there. */
+        if(txf_id < TXF_MAX) {
+            strcpy_P(buf, (PGM_P)pgm_read_word(&srvr_txf[txf_id]));
+
+        /* If the fragment resides in #server_consts, fetch it from there. */
+        } else if(txf_id == TXFx_FROMRAM) {
+            txf_id = va_arg(ap, unsigned int);
+            strcpy(buf, server_consts[txf_id]);
+
+        /* If a custom string is supplied, set @c str to simply point to it. */
+        } else if(txf_id == TXFx_FW_STRING) {
+            str = va_arg(ap, uint8_t*);
+
+        /* If an integer is supplied, convert it into a string in @c buf, making
+        * sure to set @c str to its first digit. */
+        } else if(txf_id == TXFx_FW_UINT) {
+            uint8_t len;        /* The number of bytes written. */
+            len =  int_to_str(&buf[TXF_BUF_LEN - 1], va_arg(ap, uint16_t));
+            str = &buf[TXF_BUF_LEN - 1 - len];
+
+        /* Ignore any invalid fragment IDs. */
+        } else {
+            do_send = 0;
+        }
+
+        if(do_send) {
+
+            if(do_allcap) {
+                strupr(buf);
+                do_allcap   =  0;
+            }
+
+            outcome = send(0, str, strlen(str), 0);
+        }
+
+        txf_id = (unsigned int)va_arg(ap, unsigned int);
     }
 
     /* Flush all buffered data, if so specified. This should be avoided in case
