@@ -247,8 +247,9 @@ int16_t srvr_compile(uint8_t flush, ...) {
 }
 
 void srvr_call() {
-    uint8_t uri;
-    HTTPRequest req;
+    uint8_t uri;            /* ID or requested URI. */
+    uint8_t methods;        /* Available methods for requested URI. */
+    HTTPRequest req;        /* Request representation. */
 
     /* Always reset to s_next() as it may have been altered due to a different
     * transfer coding of the previous request. */
@@ -264,26 +265,30 @@ void srvr_call() {
     * its parser is set only once, during initialisation. See srvr_init() and
     * its line with rsrc_set_parser(). */
 
-    /* If the URI is not available or if no hander is specified, return 404 (Not
-    * Found). */
+    /* If the URI is not available or if no handler is specified, return 404
+    * (Not Found). */
     if(uri == SRVR_NOT_SET || !srvr.rsrc_handlers[uri].call) {
-        /* TODO: Return status code. */
-        puts(" >> 404 <<");
+        srvr_send(TXF_RESPONSE_LINE_ln(404),
+                  TXF_STANDARD_HEADERS_ln,
+                  TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 0, TXF_lnln);
         return;
     }
 
-    /* Method not recognised by the server. Return 501 (Not Implemented). */
-    if(req.method == SRVR_NOT_SET) {
-        /* TODO: Return status code. Maybe, provide the supported methods? */
-        puts(" >> 501 <<");
+    /* Method not recognised by the server or entity-body in a transfer-coding
+    * it does not understand. Return 501 (Not Implemented). */
+    if(req.method == SRVR_NOT_SET
+    || req.transfer_encoding == TRANSFER_COD_OTHER) {
+        srvr_send(TXF_RESPONSE_LINE_ln(501),
+                  TXF_STANDARD_HEADERS_ln,
+                  TXF_CONTENT_LENGTH_ZERO_ln, TXF_lnln);
         return;
     }
 
     /* Call the handler, if the requested method has a bit-flag set. */
-    if(TO_METHOD_FLAG(req.method) & srvr.rsrc_handlers[uri].methods) {
-        puts("Calling resource handler");
+    methods = srvr.rsrc_handlers[uri].methods;
+    if(TO_METHOD_FLAG(req.method) & methods) {
 
-        /* Set-up reading a chunked message, if it was so specified in the
+        /* Set-up reading a chunked message, if that was specified in the
         * header. */
         if(req.transfer_encoding == TRANSFER_COD_CHUNK) {
             stream_set_source(&c_next);
