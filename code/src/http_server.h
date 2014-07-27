@@ -308,6 +308,13 @@ srvr_compile(0, __VA_ARGS__, SRVR_NOT_SET)
 */
 #define TRANSFER_COD_MAX     2
 
+/**
+* @brief Describes an unsupported transfer-coding value or combination thereof.
+*
+* This is not a #server_consts index.
+*/
+#define TRANSFER_COD_OTHER    TRANSFER_COD_MAX
+
 /** @brief HTTP literal. */
 #define HTTP_SCHEME          (METHOD_MAX+HEADER_MAX+MIME_MAX+TRANSFER_COD_MAX)
 

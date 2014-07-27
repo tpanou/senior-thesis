@@ -191,6 +191,8 @@ int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c) {
         * specify multiple values in a list header. */
         if(c_type >= 0 && !isalpha(*c) && !ispunct(*c) ) {
             *value = c_type;
+        } else {
+            *value = TRANSFER_COD_OTHER;
         }
     }
 
@@ -198,7 +200,7 @@ int8_t parse_header_transfer_coding(uint8_t* value, uint8_t* c) {
     * specified, simply fail all values. */
     while(c_type != EOF && !is_CRLF(*c)) {
 
-        if(isalpha(*c)) *value = SRVR_NOT_SET;
+        if(isalpha(*c)) *value = TRANSFER_COD_OTHER;
         c_type = s_next(c);
     }
 
