@@ -24,6 +24,7 @@ uint8_t txf_content_length[] PROGMEM
                                     = "Content-Length";
 uint8_t txf_content_type[] PROGMEM  = "Content-Type";
 uint8_t txf_server[] PROGMEM        = "Server: uServer (TEIA)";
+uint8_t txf_comma[] PROGMEM         = ",";
 
 /**
 * @ingroup http_server
@@ -45,7 +46,8 @@ PGM_P srvr_txf[] PROGMEM = {
     txf_connection_close,
     txf_content_length,
     txf_content_type,
-    txf_server
+    txf_server,
+    txf_comma
 };
 
 /**

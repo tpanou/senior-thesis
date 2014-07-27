@@ -139,7 +139,7 @@ typedef struct HTTPRequest {
 * @brief The total amount of text fragments that may be used with
 * srvr_compile().
 */
-#define TXF_MAX              13
+#define TXF_MAX              14
 #define TXF_SPACE             0 /**< @brief A single space. */
 #define TXF_COLON             1 /**< @brief A single colon. */
 #define TXF_CRLF              2 /**< @brief A CRLF sequence (0x0D, 0x0A). */
@@ -153,6 +153,7 @@ typedef struct HTTPRequest {
 #define TXF_CONTENT_LENGTH   10 /**< @brief The text: Content-Length */
 #define TXF_CONTENT_TYPE     11 /**< @brief The text: Content-Type */
 #define TXF_SERVER           12 /**< @brief Header Server and its value. */
+#define TXF_COMMA            13 /**< @brief A  single comma. */
 
 /**
 * @brief Alias of #TXF_SPACE.
@@ -165,9 +166,86 @@ typedef struct HTTPRequest {
 #define TXF_HS                  TXF_COLON, TXF_SPACE
 
 /**
+* @brief Alias of #TXF_CRLF
+*/
+#define TXF_ln                  TXF_CRLF
+
+/**
 * @brief Empty line (CRLF,CRLF).
 */
-#define TXF_LN                  TXF_CRLF, TXF_CRLF
+#define TXF_lnln                TXF_CRLF, TXF_CRLF
+
+/**
+* @brief Easily compile a response line.
+*
+* The supplied argument is a number that should correspond to one of the known
+* status codes (see TXF_STATUS_*).
+*/
+#define TXF_RESPONSE_LINE_ln(x) TXF_HTTPv, TXF_SP, TXF_STATUS_##x, TXF_CRLF
+
+/**
+* @brief `Content-Length' header with a value of @c 0.
+*/
+#define TXF_CONTENT_LENGTH_ZERO_ln \
+TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 0, TXF_ln
+
+/**
+* @brief A set a headers that should be present in all responses.
+*/
+#define TXF_STANDARD_HEADERS_ln \
+TXF_SERVER, TXF_CRLF,           \
+TXF_CONNECTION_CLOSE, TXF_CRLF
+
+/**
+* @brief Equivalent to #srvr_compile(1, ..., #SRVR_NOT_SET).
+*
+* Convenience macro to avoid specifying #SRVR_NOT_SET as the last argument and
+* @c 1 as the first.
+*/
+#define srvr_send(...) \
+srvr_compile(1, __VA_ARGS__, SRVR_NOT_SET)
+
+/**
+* @brief Equivalent to #srvr_compile(0, ..., #SRVR_NOT_SET).
+*
+* Convenience macro to avoid specifying #SRVR_NOT_SET as the last argument and
+* @c 0 as the first.
+*/
+#define srvr_prep(...) \
+srvr_compile(0, __VA_ARGS__, SRVR_NOT_SET)
+
+/**
+* @brief Pass any custom string into srvr_compile().
+*
+* Causes the next argument to be interpreted as a (null-terminated) string which
+* is copied into the output buffer as-is.
+*/
+#define TXFx_FW_STRING      254
+
+/**
+* @brief Pass an unsigned number into srvr_compile().
+*
+* Causes the next argument to be converted into a string and then copied into
+* the output buffer.
+*/
+#define TXFx_FW_UINT        253
+
+/**
+* @brief Make the next string printed by srvr_compile() appear in upper-case.
+*
+* Causes the next text fragment to be converted into upper-case before copying
+* it into the output buffer. Note that if a custom string was supplied (with
+* #TXFx_TO_ALLCAP), the original string will be altered.
+*/
+#define TXFx_TO_ALLCAP      252
+
+/**
+* @brief Use a text fragment that resides in main memory in srvr_compile().
+*
+* Causes the next argument to be interpreted as a constant from #server_consts.
+* Currently, they have to be explicitly declared 
+*/
+#define TXFx_FROMRAM        251
 
 /**
 * @brief General-context macro for any parameter not set to a known value.
