@@ -161,9 +161,9 @@ typedef struct HTTPRequest {
 #define TXF_SP                  TXF_SPACE
 
 /**
-* @brief Header separator (colon,space).
+* @brief Alias of #TXF_COLON.
 */
-#define TXF_HS                  TXF_COLON, TXF_SPACE
+#define TXF_HS                  TXF_COLON
 
 /**
 * @brief Alias of #TXF_CRLF
@@ -174,14 +174,6 @@ typedef struct HTTPRequest {
 * @brief Empty line (CRLF,CRLF).
 */
 #define TXF_lnln                TXF_CRLF, TXF_CRLF
-
-/**
-* @brief Easily compile a response line.
-*
-* The supplied argument is a number that should correspond to one of the known
-* status codes (see TXF_STATUS_*).
-*/
-#define TXF_RESPONSE_LINE_ln(x) TXF_HTTPv, TXF_SP, TXF_STATUS_##x, TXF_CRLF
 
 /**
 * @brief `Content-Length' header with a value of @c 0.

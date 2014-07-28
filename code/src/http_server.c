@@ -19,11 +19,11 @@ uint8_t txf_status_501[] PROGMEM    = "501 Not Implemented";
 uint8_t txf_HTTPv[] PROGMEM         = "HTTP/1.1";
 uint8_t txf_allow[] PROGMEM         = "Allow";
 uint8_t txf_connection_close[] PROGMEM
-                                    = "Connection: close";
+                                    = "Connection:close";
 uint8_t txf_content_length[] PROGMEM
                                     = "Content-Length";
 uint8_t txf_content_type[] PROGMEM  = "Content-Type";
-uint8_t txf_server[] PROGMEM        = "Server: uServer (TEIA)";
+uint8_t txf_server[] PROGMEM        = "Server:uServer (TEIA)";
 uint8_t txf_comma[] PROGMEM         = ",";
 
 /**
@@ -259,6 +259,11 @@ void srvr_call() {
     req     =  http_parse_request();
     uri     =  req.uri;
 
+    /* Initialise the response line with the HTTP version followed by a single
+    * space. This should be followed by an appropriate status code, headers and
+    * a message body as determined further below. */
+    srvr_prep(TXF_HTTPv, TXF_SPACE);
+
     /* TODO: If multiple content types of incoming messages are to be supported,
     * the appropriate parser for each request should be set here, *before*
     * calling the resource handler, below. Currently, only JSON is supported and
@@ -268,9 +273,9 @@ void srvr_call() {
     /* If the URI is not available or if no handler is specified, return 404
     * (Not Found). */
     if(uri == SRVR_NOT_SET || !srvr.rsrc_handlers[uri].call) {
-        srvr_send(TXF_RESPONSE_LINE_ln(404),
+        srvr_send(TXF_STATUS_404, TXF_ln,
                   TXF_STANDARD_HEADERS_ln,
-                  TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 0, TXF_lnln);
+                  TXF_CONTENT_LENGTH_ZERO_ln, TXF_ln);
         return;
     }
 
@@ -278,7 +283,7 @@ void srvr_call() {
     * it does not understand. Return 501 (Not Implemented). */
     if(req.method == SRVR_NOT_SET
     || req.transfer_encoding == TRANSFER_COD_OTHER) {
-        srvr_send(TXF_RESPONSE_LINE_ln(501),
+        srvr_send(TXF_STATUS_501, TXF_ln,
                   TXF_STANDARD_HEADERS_ln,
                   TXF_CONTENT_LENGTH_ZERO_ln, TXF_lnln);
         return;
@@ -304,7 +309,7 @@ void srvr_call() {
         uint8_t i;
 
         /* Send the initial headers. */
-        srvr_prep(TXF_RESPONSE_LINE_ln(405),
+        srvr_prep(TXF_STATUS_405, TXF_ln,
                   TXF_STANDARD_HEADERS_ln,
                   TXF_CONTENT_LENGTH_ZERO_ln,
                   TXF_ALLOW, TXF_HS);
