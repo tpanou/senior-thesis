@@ -3,6 +3,7 @@
 #include "json_parser.h"
 #include "resource.h"
 #include "sbuffer.h"
+#include "util.h"
 
 #include "w5100/socket.h"
 
@@ -216,7 +217,7 @@ int16_t srvr_compile(uint8_t flush, ...) {
         * sure to set @c str to its first digit. */
         } else if(txf_id == TXFx_FW_UINT) {
             uint8_t len;        /* The number of bytes written. */
-            len =  int_to_str(&buf[TXF_BUF_LEN - 1], va_arg(ap, uint16_t));
+            len =  uint_to_str(&buf[TXF_BUF_LEN - 1], va_arg(ap, uint16_t));
             str = &buf[TXF_BUF_LEN - 1 - len];
 
         /* Ignore any invalid fragment IDs. */
