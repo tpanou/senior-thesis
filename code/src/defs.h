@@ -53,6 +53,11 @@ down-scaled to 4MHz, and\n
 #define UBRR_VALUE (int)(F_CPU/16/USART_BAUD - 1)
 
 /**
+* @brief Socket of W5100 that corresponds to the HTTP server.
+*/
+#define HTTP_SOCKET     0
+
+/**
 * Value of @c TOP (@c OC1A) that produces pulses at 50Hz taking #MTR_PRESCALER
 * into consideration.
 */

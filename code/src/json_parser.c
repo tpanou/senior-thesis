@@ -1,6 +1,11 @@
 
 #include "json_parser.h"
+#include "w5100/socket.h"
+#include "util.h"
+#include "defs.h"
+
 #include <stdio.h>
+#include <string.h>
 #include <inttypes.h>
 
 /**
@@ -44,6 +49,112 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len) {
     }
 
     return c_type;
+}
+
+void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
+    uint8_t buf[6]      =  " { \"";     /* A local buffer. */
+    uint8_t* str        =  buf;         /* String to send. */
+    uint8_t k           =  4;           /* Number of bytes to send. */
+    uint8_t i           =  0;           /* Iteration of @p tokens. */
+    uint8_t j;                          /* Pad numbers with white-space. */
+    uint8_t flush       =  0;           /* Flush data after sending them. */
+
+    uint8_t state       =  JSON_OBJECT_BEGIN;
+
+    while(len) {
+
+        switch(state) {
+            case JSON_OBJECT_BEGIN:
+                state       =  JSON_KEY_BEGIN;
+            break;
+
+            case JSON_KEY_BEGIN:
+                /* Print token. A double quote has been previously sent. */
+                str         =  tokens[i];
+                k           =  strlen(str);
+                state       =  JSON_KEY_END;
+            break;
+
+            case JSON_KEY_END:
+
+                buf[k++]    =  '"';     /* Key-end. */
+                buf[k++]    =  ' ';
+                buf[k++]    =  ':';
+                buf[k++]    =  ' ';
+
+                /* Insert a double quote if a string is to be printed. */
+                if(values[i].type == DTYPE_STRING) {
+                    buf[k++]    =  '"';
+                }
+
+                str         =  buf;
+                state       =  JSON_VALUE_BEGIN;
+            break;
+
+            case JSON_VALUE_BEGIN:
+
+                switch(values[i].type) {
+                    case DTYPE_UINT:
+                        /* Print a total of 5 digits (with padding to fill the
+                        * gaps, if needed). */
+                        k   =  5;
+
+                        /* The size of padding. */
+                        j   =  4 - uint_to_str(&buf[5],
+                                             *((uint8_t*)values[i].data_ptr));
+
+                        /* Pad with spaces to create a fixed-width number. */
+                        while(j) {
+                            buf[j] = ' ';
+                            --j;
+                        }
+                        buf[j] = ' ';
+
+                        str =  buf;
+
+                    break;
+                    case DTYPE_STRING:
+                        str =  (uint8_t*)values[i].data_ptr;
+                        k   =  strlen(str);
+
+                    break;
+                }
+                state       =  JSON_VALUE_END;
+            break;
+
+            case JSON_VALUE_END:
+
+                /* If a string was printed, append a closing double quote. */
+                if(values[i].type == DTYPE_STRING) {
+                    buf[k++] = '"';
+                }
+
+                buf[k++]    =  ' ';
+
+                ++i;        /* Increase number of iteration. */
+                --len;      /* Decrease remainder of parameters. */
+
+                /* Append a comma, if more parameters follow, or a brace,
+                * otherwise. */
+                if(len) {
+                    buf[k++]    =  ',';
+                    buf[k++]    =  ' ';
+                    buf[k++]    =  '"';     /* Key-start. */
+                    state = JSON_KEY_BEGIN;
+                } else {
+                    buf[k++]    =  0x7d; /* } */
+                    buf[k++]    =  ' ';
+                    flush       =  1;
+                }
+
+                str         = buf;
+                break;
+        }
+
+        send(HTTP_SOCKET, str, k, flush);
+
+        k           =  0;
+    }
 }
 
 int8_t json_discard_WS(uint8_t* c) {

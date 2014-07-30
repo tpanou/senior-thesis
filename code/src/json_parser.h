@@ -190,6 +190,35 @@ void json_set_source(int8_t (*input_source)(uint8_t*));
 int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
 
 /**
+* @brief Produce a serialised object of the provided parameters.
+*
+* @p tokens is an array of object keys that will be included in the serialised
+* output. Each one will be enclosed in double quotes and followed by the value
+* in the corresponding index of @p values. The conversion output depends on the
+* specified #DataType. For #DTYPE_UINT, a fixed width sub-string of 5 characters
+* is produced (which contains up to 5 digits and white-space padding).
+* Currently, only 8-bit numbers are supported; in future versions, the size bits
+* of @link ParamValue#status_len status_len@endlink would provide more control.
+* For #DTYPE_STRING, the contents of @link ParamValue#data_ptr data_ptr@endlink
+* are copied (within double quotes) until the first occurrence of a null-byte.
+*
+* A single white-space is produced around each structural character (such as
+* braces { }, colon :, comma ,) (as specified in RFC 7159 p.5*).
+*
+* Currently, the output string is automatically flushed over the network module 
+* This should not be the default behaviour, but was deemed appropriate at the
+* current state.
+*
+* @param[in] tokens An array of parameter-tokens (strings) that are to be
+*   used as object keys.
+* @param[in] values An array of #ParamValue that describe the semantics around
+*   each string provided in @p tokens (#DataType and, perhaps, size).
+* @param[in] len The amount of elements in @p tokens and @c values (obviously,
+*   the same for both).
+*/
+void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len);
+
+/**
 * @brief Advance the stream till a non-white-space character.
 *
 * In JSON,a white-space character is one of: space (0x20), horizontal tab

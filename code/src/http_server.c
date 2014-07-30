@@ -232,7 +232,7 @@ int16_t srvr_compile(uint8_t flush, ...) {
                 do_allcap   =  0;
             }
 
-            outcome = send(0, str, strlen(str), 0);
+            outcome = send(HTTP_SOCKET, str, strlen(str), 0);
         }
 
         txf_id = (unsigned int)va_arg(ap, unsigned int);
