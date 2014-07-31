@@ -1,5 +1,6 @@
 
 #include "resource.h"
+/* See #include "resource_handlers.inc" further below. */
 #include "param.h"
 #include "http_server.h"
 
@@ -29,6 +30,15 @@ static int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len);
 * handlers are invoked.
 */
 static void (*serialiser)(uint8_t**, ParamValue*, uint8_t len);
+
+/*
+* This module is divided into two parts; this file, containing common base
+* functions, and resource_handlers.inc containing the definition of each
+* resource handler. The latter is included after #parser and #serialiser have
+* been declared because they are needed in the included source code.
+* resource_handlers.inc should not be compiled separately.
+*/
+#include "resource_handlers.inc"
 
 /**
 * @ingroup resource
@@ -75,30 +85,6 @@ void rsrc_set_handler(uint8_t uri,
         rsrc_handlers[uri].methods = methods;
         rsrc_handlers[uri].call    = handler;
     }
-}
-
-void rsrc_handle_server(HTTPRequest* req) {
-}
-
-void rsrc_handle_root(HTTPRequest* req) {
-}
-
-void rsrc_handle_client_js(HTTPRequest* req) {
-}
-
-void rsrc_handle_configuration(HTTPRequest* req) {
-}
-
-void rsrc_handle_coordinates(HTTPRequest* req) {
-}
-
-void rsrc_handle_index(HTTPRequest* req) {
-}
-
-void rsrc_handle_measurement(HTTPRequest* req) {
-}
-
-void rsrc_handle_style_css(HTTPRequest* req) {
 }
 
 static ResourceHandler rsrc_handlers[RSRC_LEN] = {
