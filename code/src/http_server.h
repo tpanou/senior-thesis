@@ -390,13 +390,8 @@ void srvr_set_resources(uint8_t** tokens,
 /**
 * @brief Convert and set an IP address as the host name of the HTTP server.
 *
-* This function is an alternative to set_host_name(). It receives an array of
-* four bytes and converts them to an equivalent IP address string
-* (null-terminated).
-*
-* More specifically, for each address byte, an initial position is estimated and
-* then incremented dependent on the number of its digits. Then, a character is
-* passed into #host_name for each of its digits (using modulo and quotient).
+* This function is an alternative to set_host_name(). It uses inet_to_str() for
+* the conversion.
 *
 * @param[in] ip A four-byte array of an IP address.
 */

@@ -31,6 +31,22 @@
 uint8_t int_to_str(uint8_t* buf, uint16_t number);
 
 /**
+* @brief Convert an array of integers into a string, each separated with a dot.
+*
+* It receives an array of four bytes and converts them to an equivalent IP
+* address string (null-terminated).
+*
+* More specifically, for each address byte, an initial position is estimated and
+* then incremented dependent on the number of its digits. Then, a character is
+* passed into #host_name for each of its digits (using modulo and quotient).
+*
+* @param[out] buf The string array to write to.
+* @param[in] ip A four-byte array of an IP address (or mask).
+* @returns The number of bytes written into @p buf (non-inclusive of null-byte).
+*/
+uint8_t inet_to_str(uint8_t* buf, uint8_t* ip);
+
+/**
 * @brief Read a number of program memory chunks into @p buf.
 *
 * Accepts a variable amount of addresses of strings that reside in program

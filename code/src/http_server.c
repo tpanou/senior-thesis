@@ -160,33 +160,7 @@ void srvr_set_resources(uint8_t** tokens,
 }
 
 void srvr_set_host_name_ip(uint8_t* ip) {
-    uint8_t byte;   /* A single byte from @p ip. */
-    uint8_t i;      /* For each byte in @p ip. */
-    uint8_t pos;    /* Position in ServerSettings#host_name to write to next. */
-    uint8_t j;      /* Digit of @c byte to write next. */
-    uint8_t* host = srvr.host_name;
-
-    for(i = 0, pos = 0 ; i < 4 ; ++i) {
-        byte = ip[i];
-        j = 0;
-        if(byte >= 10 && byte < 100) ++pos;
-        else if(byte >= 100) pos += 2;
-
-        /* Ensure this runs at least one so that a single zero may not be
-        * omitted. */
-        do {
-            host[pos - j] = byte % 10 + '0';
-            ++j;
-            byte /= 10;
-        } while(byte);
-
-        /* Increment for next '.' or terminating null-byte. */
-        ++pos;
-        /* If more bytes are to follow, place a '.' and further increase @c pos
-        * to point at the position to write the next digit to. */
-        if(i != 3) host[pos++] = '.';
-    }
-    host[pos] = '\0';
+    inet_to_str(srvr.host_name, ip);
 }
 
 int16_t srvr_compile(uint8_t flush, ...) {

@@ -20,6 +20,36 @@ uint8_t uint_to_str(uint8_t* buf, uint16_t number) {
     return i;
 }
 
+uint8_t inet_to_str(uint8_t* buf, uint8_t* ip) {
+    uint8_t byte;   /* A single byte from @p ip. */
+    uint8_t i;      /* For each byte in @p ip. */
+    uint8_t pos;    /* Position in @p buf to write to next. */
+    uint8_t j;      /* Digit of @c byte to write next. */
+
+    for(i = 0, pos = 0 ; i < 4 ; ++i) {
+        byte = ip[i];
+        j = 0;
+        if(byte >= 10 && byte < 100) ++pos;
+        else if(byte >= 100) pos += 2;
+
+        /* Ensure this runs at least once so that a single zero may not be
+        * omitted. */
+        do {
+            buf[pos - j] = byte % 10 + '0';
+            ++j;
+            byte /= 10;
+        } while(byte);
+
+        /* Increment for next '.' or terminating null-byte. */
+        ++pos;
+        /* If more bytes are to follow, place a '.' and further increase @c pos
+        * to point at the position to write the next digit to. */
+        if(i != 3) buf[pos++] = '.';
+    }
+    buf[pos] = '\0';
+    return pos;
+}
+
 void pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...) {
     va_list ap;         /* Pointer to each optional argument. */
     PGM_P str;          /* Address of a string in Flash. */
