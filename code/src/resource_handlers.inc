@@ -40,6 +40,7 @@
 #define PRM_SUBNET_LEN      16
 
 /**
+* @ingroup resource
 * @brief Token: x
 *
 * This is used by rsrc_handler_coordinates() to read and return device
@@ -48,6 +49,7 @@
 static uint8_t prm_x[] PROGMEM = "x";
 
 /**
+* @ingroup resource
 * @brief Token: y
 *
 * This is used by rsrc_handler_coordinates() to read and return device
@@ -56,6 +58,7 @@ static uint8_t prm_x[] PROGMEM = "x";
 static uint8_t prm_y[] PROGMEM = "y";
 
 /**
+* @ingroup resource
 * @brief Token: z
 *
 * This is used by rsrc_handler_coordinates() to read and return device
