@@ -130,6 +130,21 @@ typedef struct rtc_mem {
 #define RTC_RS0         0
 
 /**
+* @brief Return the current date and time in ISO8601 format.
+*
+* Although <stdio.h>sprintf() could be used to format the date, it is chosen not
+* to, because this way, it results in smaller code footprint, no need to use the
+* stack (for the variable arguments) or store the format string.
+*
+* @param[out] buf At least 25-byte wide array that accepts the ISO8601 format of
+*   the current date and time (YYYY-MM-DDTHH:mm:ss.sssZ) of the RTC. The string
+*   will be null-terminated. Fraction of second always reads zero; time-zone is
+*   set to @c Z (UTC).
+* @param[out] day Day of week; @c 1 denotes Sunday.
+*/
+void rtc_format(uint8_t* buf, uint8_t* day);
+
+/**
 * @brief Set the RTC time.
 *
 * @param[in] rtc The bytes to send to the RTC. If @c -1 is returned, not all
