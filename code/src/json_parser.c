@@ -52,9 +52,9 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len) {
 }
 
 void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
-    uint8_t buf[6]      =  " { \"";     /* A local buffer. */
+    uint8_t buf[6]      =  "{\n\"";     /* A local buffer. */
     uint8_t* str        =  buf;         /* String to send. */
-    uint8_t k           =  4;           /* Number of bytes to send. */
+    uint8_t k           =  3;           /* Number of bytes to send. */
     uint8_t i           =  0;           /* Iteration of @p tokens. */
     uint8_t j;                          /* Pad numbers with white-space. */
     uint8_t flush       =  0;           /* Flush data after sending them. */
@@ -78,7 +78,6 @@ void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
             case JSON_KEY_END:
 
                 buf[k++]    =  '"';     /* Key-end. */
-                buf[k++]    =  ' ';
                 buf[k++]    =  ':';
                 buf[k++]    =  ' ';
 
@@ -129,8 +128,6 @@ void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
                     buf[k++] = '"';
                 }
 
-                buf[k++]    =  ' ';
-
                 ++i;        /* Increase number of iteration. */
                 --len;      /* Decrease remainder of parameters. */
 
@@ -138,12 +135,12 @@ void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
                 * otherwise. */
                 if(len) {
                     buf[k++]    =  ',';
-                    buf[k++]    =  ' ';
+                    buf[k++]    =  '\n';
                     buf[k++]    =  '"';     /* Key-start. */
                     state = JSON_KEY_BEGIN;
                 } else {
-                    buf[k++]    =  0x7d; /* } */
-                    buf[k++]    =  ' ';
+                    buf[k++]    =  '\n';
+                    buf[k++]    =  0x7d;    /* } */
                     flush       =  1;
                 }
 
@@ -199,8 +196,9 @@ static int8_t json_parse_object(ParamInfo* info, uint8_t* c) {
                 if(*c == ',') {
                     c_type  = (*gnext)(c);
                     state   = JSON_MEMBER_BEGIN;
-                } else if(*c == 0x7d) {
+                } else if(*c == 0x7d) {     /* } */
                     go_on   = 0;
+                    c_type  = 0;
                     /* state   = JSON_OBJECT_END; */
                 } else {
                     c_type = OTHER;

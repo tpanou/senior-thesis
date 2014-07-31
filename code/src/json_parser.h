@@ -61,8 +61,7 @@
 * 7159 p.5*), eg:@verbatim
 begin-object    = ws %x7B ws  ; { left curly bracket
 @endverbatim
-* None of the parser functions within this module will fail if either of the
-* above specified leading or trailing white-space is not present.
+* Any amount of leading or trailing white-space is ignored.
 *
 * This module is separated into more specific functions, each responsible for a
 * different section of a serialised JSON object. All of them are strict in the
@@ -179,7 +178,7 @@ void json_set_source(int8_t (*input_source)(uint8_t*));
 * @param[in] len The amount of elements in @p tokens and @c values (obviously,
 *   the same for both).
 * @returns One of:
-*   - 0; if the stream was successfully parsed. The status bits of each
+*   - @c 0; if the stream was successfully parsed. The status bits of each
 *       #ParamValue in @p values, provide details for each parameter.
 *   - #OTHER; if parsing failed at any stage (eg, unexpected parameter-token).
 *       If an unacceptable value was provided for an acceptable token, its
@@ -196,14 +195,12 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
 * output. Each one will be enclosed in double quotes and followed by the value
 * in the corresponding index of @p values. The conversion output depends on the
 * specified #DataType. For #DTYPE_UINT, a fixed width sub-string of 5 characters
-* is produced (which contains up to 5 digits and white-space padding).
+* is produced (which contains up to 5 digits and white-space leading padding).
 * Currently, only 8-bit numbers are supported; in future versions, the size bits
-* of @link ParamValue#status_len status_len@endlink would provide more control.
+* of @link ParamValue#status_len status_len@endlink would provide more precise
+* control.
 * For #DTYPE_STRING, the contents of @link ParamValue#data_ptr data_ptr@endlink
 * are copied (within double quotes) until the first occurrence of a null-byte.
-*
-* A single white-space is produced around each structural character (such as
-* braces { }, colon :, comma ,) (as specified in RFC 7159 p.5*).
 *
 * Currently, the output string is automatically flushed over the network module 
 * This should not be the default behaviour, but was deemed appropriate at the
