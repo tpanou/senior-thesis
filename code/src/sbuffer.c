@@ -2,6 +2,38 @@
 #include "sbuffer.h"
 #include <stdio.h>
 
+/**
+* @ingroup sbuffer
+* @brief The internal input buffer.
+*
+* Maintains a fragment of the available network data for immediate access.
+*/
+static uint8_t buf[NET_BUF_LEN];
+
+/**
+* @ingroup sbuffer
+* @brief The amount of valid data in #buf.
+*/
+static uint16_t buf_data = 0;
+
+/**
+* @ingroup sbuffer
+* @brief The offset within #buf of the next-to-read byte.
+*/
+static uint16_t buf_RD = 0;
+
+/**
+* @ingroup sbuffer
+* @brief The offset within #buf of the next-to-write byte.
+*/
+static uint16_t buf_WR = 0;
+
+/**
+* @ingroup sbuffer
+* @brief The socket to buffer data from.
+*/
+static uint8_t  buf_Sn = 0;
+
 void set_socket_buf(uint8_t s) {
     buf_RD = 0;
     buf_WR = 0;
