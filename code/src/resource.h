@@ -62,6 +62,20 @@ void rsrc_init();
 void rsrc_set_parser(int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len));
 
 /**
+* @brief Specify the serialising function for any future handler invocations.
+*
+* This should be called every time a different output format is to be produced.
+* Obviously, this should be done *before* triggering a handler. The provided
+* parser function should comply with the param.h module.
+*
+* This function is used by the HTTP server whenever it is deemed necessary.
+*
+* @param[in] serialiser Function pointer to the appropriate serialising function
+*   to use.
+*/
+void rsrc_set_serial(void (*serialiser)(uint8_t**, ParamValue*, uint8_t len));
+
+/**
 * @brief Register a @p handler for specific @p methods on a particular @p uri.
 *
 * Note that URIs not registered at all, will cause the server to return a 404

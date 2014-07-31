@@ -131,6 +131,7 @@ void srvr_init() {
     * this should be done every time before calling a resource handler. But, in
     * the current implementation, only JSON formatted data are supported. */
     rsrc_set_parser(&json_parse);
+    rsrc_set_serial(&json_serialise);
 }
 
 void srvr_set_resources(uint8_t** tokens,

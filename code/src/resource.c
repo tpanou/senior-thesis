@@ -23,6 +23,15 @@ static int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len);
 
 /**
 * @ingroup resource
+* @brief Serialising function pointer conforming to the param.h module.
+*
+* It is set using rsrc_set_serial() and it should be set before any resource
+* handlers are invoked.
+*/
+static void (*serialiser)(uint8_t**, ParamValue*, uint8_t len);
+
+/**
+* @ingroup resource
 * @brief Absolute path tokens of resources exposed by the HTTP server.
 */
 static uint8_t* rsrc_tokens[RSRC_LEN] = {
@@ -51,6 +60,11 @@ void rsrc_init() {
 void rsrc_set_parser(int8_t
                     (*new_parser)(uint8_t**, ParamValue*, uint8_t len)) {
     parser  = new_parser;
+}
+
+void rsrc_set_serial(void
+                    (*new_serialiser)(uint8_t**, ParamValue*, uint8_t len)) {
+    serialiser  = new_serialiser;
 }
 
 void rsrc_set_handler(uint8_t uri,
