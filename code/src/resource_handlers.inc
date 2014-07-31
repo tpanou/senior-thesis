@@ -55,18 +55,22 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 * @brief Manage device positioning.
 *
 * Method GET:
-*   - 200 OK; the body contains the current coordinates of the device. Format:
+* Returns the current coordinates of the device head.
+*   - 200 OK; the body contains the current coordinates of the head. Format:
 *       @verbatim {
-    "x" : number , 
-    "y" : number , 
-    "z" : number
- } @endverbatim
+    "x"         : number,
+    "y"         : number,
+    "z"         : number
+} @endverbatim
 *   - 503 Service Unavailable; the device is currently positioning itself. The
 *       request should be reattempted later, as specified in the `Retry-After'
 *       header. Currently, the estimated time is hard-coded but could change in
 *       the future.
 *
 * Method PUT:
+* Moves the device head to the specified coordinates.
+* The message body should include any of the above specified keys, the order of
+* which is irrelevant. Only the last instance of each key is preserved. Returns:
 *   - 200 OK; the device is already at the specified position -- no action will
 *       be taken. The body contains the current coordinates. The format is the
 *       same as above.
@@ -75,8 +79,8 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 *       estimated time until completion.
 *   - 400 Bad request; the specified coordinates lay outside the allowable
 *       device-space or an invalid parameter and/or value has been specified.
-*       The body contains the maximum acceptable values. The format is the same
-*       as above.
+*       The body contains the maximum acceptable values for each axis. The
+*       format is the same as above.
 *   - 503 Service Unavailable; same as with GET.
 */
 void rsrc_handle_coordinates(HTTPRequest* req) {
@@ -145,7 +149,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
                           /* This should be using req->accept, after it is set
                           * to specific type (ie, not app/* but app/json). */
                           TXFx_FROMRAM, MIME_MIN + MIME_APP_JSON, TXF_ln,
-                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 45,
+                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
             (*serialiser)(tokens, params, 3);
 
@@ -162,7 +166,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
         case TXF_STATUS_400:
             srvr_send(TXF_STATUS_400, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
-                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 45,
+                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
 
             /* Return maximum values. */
