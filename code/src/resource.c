@@ -94,7 +94,7 @@ static ResourceHandler rsrc_handlers[RSRC_LEN] = {
     {.methods = HTTP_GET
               | HTTP_PUT,       .call = &rsrc_handle_configuration},
     {.methods = HTTP_GET
-              | HTTP_POST,      .call = &rsrc_handle_coordinates},
+              | HTTP_PUT,       .call = &rsrc_handle_coordinates},
     {.methods = HTTP_GET,       .call = &rsrc_handle_index},
     {.methods = HTTP_GET
               | HTTP_POST,      .call = &rsrc_handle_measurement},
