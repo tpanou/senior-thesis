@@ -10,13 +10,18 @@
 #include <avr/pgmspace.h>
 #include <stdarg.h>
 
+#include <string.h>
+
 uint8_t txf_space[] PROGMEM         = " ";
 uint8_t txf_colon[] PROGMEM         = ":";
 uint8_t txf_CRLF[] PROGMEM          = "\r\n";
 uint8_t txf_status_200[] PROGMEM    = "200 OK";
+uint8_t txf_status_202[] PROGMEM    = "202 Accepted";
+uint8_t txf_status_400[] PROGMEM    = "400 Bad Request";
 uint8_t txf_status_404[] PROGMEM    = "404 Not Found";
 uint8_t txf_status_405[] PROGMEM    = "405 Method Not Allowed";
 uint8_t txf_status_501[] PROGMEM    = "501 Not Implemented";
+uint8_t txf_status_503[] PROGMEM    = "503 Service Unavailable";
 uint8_t txf_HTTPv[] PROGMEM         = "HTTP/1.1";
 uint8_t txf_allow[] PROGMEM         = "Allow";
 uint8_t txf_connection_close[] PROGMEM
@@ -24,6 +29,7 @@ uint8_t txf_connection_close[] PROGMEM
 uint8_t txf_content_length[] PROGMEM
                                     = "Content-Length";
 uint8_t txf_content_type[] PROGMEM  = "Content-Type";
+uint8_t txf_retry_after[] PROGMEM   = "Retry-After";
 uint8_t txf_server[] PROGMEM        = "Server:uServer (TEIA)";
 uint8_t txf_comma[] PROGMEM         = ",";
 
@@ -48,7 +54,11 @@ PGM_P srvr_txf[] PROGMEM = {
     txf_content_length,
     txf_content_type,
     txf_server,
-    txf_comma
+    txf_comma,
+    txf_retry_after,
+    txf_status_202,
+    txf_status_400,
+    txf_status_503
 };
 
 /**

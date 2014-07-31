@@ -139,7 +139,7 @@ typedef struct HTTPRequest {
 * @brief The total amount of text fragments that may be used with
 * srvr_compile().
 */
-#define TXF_MAX              14
+#define TXF_MAX              18
 #define TXF_SPACE             0 /**< @brief A single space. */
 #define TXF_COLON             1 /**< @brief A single colon. */
 #define TXF_CRLF              2 /**< @brief A CRLF sequence (0x0D, 0x0A). */
@@ -154,6 +154,10 @@ typedef struct HTTPRequest {
 #define TXF_CONTENT_TYPE     11 /**< @brief The text: Content-Type */
 #define TXF_SERVER           12 /**< @brief Header Server and its value. */
 #define TXF_COMMA            13 /**< @brief A  single comma. */
+#define TXF_RETRY_AFTER      14 /**< @brief The text: Retry-After */
+#define TXF_STATUS_202       15 /**< @brief The text: 202 Accepted */
+#define TXF_STATUS_400       16 /**< @brief The text: 400 Bad Request */
+#define TXF_STATUS_503       17 /**< @brief The text: 503 Service Unavailable */
 
 /**
 * @brief Alias of #TXF_SPACE.
