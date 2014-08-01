@@ -13,7 +13,7 @@
 * These registers are both readable and writable and internally buffered. All
 * values are in BCD format. *DS1307 p.8*
 */
-typedef struct rtc_mem {
+typedef struct {
 
     /** @brief Seconds elapsed (00-59).
     *
@@ -52,7 +52,7 @@ typedef struct rtc_mem {
     * - Bits @c 1 and @c 0 correspond to #RTC_RS1 and #RTC_RS0, respectively.
     */
     uint8_t sqw;
-} rtc_mem;
+} RTCMap;
 
 /**
 * @brief Address of DS1307 on TWI bus.
@@ -151,7 +151,7 @@ void rtc_format(uint8_t* buf, uint8_t* day);
 * bytes may have been sent to the RTC.
 * @returns @c 0 on success; @c -1, otherwise.
 */
-int8_t rtc_set(rtc_mem* rtc);
+int8_t rtc_set(RTCMap* rtc);
 
 /**
 * @brief Get the RTC time.
@@ -162,7 +162,7 @@ int8_t rtc_set(rtc_mem* rtc);
 * contents of @p rtc may be partially updated.
 * @returns @c 0 on success; @c -1, otherwise.
 */
-int8_t rtc_get(rtc_mem* rtc);
+int8_t rtc_get(RTCMap* rtc);
 
 /**
 * @brief Reset the DS1307 register pointer back to the first address.

@@ -26,7 +26,7 @@ static int8_t rtc_reset_pointer() {
     return 0;
 }
 
-int8_t rtc_set(rtc_mem* rtc) {
+int8_t rtc_set(RTCMap* rtc) {
     /* Reset register pointer. */
     if(rtc_reset_pointer()) return -1;
 
@@ -37,7 +37,7 @@ int8_t rtc_set(rtc_mem* rtc) {
         TWDR    = *((uint8_t*)rtc + i);
         TWI_DO_WAIT();
         ++i;
-    } while(i < sizeof(rtc_mem) && TWI_STATUS() == TWI_DATA_W_ACK);
+    } while(i < sizeof(RTCMap) && TWI_STATUS() == TWI_DATA_W_ACK);
 
     /* Notify end-of-transmission. */
     TWI_STOP();
@@ -48,7 +48,7 @@ int8_t rtc_set(rtc_mem* rtc) {
     return 0;
 }
 
-int8_t rtc_get(rtc_mem* rtc) {
+int8_t rtc_get(RTCMap* rtc) {
 
     /* Set DS1307 pointer to @c 0; the first register. */
     if(rtc_reset_pointer()) return -1;
@@ -73,7 +73,7 @@ int8_t rtc_get(rtc_mem* rtc) {
         *(((uint8_t*)rtc) + i) = byte;
 
         ++i;
-    } while(i < sizeof(rtc_mem) - 1);
+    } while(i < sizeof(RTCMap) - 1);
 
     /* Read the last byte of @p rtc without acknowledging it. *Atmel p.224*,
     * *DS1307 p.10* */
@@ -89,7 +89,7 @@ int8_t rtc_get(rtc_mem* rtc) {
 }
 
 void rtc_format(uint8_t* buf, uint8_t* day) {
-    rtc_mem rtc;
+    RTCMap rtc;
     rtc_get(&rtc);
 
     /* This is equivalent to the following: @verbatim
@@ -99,7 +99,7 @@ sprintf(buf, "20%02x-%02x-%02xT%02x:%02x:%02x.000Z", rtc.year,
                                                      rtc.hour,
                                                      rtc.min,
                                                      rtc.sec);@endverbatim
-    * but faster, requires less memory and does not force a dependency on
+    * but is faster, requires less memory and does not force a dependency on
     * vprintf(). */
     buf[0]  =  '2';
     buf[1]  =  '0';
