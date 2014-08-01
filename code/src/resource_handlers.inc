@@ -10,6 +10,7 @@
 #include "param.h"
 #include "util.h"
 #include "motor.h"
+#include "rtc.h"
 #include "w5100/w5100.h"
 
 #include <avr/pgmspace.h>
@@ -181,8 +182,8 @@ void rsrc_handle_client_js(HTTPRequest* req) {
     "y"         : number,       // Custom maximum Y dimension
     "z"         : number        // Custom maximum Z dimension
 } @endverbatim
-* Additional comments:
-*   - Fraction of second (in "date") is always returned as @c 000 and never
+* Additional notes:
+*   - Fraction of second (in @c date) is always returned as @c 000 and never
 *       parsed. Time-zone is UTC (@c Z).
 *   - `dot-notation' is: xxx.xxx.xxx.xxx
 *   - Custom maximum dimensions allow operating the device in a subset of the
@@ -261,6 +262,21 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 
     if(req->method == METHOD_PUT) {
         if(!(*parser)(tokens, params, 8)) {
+
+            /* Date and day must both be set, if any one of them is present. */
+            if(PARAM_IS_SET(params, PRM_SRVR_DATE)
+            && PARAM_IS_SET(params, PRM_SRVR_DAY)) {
+
+                if(str_to_rtc(&dt, s_date) || day > 7) {
+                    status      =  TXF_STATUS_400;
+
+                /* Set date to RTC. */
+                } else {
+                    dt.day      =  day;
+                    dt.sqw      =  0;
+                    rtc_set(&dt);
+                }
+            }
 
             /* If any one of PRM_SRVR_GATEWAY, IADDR or SUBNET has been set,
             * it is parsed into numbers but only applied *after* the response
