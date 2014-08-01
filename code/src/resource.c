@@ -9,7 +9,7 @@
 
 /**
 * @ingroup resource
-* @brief The number of token-handler pairs in #resources.
+* @brief The number of token-handler pairs in #rsrc_handlers.
 */
 #define RSRC_LEN    8
 
@@ -17,7 +17,7 @@
 * @ingroup resource
 * @brief Function pointer to a parser conforming to the param.h module.
 *
-* This is set using rsrc_set_parser() and it should be done before any resource
+* This is set using rsrc_set_parser() and it should be set before any resource
 * handlers are invoked.
 */
 static int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len);
