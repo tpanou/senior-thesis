@@ -17,27 +17,72 @@
 
 /**
 * @ingroup resource
+* @brief Index of parameter "date" (in resource /configuration).
+*/
+#define PRM_SRVR_DATE       0
+
+/**
+* @ingroup resource
+* @brief Index of parameter "day" (in resource /configuration).
+*/
+#define PRM_SRVR_DAY        1
+
+/**
+* @ingroup resource
+* @brief Index of parameter "gateway" (in resource /configuration).
+*/
+#define PRM_SRVR_GATEWAY    2
+
+/**
+* @ingroup resource
+* @brief Index of parameter "iaddr" (in resource /configuration).
+*/
+#define PRM_SRVR_IADDR      3
+
+/**
+* @ingroup resource
+* @brief Index of parameter "subnet" (in resource /configuration).
+*/
+#define PRM_SRVR_SUBNET     4
+
+/**
+* @ingroup resource
+* @brief Index of parameter "x" (in resource /configuration).
+*/
+#define PRM_SRVR_X          5
+
+/**
+* @ingroup resource
+* @brief Index of parameter "y" (in resource /configuration).
+*/
+#define PRM_SRVR_Y          6
+
+/**
+* @ingroup resource
+* @brief Index of parameter "z" (in resource /configuration).
+*/
+#define PRM_SRVR_Z          7
+
+/**
+* @ingroup resource
 * @brief Size of #prm_date (inclusive of null-byte).
 */
 #define PRM_DATE_LEN        25
 
 /**
 * @ingroup resource
-* @brief Size of #prm_gateway (inclusive of null-byte).
+* @brief Size of any IPv4 address string (inclusive of null-byte).
 */
-#define PRM_GATEWAY_LEN     16
+#define PRM_INET_LEN        16
 
+#ifndef BV
 /**
-* @ingroup resource
-* @brief Size of #prm_ip (inclusive of null-byte).
+* @brief Set a single bit.
+*
+* @param[in] x The bit to set.
 */
-#define PRM_IP_LEN          16
-
-/**
-* @ingroup resource
-* @brief Size of #prm_subnet (inclusive of null-byte).
-*/
-#define PRM_SUBNET_LEN      16
+#define BV(x)              (1 << x)
+#endif
 
 /**
 * @ingroup resource
@@ -100,7 +145,7 @@ static uint8_t prm_gateway[] PROGMEM = "gateway";
 * This is used by rsrc_handler_configuration() to parse a new or return the
 * current server IP address.
 */
-static uint8_t prm_ip[] PROGMEM = "ip";
+static uint8_t prm_iaddr[] PROGMEM = "iaddr";
 
 /**
 * @ingroup resource
@@ -147,30 +192,41 @@ void rsrc_handle_client_js(HTTPRequest* req) {
 * Updates the configuration.
 * The message body should include any of the above specified keys, the order of
 * which is irrelevant. Only the last instance of each key is preserved. Returns:
-*   - 200 OK; the device configuration has been updated.
+*   - 200 OK; the device configuration has been updated. If new device limits
+*       have been specified (@c x, @c y and/or @c z), the device head will first
+*       be reset.
+*   - 400 Bad request; an invalid parameter and/or value has been specified.
+*       Currently, no details are given for the exact reasons; the absolute
+*       physical limits (for @c x, @c y and @c z) are always returned,
+*       regardless.
+* Additional notes:
+*   - If any supplied parameter fails validation, the whole request is dropped
+*       (400 - Bad Request).
+*   - Setting @c date requires setting @c day as well, and vice versa.
+*       Otherwise, the parameter is ignored.
+*   - Only full dates are acceptable (with or without fraction which is
+*       ignored).
 */
 void rsrc_handle_configuration(HTTPRequest* req) {
-    uint8_t  status;            /* Status of response. */
-
     uint8_t  token_buf[38];     /* Key tokens. */
-    uint8_t* tokens[9];         /* Pointers to each token in @c token_buf. */
+    uint8_t* tokens[8];         /* Pointers to each token in @c token_buf. */
 
     /* Parameter value buffers. */
-    uint8_t  date       [PRM_DATE_LEN];
-    uint8_t  day        =  255;
-    uint8_t  gateway    [PRM_GATEWAY_LEN];
-    uint8_t  ip         [PRM_IP_LEN];
-    uint8_t  subnet     [PRM_SUBNET_LEN];
+    uint8_t  day;
+    uint8_t  s_date     [PRM_DATE_LEN];
+    uint8_t  s_gateway  [PRM_INET_LEN];
+    uint8_t  s_iaddr    [PRM_INET_LEN];
+    uint8_t  s_subnet   [PRM_INET_LEN];
 
    /* TODO: Current maximum position. */
     Position max  =  {GRID_X_LEN, GRID_Y_LEN, GRID_Z_LEN};
 
     /* Set-up acceptable parser parameters. */
-    ParamValue params[]     =  {PARAM_STRING(date, PRM_DATE_LEN),
+    ParamValue params[]     =  {PARAM_STRING(s_date, PRM_DATE_LEN),
                                 PARAM_UINT8(day),
-                                PARAM_STRING(gateway, PRM_GATEWAY_LEN),
-                                PARAM_STRING(ip, PRM_IP_LEN),
-                                PARAM_STRING(subnet, PRM_SUBNET_LEN),
+                                PARAM_STRING(s_gateway, PRM_INET_LEN),
+                                PARAM_STRING(s_iaddr, PRM_INET_LEN),
+                                PARAM_STRING(s_subnet, PRM_INET_LEN),
                                 PARAM_UINT8(max.x),
                                 PARAM_UINT8(max.y),
                                 PARAM_UINT8(max.z)};
@@ -179,34 +235,100 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     pgm_read_str_array(tokens, token_buf, prm_date,
                                           prm_day,
                                           prm_gateway,
-                                          prm_ip,
+                                          prm_iaddr,
                                           prm_subnet,
                                           prm_x,
                                           prm_y,
                                           prm_z, NULL);
 
-    if(req->method == METHOD_GET) {
-        status = TXF_STATUS_200;
-    }
+    /* --- INITIALISATION end -- */
 
-    uint16_t size = 127;    /* Response size without inet addresses. */
-    uint8_t inet[4];        /* SIPR, GAR or SUBR. */
+    uint8_t  status;        /* Status of response. */
+    uint16_t size = 130;    /* Response size without Inet address values. */
+    uint8_t iaddr[4];       /* Numerical IP address. */
+    uint8_t subnet[4];      /* Numerical subnet mask. */
+    uint8_t gateway[4];     /* Numerical default gateway address. */
+    RTCMap  dt;             /* Date and time. */
+    uint8_t set_params = 0; /* Flags of parameters that have been set (mostly
+    * for PRM_SRVR_*. */
+
+    /* Load current server configuration. */
+    getGAR(gateway);
+    getSIPR(iaddr);
+    getSUBR(subnet);
+    status = TXF_STATUS_200;
+
+    if(req->method == METHOD_PUT) {
+        if(!(*parser)(tokens, params, 8)) {
+
+            /* If any one of PRM_SRVR_GATEWAY, IADDR or SUBNET has been set,
+            * it is parsed into numbers but only applied *after* the response
+            * has been sent out with the current configuration. */
+            if(PARAM_IS_SET(params, PRM_SRVR_GATEWAY)) {
+                if(str_to_inet(gateway,
+                              (uint8_t*)params[PRM_SRVR_GATEWAY].data_ptr)) {
+                    status      =  TXF_STATUS_400;
+                } else {
+                    set_params |=  BV(PRM_SRVR_GATEWAY);
+                }
+            }
+
+            if(PARAM_IS_SET(params, PRM_SRVR_IADDR)) {
+                if(str_to_inet(iaddr,
+                              (uint8_t*)params[PRM_SRVR_IADDR].data_ptr)) {
+                    status      =  TXF_STATUS_400;
+                } else {
+                    set_params |=  BV(PRM_SRVR_IADDR);
+                }
+            }
+
+            if(PARAM_IS_SET(params, PRM_SRVR_SUBNET)) {
+                if(str_to_inet(subnet,
+                              (uint8_t*)params[PRM_SRVR_SUBNET].data_ptr)) {
+                    status      =  TXF_STATUS_400;
+                } else {
+                    set_params |=  BV(PRM_SRVR_SUBNET);
+                }
+            }
+
+        } else {
+            status      =  TXF_STATUS_400;
+        }
+    }
 
     switch(status) {
         case TXF_STATUS_200:
 
-        getGAR(inet);       size += inet_to_str(gateway, inet);
-        getSIPR(inet);      size += inet_to_str(ip, inet);
-        getSUBR(inet);      size += inet_to_str(subnet, inet);
+            size += inet_to_str(s_gateway, gateway);
+            size += inet_to_str(s_iaddr, iaddr);
+            size += inet_to_str(s_subnet, subnet);
+            rtc_format(s_date, &day);
 
-        srvr_prep(TXF_STATUS_200, TXF_ln,
-                  TXF_STANDARD_HEADERS_ln,
-                  TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
-                  TXF_lnln);
+            srvr_prep(TXF_STATUS_200, TXF_ln,
+                      TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
+                      TXF_lnln);
 
-        rtc_format(date, &day);
+            (*serialiser)(tokens, params, 8);
 
-        (*serialiser)(tokens, params, 8);
+            /* Apply changes to the address after the response has been sent. */
+            if(set_params) {
+                if(set_params & BV(PRM_SRVR_GATEWAY)) {
+                    setGAR(gateway);
+                }
+                if(set_params & BV(PRM_SRVR_IADDR)) {
+                    setSIPR(iaddr);
+                    srvr_set_host_name_ip(iaddr);
+                }
+                if(set_params & BV(PRM_SRVR_SUBNET)) {
+                    setSUBR(subnet);
+                    applySUBR();
+                }
+            }
+
+        break;
+        case TXF_STATUS_400:
+
         break;
     }
 }
