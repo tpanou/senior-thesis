@@ -398,10 +398,11 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
         /* If an acceptable set of parameters have been parsed, attempt to use
         * @c pos to update motor position. It could still fail if, for example,
         * an out-of-range value has been specified. */
-        if(!json_parse(tokens, params, 3)) {
+        int8_t retval;
+        if(!(retval = json_parse(tokens, params, 3))) {
 
             /* Already there. */
-            if(pos.x == npos.x && pos.y == npos.y && pos.z == pos.z) {
+            if(pos.x == npos.x && pos.y == npos.y && pos.z == npos.z) {
                 status      =  TXF_STATUS_200;
 
             /* Invalid coordinate (out of bounds). */
@@ -453,9 +454,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
                       TXF_lnln);
 
             /* Return maximum values. */
-            npos.x = GRID_X_LEN;
-            npos.y = GRID_Y_LEN;
-            npos.z = GRID_Z_LEN;
+            motor_get_max(&npos);
 
             (*serialiser)(tokens, params, 3);
         break;
