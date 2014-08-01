@@ -2,6 +2,7 @@
 #include <avr/pgmspace.h>
 #include <stdarg.h>
 #include <string.h>
+#include <stdlib.h>
 
 uint8_t uint_to_str(uint8_t* buf, uint16_t number) {
     uint8_t unit;
@@ -18,6 +19,25 @@ uint8_t uint_to_str(uint8_t* buf, uint16_t number) {
         i           =  1;
     }
     return i;
+}
+
+int8_t str_to_inet(uint8_t* ip, uint8_t* buf) {
+    uint8_t  i;
+    uint8_t* j = buf;
+    char* last = NULL;
+
+    for(i = 0 ; i < 4 && !last ; ++i) {
+        ip[i] = strtol(j, &last, 10);
+
+        if(*last == '.') {
+            j = last + 1;
+            last = NULL;
+        }
+    }
+    if(i == 4) {
+        return 0;
+    }
+    return 1;
 }
 
 uint8_t inet_to_str(uint8_t* buf, uint8_t* ip) {
