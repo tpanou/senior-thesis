@@ -218,8 +218,9 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     uint8_t  s_iaddr    [PRM_INET_LEN];
     uint8_t  s_subnet   [PRM_INET_LEN];
 
-   /* TODO: Current maximum position. */
-    Position max  =  {GRID_X_LEN, GRID_Y_LEN, GRID_Z_LEN};
+   /* Load current maximum position. */
+    Position  max;
+    motor_get_max(&max);
 
     /* Set-up acceptable parser parameters. */
     ParamValue params[]     =  {PARAM_STRING(s_date, PRM_DATE_LEN),
@@ -291,6 +292,22 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                 }
             }
 
+            /* New maximum coordinates may be specified at any time; the motors
+            * will automatically reset. */
+            if(PARAM_IS_SET(params, PRM_SRVR_X)
+            || PARAM_IS_SET(params, PRM_SRVR_Y)
+            || PARAM_IS_SET(params, PRM_SRVR_Z)) {
+
+                /* If the exceed the physical limits of the device, return the
+                * absolute maximum values. */
+                if(motor_set_max(&max)) {
+                    status      =  TXF_STATUS_400;
+                    max.x       =  GRID_X_LEN;
+                    max.y       =  GRID_Y_LEN;
+                    max.z       =  GRID_Z_LEN;
+                }
+            }
+
         } else {
             status      =  TXF_STATUS_400;
         }
@@ -329,6 +346,12 @@ void rsrc_handle_configuration(HTTPRequest* req) {
         break;
         case TXF_STATUS_400:
 
+            srvr_send(TXF_STATUS_400, TXF_ln,
+                      TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
+                      TXF_lnln);
+
+            (*serialiser)(&tokens[5], &params[5], 3);
         break;
     }
 }
