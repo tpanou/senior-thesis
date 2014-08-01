@@ -218,4 +218,33 @@ typedef struct {
 */
 #define PARAM_VALID        (0xC0)
 
+/**
+* @brief Condition that checks whether a parameter has been set.
+*
+* @param[in] var Name of a (local) #ParamValue array.
+* @param[in] x Index of @p var to check.
+*/
+#define PARAM_IS_SET(var, x) \
+((var[x].status_len & PARAM_STATUS_MASK) == PARAM_VALID)
+
+/**
+* @brief Facilitates initialisation of an 8-bit #DTYPE_UINT #ParamValue.
+*
+* @param[in] x The variable (and *not* its address) which the parsed value will
+*   be parsed into.
+*/
+#define PARAM_UINT8(x) \
+{.type = DTYPE_UINT, .data_ptr = &x, .status_len = 8}
+
+/**
+* @brief Facilitates initialisation of a #DTYPE_STRING #ParamValue.
+*
+* @param[in] x The array (address of its first byte) which the parsed string
+*   will be parsed into.
+* @param[in] len Maximum acceptable length of parsed string (inclusive of
+*   null-byte).
+*/
+#define PARAM_STRING(x, len) \
+{.type = DTYPE_STRING, .data_ptr = x, .status_len = len}
+
 #endif /* PARAM_H_INCL */
