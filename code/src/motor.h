@@ -362,9 +362,33 @@ void motor_init();
 * @brief Resets the motors to a known state (homing to absolute zero).
 *
 * This function should be invoked before attempting to use the motors
-* (#motor_set() or #motor_get()).
+* (#motor_set() or #motor_get()). Any operation in progress at the time of
+* invocation occurs will be terminated.
 */
 void motor_reset();
+
+/**
+* @brief Return the current device operating limits.
+*
+* @param[out] max Variable in which to return the current maximum acceptable X,
+*   Y and Z coordinates.
+*/
+void motor_get_max(Position* max);
+
+/**
+* @brief Set the operating limits of the device.
+*
+* Generally, the operating limits should not exceed the physical limits of the
+* device (ie, #GRID_X_LEN, #GRID_Y_LEN and #GRID_Z_LEN). If such is the case,
+* the limits are not altered. Successfully modifying the operating limits
+* results in a motor reset. This function may be invoked at any time; like
+* motor_reset(), any operation in progress at the time this occurs, will be
+* terminated.
+*
+* @param[in] max Variable that holds the new operating limits.
+* @retuns @c 0, if the limits where acceptable; non-zero, otherwise.
+*/
+int8_t motor_set_max(Position* max);
 
 /**
 * @brief Move the device to the given position.
@@ -391,7 +415,7 @@ int8_t motor_set(Position target);
 * @param[out] pos The value of #cur_pos.
 * @returns @c 0, if @p pos was set; @c -1, otherwise.
 */
-int motor_get(Position *pos);
+int8_t motor_get(Position *pos);
 
 /**
 * @brief Activates the appropriate motors in order to reach #new_pos.

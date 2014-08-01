@@ -32,7 +32,17 @@ static Position cur_pos;
 *
 * It is updated via #motor_set() which will also activate the motors.
 */
-static Position new_pos = {.x = 0, .y = 0 , .z = 0};
+static Position new_pos;
+
+/**
+* @ingroup motor
+* @brief Operating (maximum) limits of the device.
+*
+* The operating limits are managed via motor_get_max() and motor_set_max() and
+* may be set to anything less than or equal to #GRID_X_LEN, #GRID_Y_LEN and
+* #GRID_Z_LEN.
+*/
+static Position max_pos = {.x = GRID_X_LEN, .y = GRID_Y_LEN, .z = GRID_Z_LEN};
 
 void motor_init() {
 
@@ -75,6 +85,7 @@ void motor_reset() {
     * imperative to first retract on axis Z separately from the others. Once
     * that has been dealt with, axes X and Y may follow. */
     if(bit_is_clear(motor_status, MTR_RESET)) {
+        motor_stop();
         motor_status   |=  _BV(MTR_RESET) | _BV(MTR_IS_Z);
         setup_axis(AXIS_Z, MTR_INC);
         LOCK_DISABLE();
@@ -97,7 +108,7 @@ void motor_reset() {
 
         cur_pos.x       =  0;
         cur_pos.y       =  0;
-        cur_pos.z       =  GRID_Z_LEN;
+        cur_pos.z       =  max_pos.z;
         motor_stop();
 
         LOCK_ENABLE();
@@ -120,15 +131,30 @@ void motor_reset() {
     }
 }
 
+void motor_get_max(Position* max) {
+    max->x      =  max_pos.x;
+    max->y      =  max_pos.y;
+    max->z      =  max_pos.z;
+}
+
+int8_t motor_set_max(Position* max) {
+    if(max->x > GRID_X_LEN || max->y > GRID_Y_LEN || max->z > GRID_Z_LEN) {
+        return -1;
+    }
+    max_pos.x   =  max->x;
+    max_pos.y   =  max->y;
+    max_pos.z   =  max->z;
+    motor_reset();
+    return 0;
+}
+
 int8_t motor_set(Position target) {
 
     /* Fail, if the motors are resetting or otherwise operated upon. */
     if(bit_is_set(motor_status, MTR_RESET) || PWM_IS_ON()) return -1;
 
     /* Fail, if target coordinates lay outside the available device space. */
-    if(target.x < 0 || target.x > GRID_X_LEN ||
-       target.y < 0 || target.y > GRID_Y_LEN ||
-       target.z < 0 || target.z > GRID_Z_LEN) {
+    if(target.x > max_pos.x || target.y > max_pos.y || target.z > max_pos.z) {
         return -1;
     }
 
@@ -137,7 +163,7 @@ int8_t motor_set(Position target) {
     return motor_update();
 }
 
-int motor_get(Position *pos) {
+int8_t motor_get(Position *pos) {
     if(bit_is_set(motor_status, MTR_RESET) || PWM_IS_ON()) return -1;
     pos->x      =  cur_pos.x;
     pos->y      =  cur_pos.y;
