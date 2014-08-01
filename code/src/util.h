@@ -42,7 +42,7 @@ uint8_t int_to_str(uint8_t* buf, uint16_t number);
 * @returns @c 0, if four, dot-separated, numbers have been parsed; non-zero,
 *   otherwise.
 */
-void str_to_inet(uint8_t* ip, uint8_t* buf);
+uint8_t str_to_inet(uint8_t* ip, uint8_t* buf);
 
 /**
 * @brief Convert an array of integers into a string, each separated with a dot.

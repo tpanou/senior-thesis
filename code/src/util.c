@@ -21,7 +21,7 @@ uint8_t uint_to_str(uint8_t* buf, uint16_t number) {
     return i;
 }
 
-int8_t str_to_inet(uint8_t* ip, uint8_t* buf) {
+uint8_t str_to_inet(uint8_t* ip, uint8_t* buf) {
     uint8_t  i;
     uint8_t* j = buf;
     char* last = NULL;
