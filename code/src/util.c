@@ -70,6 +70,56 @@ uint8_t inet_to_str(uint8_t* buf, uint8_t* ip) {
     return pos;
 }
 
+#define TO_BCD8(d, u)  ((d << 4) | u)
+
+int8_t str_to_rtc(RTCMap* dt, uint8_t* buf) {
+    uint8_t num     =  0;
+    uint8_t error   =  0;
+
+    /* @p buf should contain a string of at least a full-date without fractions
+    * of a second. */
+    if(strlen(buf) < 19) return 1;
+
+    error  +=  buf[0] != '2';
+    error  +=  buf[1] != '0';
+
+    error  += !isdigit(buf[2]);
+    error  += !isdigit(buf[3]);
+    dt->year = TO_BCD8(buf[2] - '0', buf[3] - '0');
+
+    error  += buf[4] != '-';
+    error  += !isdigit(buf[5]);
+    error  += !isdigit(buf[6]);
+    dt->mon = TO_BCD8(buf[5] - '0', buf[6] - '0');
+    error  += dt->mon > 0x12;
+
+    error  += buf[7] != '-';
+    error  += !isdigit(buf[8]);
+    error  += !isdigit(buf[9]);
+    dt->date = TO_BCD8(buf[8] - '0', buf[9] - '0');
+    error  += dt->date > 0x31;
+
+    error  += buf[10] != 'T';
+    error  += !isdigit(buf[11]);
+    error  += !isdigit(buf[12]);
+    dt->hour = TO_BCD8(buf[11] - '0', buf[12] - '0');
+    error  += dt->hour > 0x23;
+
+    error  += buf[13] != ':';
+    error  += !isdigit(buf[14]);
+    error  += !isdigit(buf[15]);
+    dt->min = TO_BCD8(buf[14] - '0', buf[15] - '0');
+    error  += dt->min > 0x59;
+
+    error  += buf[16] != ':';
+    error  += !isdigit(buf[17]);
+    error  += !isdigit(buf[18]);
+    dt->sec = TO_BCD8(buf[17] - '0', buf[18] - '0');
+    error  += dt->sec > 0x59;
+
+    return error > 0;
+}
+
 void pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...) {
     va_list ap;         /* Pointer to each optional argument. */
     PGM_P str;          /* Address of a string in Flash. */

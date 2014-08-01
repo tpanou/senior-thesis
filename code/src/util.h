@@ -6,6 +6,8 @@
 #ifndef UTIL_H_INCL
 #define UTIL_H_INCL
 
+#include "rtc.h"
+
 #include <inttypes.h>
 
 #ifndef NULL
@@ -57,6 +59,20 @@ void str_to_inet(uint8_t* ip, uint8_t* buf);
 * @returns The number of bytes written into @p buf (non-inclusive of null-byte).
 */
 uint8_t inet_to_str(uint8_t* buf, uint8_t* ip);
+
+/**
+* @brief Read string into an #RTCMap variable.
+*
+* Currently, the string is parsed up to seconds (not including fraction).
+* Note that this function does not check the validity of the date as a whole
+* (eg, days of month), but rather, that each value does not exceed a maximum
+* allowed value.
+*
+* @param[out] dt
+* @param[in] buf String in ISO8601 format (YYYY-MM-DDTHH:mm:ss.sssZ).
+* @returns @c 0, if parsing the date was successful; @c 0, otherwise.
+*/
+int8_t str_to_rtc(RTCMap* dt, uint8_t* buf);
 
 /**
 * @brief Read a number of program memory chunks into @p buf.
