@@ -162,4 +162,48 @@ void rsrc_set_handler(uint8_t uri,
                       uint8_t methods,
                       void (*handler)(struct HTTPRequest*));
 
+/**
+* @brief Update @p req with URI-method specific options.
+*
+* Apart from server-wide options that are readily available, options closely
+* linked to a particular resource may only be provided once such a resource has
+* been identified. This is done to conserve main memory that would otherwise be
+* consumed for all resource-specific tokens, regardless of them being used or
+* not. One such example is the query string parameters. Only the appropriate
+* tokens are loaded into main memory for a particular URI-method pair.
+*
+* Currently, this function is a wrapper around rsrc_get_qparam().
+*
+* @param[in,out] req An #HTTPRequest variable that has its .uri and .method
+*   members set. The appropriate members of @p req will be initialised.
+*/
+void rsrc_inform(struct HTTPRequest* req);
+
+/**
+* @brief Update the #QueryString of @p req according to .uri and .method.
+*
+* It does the following:
+* - The appropriate query parameter tokens are loaded into main memory, and in
+*   particular, in @link QueryString#buf query.buf@endlink.
+* - @link QueryString#count query.count@endlink is updated to reflect the
+*   permissible amount of parameters, the tokens of which can be found in
+*   @link QueryString#tokens query.tokens@endlink.
+* - Indices in @link QueryString#values query.values@endlink equal to the amount
+*   of permissible parameters are set to @c NULL to indicate they have not yet
+*   been given a value.
+* - @link QueryString#buf_i query.buf_i@endlink is set to an offset within
+*   @link QueryString#buf query.buf@endlink, which the first parameter value may
+*   be written at.
+* - @link QueryString#buf_len query.buf_len@endlink is set to #QUERY_BUF_LEN.
+*
+* @param[in,out] req Accepts an #HTTPRequest variable that has its
+*   @link HTTPRequest#uri uri@endlink and
+*   @link HTTPRequest#method method@endlink members set. If no parameters are
+*   applicable to them, @link QueryString#count query.count@endlink will be set
+*   to @c 0 whereas @link QueryString#buf_i query.buf_i@endlink will be equal to
+*   @link QueryString#buf_len query.buf_len@endlink (meaning the buffer is full
+*   and should not be written to).
+*/
+static inline void rsrc_get_qparam(struct HTTPRequest* req);
+
 #endif /* RESOURCE_H_INCL */

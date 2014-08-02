@@ -14,6 +14,13 @@
 #define RSRC_LEN    8
 
 /**
+* @brief Index of /measurement in #rsrc_handlers.
+*
+* Such macros are only defined for resources that accept query parameters.
+*/
+#define RSRC_MEASUREMENT    6
+
+/**
 * @ingroup resource
 * @brief Function pointer to a parser conforming to the param.h module.
 *
@@ -84,6 +91,43 @@ void rsrc_set_handler(uint8_t uri,
     if(uri < RSRC_LEN) {
         rsrc_handlers[uri].methods = methods;
         rsrc_handlers[uri].call    = handler;
+    }
+}
+
+void rsrc_inform(struct HTTPRequest* req) {
+    rsrc_get_qparam(req);
+}
+
+static inline void rsrc_get_qparam(struct HTTPRequest* req) {
+    uint16_t offset;    /* QueryString.buf_i. */
+    uint8_t i;          /* Number of permissible parameters. */
+
+    if(req->uri == RSRC_MEASUREMENT && req->method == METHOD_GET) {
+        i = 4;
+        offset = pgm_read_str_array(req->query.tokens,
+                                    req->query.buf,
+        /* These string addresses are defined in resource_handlers.inc. */
+                                    prm_date_since,
+                                    prm_date_until,
+                                    prm_page_index,
+                                    prm_page_size,
+                                    NULL);
+
+    } else {
+        i       =  0;
+        offset  =  QUERY_BUF_LEN;
+    }
+
+    req->query.buf_len  =  QUERY_BUF_LEN;
+    req->query.buf_i    =  offset;
+
+    req->query.count = i;
+
+    /* Reset .values to a known value to indicate they have not yet been set.
+    * This is used in place of memset(). */
+    while(i) {
+        req->query.values[i] = NULL;
+        --i;
     }
 }
 

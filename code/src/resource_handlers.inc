@@ -76,6 +76,30 @@
 */
 #define PRM_INET_LEN        16
 
+/**
+* @ingroup resource
+* @brief Index of parameter "date-since" (in resource /measurement).
+*/
+#define PRM_MSR_DATE_SINCE 0
+
+/**
+* @ingroup resource
+* @brief Index of parameter "date-until" (in resource /measurement).
+*/
+#define PRM_MSR_DATE_UNTIL 1
+
+/**
+* @ingroup resource
+* @brief Index of parameter "page-index" (in resource /measurement).
+*/
+#define PRM_MSR_PAGE_INDEX 2
+
+/**
+* @ingroup resource
+* @brief Index of parameter "page-size" (in resource /measurement).
+*/
+#define PRM_MSR_PAGE_SIZE  3
+
 #ifndef BV
 /**
 * @brief Set a single bit.
@@ -156,6 +180,42 @@ static uint8_t prm_iaddr[] PROGMEM = "iaddr";
 * current server subnet mask.
 */
 static uint8_t prm_subnet[] PROGMEM = "subnet";
+
+/**
+* @ingroup resource
+* @brief Token: page-index
+*
+* It specifies the page of search results returned by
+* rsrc_handler_measurement().
+*/
+static uint8_t prm_page_index[] PROGMEM = "page-index";
+
+/**
+* @ingroup resource
+* @brief Token: page-size
+*
+* It specifies the number of search results returned by
+* rsrc_handler_measurement().
+*/
+static uint8_t prm_page_size[] PROGMEM = "page-size";
+
+/**
+* @ingroup resource
+* @brief Token: date-since
+*
+* It specifies the starting date of search results returned by
+* rsrc_handler_measurement().
+*/
+static uint8_t prm_date_since[] PROGMEM = "date-since";
+
+/**
+* @ingroup resource
+* @brief Token: date-until
+*
+* It specifies the end date of search results returned by
+* rsrc_handler_measurement().
+*/
+static uint8_t prm_date_until[] PROGMEM = "date-until";
 
 void rsrc_handle_server(HTTPRequest* req) {
 }
