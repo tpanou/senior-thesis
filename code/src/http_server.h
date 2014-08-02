@@ -7,7 +7,7 @@
 #ifndef HTTP_SERVER_H_INCL
 #define HTTP_SERVER_H_INCL
 
-struct ResourceHandler;
+#include "resource.h"
 
 #include <inttypes.h>
 
@@ -92,7 +92,6 @@ typedef struct {
     * The value is provided by the resource.h module during its initialisation
     * by calling srvr_set_resource().
     */
-    struct
     ResourceHandler*    rsrc_handlers;
 
     /**
@@ -103,7 +102,6 @@ typedef struct {
     * by calling srvr_set_resource().
     */
     uint8_t             rsrc_len;
-
 } ServerSettings;
 
 /**
@@ -133,6 +131,17 @@ typedef struct HTTPRequest {
 
     /** @brief The length (in octets) of the message. */
     uint16_t content_length;
+
+    /**
+    * @brief Permissible query parameter tokens.
+    *
+    * Passing an #HTTPRequest variable to rsrc_inform(), *after* .method and
+    * .uri have been set, will update
+    * @link QueryString#tokens .tokens@endlink and
+    * @link QueryString#count .count@endlink of .query to the acceptable options
+    * for that Resource and method.
+    */
+    QueryString         query;
 } HTTPRequest;
 
 /**
