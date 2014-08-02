@@ -83,8 +83,8 @@ int8_t str_to_rtc(RTCMap* dt, uint8_t* buf);
 *
 * Some notes:
 *   - The last argument *should* always be @c NULL.
-*   - @p indices should be as large as the number of string addresses given
-*       (excluding @c NULL).
+*   - @p indices should be at least as large as the number of string addresses
+*       given (excluding @c NULL).
 *   - @p buf should be large enough to accommodate all requested strings.
 *
 * @param[out] indices Array of strings read from program memory.
@@ -92,7 +92,9 @@ int8_t str_to_rtc(RTCMap* dt, uint8_t* buf);
 *   memory.
 * @param[in] ... Program memory addresses to read strings from. The last one
 *   *should* be @c NULL.
+* @returns The amount of bytes written. In other words, the starting offset at
+*   which further strings may be written, if required.
 */
-void pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...);
+uint16_t pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...);
 
 #endif /* UTIL_H_INCL */

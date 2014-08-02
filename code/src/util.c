@@ -120,10 +120,11 @@ int8_t str_to_rtc(RTCMap* dt, uint8_t* buf) {
     return error > 0;
 }
 
-void pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...) {
+uint16_t pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...) {
     va_list ap;         /* Pointer to each optional argument. */
     PGM_P str;          /* Address of a string in Flash. */
     uint8_t i = 0;      /* Index of @p indices to write to. */
+    uint8_t* init = buf;
 
     va_start(ap, buf);
     str = va_arg(ap, PGM_P);
@@ -139,4 +140,5 @@ void pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...) {
         ++i;
         str = va_arg(ap, PGM_P);
     }
+    return buf - init;
 }
