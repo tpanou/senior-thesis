@@ -242,7 +242,7 @@ void srvr_call() {
     stream_set_source(&s_next);
     json_set_source(&s_next);
 
-    req     =  http_parse_request();
+    http_parse_request(&req);
     uri     =  req.uri;
 
     /* Initialise the response line with the HTTP version followed by a single

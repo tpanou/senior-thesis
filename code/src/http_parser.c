@@ -30,30 +30,30 @@ void http_parser_set_server(ServerSettings* new_settings) {
     srvr    = new_settings;
 }
 
-HTTPRequest http_parse_request() {
+void http_parse_request(HTTPRequest* req) {
     uint8_t c;
     int8_t c_type;
-    HTTPRequest req = {.method                  =  SRVR_NOT_SET,
-                       .uri                     =  SRVR_NOT_SET,
-                       .v_major                 =  SRVR_NOT_SET,
-                       .v_minor                 =  SRVR_NOT_SET,
-                       .accept                  =  SRVR_NOT_SET,
-                       .content_type            =  SRVR_NOT_SET,
-                       .content_length          =  SRVR_NOT_SET,
-                       .transfer_encoding       =  SRVR_NOT_SET};
+    req->method                  =  SRVR_NOT_SET;
+    req->uri                     =  SRVR_NOT_SET;
+    req->v_major                 =  SRVR_NOT_SET;
+    req->v_minor                 =  SRVR_NOT_SET;
+    req->accept                  =  SRVR_NOT_SET;
+    req->content_type            =  SRVR_NOT_SET;
+    req->content_length          =  SRVR_NOT_SET;
+    req->transfer_encoding       =  SRVR_NOT_SET;
 
     /* Parse request- or status-line. */
     c_type = s_next(&c);
-    c_type = parse_request_line(&req, &c);
+    c_type = parse_request_line(req, &c);
 
     /* Parse headers. */
     c_type = s_next(&c);    /* Discard LF and load next character. */
-    c_type = parse_headers(&req, &c);
+    c_type = parse_headers(req, &c);
 
     /* After parsing headers, if CRLF was returned, an empty line is implied. */
 
-    if(req.transfer_encoding == TRANSFER_COD_CHUNK) {
-        req.content_length = 0; /* Ignore Content-Length, if set. */
+    if(req->transfer_encoding == TRANSFER_COD_CHUNK) {
+        req->content_length = 0;    /* Ignore Content-Length, if set. */
 
         /* Since the current request is in chunked coding, it is highly likely
         * that chunk parsing will be necessary. Reset chunk variables to be
@@ -62,7 +62,6 @@ HTTPRequest http_parse_request() {
         chunk_len   = 0;
         chunk_pos   = 0;
     }
-    return req;
 }
 
 int8_t parse_request_line(HTTPRequest* req, uint8_t* c) {
