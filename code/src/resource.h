@@ -10,6 +10,7 @@
 struct HTTPRequest;
 
 #include "param.h"
+#include "defs.h"
 
 #include <inttypes.h>
 
@@ -35,6 +36,71 @@ typedef struct ResourceHandler {
     /** @brief Handler callback for this particular path. */
     void (*call)(struct HTTPRequest*);
 } ResourceHandler;
+
+/**
+* @brief Container of query parameters and their values.
+*
+* This is used by the http_parser module <http_parser.h> to identify the
+* acceptable parameters for a particular URI and method combination. It is also
+* set to contain their value as they are found on the stream. It is imperative
+* most members be set up before use. Generally, the necessary initialisation is
+* performed by rsrc_inform().
+*/
+typedef struct QueryString {
+    /**
+    * @brief Array of acceptable query parameter names.
+    *
+    * The items of this array relate to the items of .values on a one-on-one
+    * basis; the string found in the corresponding index of .values is the value
+    * of the parameter token found at the same index in this array.
+    *
+    * Typically, the acceptable parameters (tokens) are specified to the
+    * http_parser module *after* the targeted resource of the request has been
+    * found to match one of ServerSettings#rsrc_tokens. rsrc_inform() may be
+    * used to update the contents of this member at that time.
+    */
+    uint8_t* tokens[QUERY_PARAM_LEN];
+
+    /**
+    * @brief Values for the parameters found in .tokens.
+    *
+    * The items of this array relate to the items of .tokens on a one-on-one
+    * basis; the string at any index of this array is the value that has been
+    * specified in the query string for the parameter token that resides at the
+    * same index in array .tokens. @c NULL denotes that the parameter was not
+    * found in the query string. */
+    uint8_t* values[QUERY_PARAM_LEN];
+
+    /**
+    * @brief The permissible number of parameters for a particular resource.
+    *
+    * Typically, the acceptable parameters are specified *after* the resource of
+    * the request has been identified to match one of
+    * ServerSettings#rsrc_tokens. rsrc_inform() may be used to update the
+    * contents of this member at that time.
+    * This represents the maximum permissible number of parameters for a
+    * particular resource which may or may not be equal to the size of arrays
+    * .tokens and .values.
+    *
+    * A value of @c 0 denotes that no parameters are expected in the query
+    * string.
+    */
+    uint8_t   count;
+
+    /**
+    * @brief Stores query parameter tokens and values.
+    *
+    * String pointers in .tokens and .values are set to addresses found within
+    * this buffer or, alternatively, @c NULL (in case of .values).
+    */
+    uint8_t  buf[QUERY_BUF_LEN];
+
+    /** @brief Offset in .buf to write to next. */
+    uint16_t  buf_i;
+
+    /** @brief The size of .buf. */
+    uint16_t  buf_len;
+} QueryString;
 
 /**
 * @brief Initialise the Resource module.

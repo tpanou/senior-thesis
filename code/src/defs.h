@@ -58,6 +58,29 @@ down-scaled to 4MHz, and\n
 #define HTTP_SOCKET     0
 
 /**
+* @brief Size of the buffer used in parsing query parameters.
+*
+* This much space is allocated upon calling srvr_call() and should be large
+* enough to contain all the acceptable parameters (token + value) for any given
+* resource.
+*
+* It is safe to assume that the server will use this amount of memory only once
+* for a single HTTP request.
+*
+* It is possible to run the server without allocating buffer for such a task
+* (simply by setting this to @c 0).
+*/
+#define QUERY_BUF_LEN       105
+
+/**
+* @brief The maximum number of acceptable parameters for any one resource.
+*
+* This should be equal to the maximum number of query string parameters that are
+* expected by any *one* of the available resource handlers.
+*/
+#define QUERY_PARAM_LEN     6
+
+/**
 * Value of @c TOP (@c OC1A) that produces pulses at 50Hz taking #MTR_PRESCALER
 * into consideration.
 */
