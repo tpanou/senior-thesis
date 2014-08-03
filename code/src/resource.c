@@ -126,8 +126,8 @@ static inline void rsrc_get_qparam(struct HTTPRequest* req) {
     /* Reset .values to a known value to indicate they have not yet been set.
     * This is used in place of memset(). */
     while(i) {
-        req->query.values[i] = NULL;
         --i;
+        req->query.values[i] = NULL;
     }
 }
 
