@@ -8,6 +8,7 @@
 #define WEB_SERVER_H_INCL
 
 #include "http_server.h"
+#include "resource.h"
 
 #include <inttypes.h>
 
@@ -192,6 +193,24 @@ static int parse_header_accept(int8_t* media_range,
 *   - EOF
 */
 static int8_t parse_uri(HTTPRequest* req, uint8_t* c);
+
+/**
+* @brief Read query string parameter values into @p q.
+*
+* @link QueryString q@endlink should be initialised *before* calling this
+* function.
+*
+* @param[in,out] q An initialised #QueryString variable to accept parameter
+*   values.
+* @param[in,out] c The first character to start discarding from and the last one
+*   read from the stream. Upon invocation, it should point at '?'.
+* @returns One of:
+*   - @c 0; if a space character has been found. That character is found in @p
+*       c.
+*   - #CRLF; if a premature CRLF sequence has been found.
+*   - #EOF
+*/
+static inline int8_t parse_qparams(QueryString* q, uint8_t* c);
 
 /**
 * @brief Matches the current name of the server (host) against the stream.

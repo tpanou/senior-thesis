@@ -325,7 +325,7 @@ static int8_t parse_uri(HTTPRequest* req, uint8_t* c) {
 
         /* A possible match has been admitted. */
         } else if(c_type >= 0) {
-            if(*c == ' ') {
+            if(*c == ' ' || *c == '?') {
                 req->uri = c_type;
             }
             break;
@@ -336,6 +336,89 @@ static int8_t parse_uri(HTTPRequest* req, uint8_t* c) {
         }
     }
 
+    /* Initialise query tokens, if a known URI has been found. */
+    if(req->uri != SRVR_NOT_SET) {
+
+        rsrc_inform(req);
+
+        /* Parse query parameters, if a question mark has been found and
+        * parameters are applicable for this URI and method. */
+        if(*c == '?' && req->query.count) {
+            c_type = parse_qparams(&req->query, c);
+        }
+    }
+
+    /* Discard while space. */
+    while(c_type != EOF && *c == ' ') {
+        c_type = s_next(c);
+    }
+
+    return c_type;
+}
+
+static inline int8_t parse_qparams(QueryString* q, uint8_t* c) {
+    int8_t    c_type;
+    uint8_t   param_i;      /* Index of an identified parameter. */
+    uint16_t  i;            /* Offset in query.buf[] to write to next. */
+
+    c_type = s_next(c);     /* Read next of '?'. */
+
+    /* Repeat while there are characters in the query of the request line. */
+    while(c_type != EOF && !is_CRLF(*c) && *c != ' ') {
+
+        /* Attempt to find a parameter token. */
+        c_type = stream_match(q->tokens, q->count, c);
+
+        /* A parameter token is found, if the delimiter is the 'equals' sign,
+        * after which a value might follow. Accept its value, if one has not
+        * been previously specified. */
+        if(c_type >= 0 && *c == '=' && q->values[c_type] == NULL) {
+
+            param_i =  c_type;              /* Store parameter index. */
+            i       =  q->buf_i;            /* Offset in query.buf[]. */
+
+            c_type  =  s_next(c);           /* Read next of '='. */
+
+            /* Copy parameter value up to an EOF, space, ampersand or the end
+            * of q->buf, whichever happens first. */
+            while(c_type != EOF && !is_CRLF(*c)
+              && *c != ' ' && *c != '&' && i < q->buf_len - 1) {
+
+                q->buf[i++] = *c;           /* Copy character. */
+                c_type      =  s_next(c);   /* Load next character. */
+            }
+
+            /* Specify that the parameter buffer has been exceeded. */
+            if(i == q->buf_len - 1 && !is_CRLF(*c)) {
+
+                /* TODO: Better way to show the URI is too long. */
+                i                   =  q->buf_len;
+                q->buf_i            =  i;           /* Buffer is full. */
+
+            /* Parameter was found with at least one character in its value. */
+            } else if(i != q->buf_i) {
+
+                /* Store the start address of the value-string. */
+                q->values[param_i]  = &q->buf[q->buf_i];
+
+                /* Append a null-byte. */
+                q->buf[i++]         =  '\0';
+
+                /* Set the offset for the next string. */
+                q->buf_i            =  i;
+            }
+
+        /* Not an acceptable parameter; discard it. */
+        } else {
+
+            while(c_type != EOF && !is_CRLF(*c) && *c != '&' && *c != ' ') {
+                c_type = s_next(c);
+            }
+        }
+        if(*c == '&') c_type = s_next(c);
+    }
+
+    if(is_CRLF(*c)) c_type = CRLF;
     return c_type;
 }
 
