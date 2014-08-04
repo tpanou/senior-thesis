@@ -27,7 +27,7 @@
 * This is set using rsrc_set_parser() and it should be set before any resource
 * handlers are invoked.
 */
-static int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len);
+static int8_t (*parser)(uint8_t**, ParamValue*, uint8_t);
 
 /**
 * @ingroup resource
@@ -36,7 +36,7 @@ static int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len);
 * It is set using rsrc_set_serial() and it should be set before any resource
 * handlers are invoked.
 */
-static void (*serialiser)(uint8_t**, ParamValue*, uint8_t len);
+static void (*serialiser)(uint8_t**, ParamValue*, uint8_t, uint8_t);
 
 /*
 * This module is divided into two parts; this file, containing common base
@@ -80,7 +80,7 @@ void rsrc_set_parser(int8_t
 }
 
 void rsrc_set_serial(void
-                    (*new_serialiser)(uint8_t**, ParamValue*, uint8_t len)) {
+                    (*new_serialiser)(uint8_t**, ParamValue*, uint8_t len, uint8_t ctr)) {
     serialiser  = new_serialiser;
 }
 

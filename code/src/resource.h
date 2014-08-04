@@ -139,7 +139,7 @@ void rsrc_set_parser(int8_t (*parser)(uint8_t**, ParamValue*, uint8_t len));
 * @param[in] serialiser Function pointer to the appropriate serialising function
 *   to use.
 */
-void rsrc_set_serial(void (*serialiser)(uint8_t**, ParamValue*, uint8_t len));
+void rsrc_set_serial(void (*serialiser)(uint8_t**, ParamValue*, uint8_t len, uint8_t ctr));
 
 /**
 * @brief Register a @p handler for specific @p methods on a particular @p uri.

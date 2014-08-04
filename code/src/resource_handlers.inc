@@ -402,7 +402,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
                       TXF_lnln);
 
-            (*serialiser)(tokens, params, 8);
+            (*serialiser)(tokens, params, 8, SERIAL_DEFAULT);
 
             /* Apply changes to the address after the response has been sent. */
             if(set_params) {
@@ -427,7 +427,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
 
-            (*serialiser)(&tokens[5], &params[5], 3);
+            (*serialiser)(&tokens[5], &params[5], 3, SERIAL_DEFAULT);
         break;
     }
 }
@@ -534,7 +534,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
                           TXFx_FROMRAM, MIME_MIN + MIME_APP_JSON, TXF_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
-            (*serialiser)(tokens, params, 3);
+            (*serialiser)(tokens, params, 3, SERIAL_DEFAULT);
 
         break;
         case TXF_STATUS_202:
@@ -555,7 +555,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
             /* Return maximum values. */
             motor_get_max(&npos);
 
-            (*serialiser)(tokens, params, 3);
+            (*serialiser)(tokens, params, 3, SERIAL_DEFAULT);
         break;
         case TXF_STATUS_503:
             /* This is implemented as a guard statement in the beginning of the
