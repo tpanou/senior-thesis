@@ -247,4 +247,42 @@ typedef struct {
 #define PARAM_STRING(x, len) \
 {.type = DTYPE_STRING, .data_ptr = x, .status_len = len}
 
+/**
+* @brief Directive to flush the serialised parameters.
+*/
+#define SERIAL_FLUSH           (1 << 7)
+
+/**
+* @brief Directive to create a new parameter wrapper.
+*/
+#define SERIAL_ATOMIC_S        (1 << 6)
+
+/**
+* @brief Directive to end a parameter wrapper.
+*/
+#define SERIAL_ATOMIC_E        (1 << 5)
+
+/**
+* @brief Directive to create a parameter envelope.
+*/
+#define SERIAL_ENVELOPE_S      (1 << 4)
+
+/**
+* @brief Directive to end a parameter envelope.
+*/
+#define SERIAL_ENVELOPE_E      (1 << 3)
+
+/**
+* @brief Directive to inform that previous parameters have been serialised.
+*/
+#define SERIAL_PRECEDED        (1 << 2)
+
+/**
+* @brief Directive to serialise and flush parameters as one complete group.
+*/
+#define SERIAL_DEFAULT          \
+ (SERIAL_ATOMIC_S               \
+| SERIAL_ATOMIC_E               \
+| SERIAL_FLUSH)
+
 #endif /* PARAM_H_INCL */

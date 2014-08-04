@@ -51,10 +51,14 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len) {
     return c_type;
 }
 
-void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
-    uint8_t buf[6]      =  "{\n\"";     /* A local buffer. */
+void json_serialise(uint8_t** tokens,
+                    ParamValue* values,
+                    uint8_t len,
+                    uint8_t ctr) {
+
+    uint8_t  buf[6];                    /* A local buffer. */
     uint8_t* str        =  buf;         /* String to send. */
-    uint8_t k           =  3;           /* Number of bytes to send. */
+    uint8_t k           =  0;           /* Number of bytes to send. */
     uint8_t i           =  0;           /* Iteration of @p tokens. */
     uint8_t j;                          /* Pad numbers with white-space. */
     uint8_t flush       =  0;           /* Flush data after sending them. */
@@ -62,10 +66,23 @@ void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
     uint8_t state       =  JSON_OBJECT_BEGIN;
 
     while(len) {
-
         switch(state) {
             case JSON_OBJECT_BEGIN:
-                state       =  JSON_KEY_BEGIN;
+                /* If there are previous values, prefix a comma. */
+                if(SERIAL_PRECEDED & ctr)   buf[k++]    =  ',';
+
+                /* A brace signifies the start of an object. */
+                if(SERIAL_ATOMIC_S & ctr)   buf[k++]    =  0x7b;    /* '{' */
+
+                buf[k++]    =  '\n';
+
+                /* Initiate a key, if there are key tokens specified. */
+                if(tokens != NULL) {
+                    buf[k++]    =  '"';     /* Key-start. */
+                    state       =  JSON_KEY_BEGIN;
+                } else {
+                    state       =  JSON_VALUE_END;
+                }
             break;
 
             case JSON_KEY_BEGIN:
@@ -81,17 +98,26 @@ void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
                 buf[k++]    =  ':';
                 buf[k++]    =  ' ';
 
-                /* Insert a double quote if a string is to be printed. */
-                if(values[i].type == DTYPE_STRING) {
-                    buf[k++]    =  '"';
+                /* Print a bracket (start of array), if the key corresponds to
+                * an envelope (array) and finish this iteration. */
+                if(SERIAL_ENVELOPE_S & ctr) {
+                    buf[k++]    =  '[';
+                    state       =  JSON_VALUE_END;
+
+                } else {
+                    /* Insert a double quote if a string is to be printed. */
+                    if(values[i].type == DTYPE_STRING) {
+                        buf[k++]    =  '"';
+                    }
+
+                    /* Next up, print string or number. */
+                    state       =  JSON_VALUE_BEGIN;
                 }
 
                 str         =  buf;
-                state       =  JSON_VALUE_BEGIN;
             break;
 
             case JSON_VALUE_BEGIN:
-
                 switch(values[i].type) {
                     case DTYPE_UINT:
                         /* Print a total of 5 digits (with padding to fill the
@@ -122,26 +148,41 @@ void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len) {
             break;
 
             case JSON_VALUE_END:
+                if(! (SERIAL_ENVELOPE_S & ctr)) {
 
-                /* If a string was printed, append a closing double quote. */
-                if(values[i].type == DTYPE_STRING) {
-                    buf[k++] = '"';
+                    /* If a string was printed, append a closing quote. */
+                    if(values != NULL) {
+                        if(values[i].type == DTYPE_STRING)  buf[k++]    =  '"';
+                    }
                 }
 
                 ++i;        /* Increase number of iteration. */
                 --len;      /* Decrease remainder of parameters. */
 
-                /* Append a comma, if more parameters follow, or a brace,
-                * otherwise. */
+                /* Print the end of the envelope, if this was the last value. */
+                if(SERIAL_ENVELOPE_E & ctr && len == 0)     buf[k++]    =  ']';
+
+                /* Append a comma, if more parameters follow unless this is the
+                * start of an envelope (eg, "env": [ ). Otherwise, append a
+                * brace at the end, if requested. */
                 if(len) {
-                    buf[k++]    =  ',';
+                    if(SERIAL_ENVELOPE_S & ctr) {
+                        /* Avoid printing an envelope start more than once. */
+                        ctr        &= ~(SERIAL_ENVELOPE_S);
+                    } else {
+                        buf[k++]    =  ',';
+                    }
+
                     buf[k++]    =  '\n';
                     buf[k++]    =  '"';     /* Key-start. */
                     state = JSON_KEY_BEGIN;
+
                 } else {
-                    buf[k++]    =  '\n';
-                    buf[k++]    =  0x7d;    /* } */
-                    flush       =  1;
+                    if(SERIAL_ATOMIC_E & ctr) {
+                        buf[k++]    =  '\n';
+                        buf[k++]    =  0x7d;    /* } */
+                    }
+                    flush       =  SERIAL_FLUSH & ctr;
                 }
 
                 str         = buf;

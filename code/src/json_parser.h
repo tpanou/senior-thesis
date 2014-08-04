@@ -197,14 +197,26 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
 * specified #DataType. For #DTYPE_UINT, a fixed width sub-string of 5 characters
 * is produced (which contains up to 5 digits and white-space leading padding).
 * Currently, only 8-bit numbers are supported; in future versions, the size bits
-* of @link ParamValue#status_len status_len@endlink would provide more precise
-* control.
+* of @link ParamValue#status_len status_len@endlink would suffice to support
+* greater resolutions.
 * For #DTYPE_STRING, the contents of @link ParamValue#data_ptr data_ptr@endlink
 * are copied (within double quotes) until the first occurrence of a null-byte.
 *
-* Currently, the output string is automatically flushed over the network module 
-* This should not be the default behaviour, but was deemed appropriate at the
-* current state.
+* Simple support is provided for serialising directives, as follows:
+*   - #SERIAL_FLUSH; flush data after serialising the supplied values.
+*   - #SERIAL_ATOMIC_S; the supplied values are the entry of an object and
+*       should be prefixed with a brace.
+*   - #SERIAL_ATOMIC_E; the supplied values are the tail of an object and should
+*       be followed by a brace.
+*   - #SERIAL_ENVELOPE_S; the first value in @p tokens is the key for an array.
+*       The corresponding index in @p values is ignored. This results in:
+*       "token": [
+*   - #SERIAL_ENVELOPE_E; terminate a previously initiated envelope (see
+*       previous bullet). The envelope may or may not have been initiated with
+*       this call. @p tokens and @values is not accessed in this case.
+*   - #SERIAL_PRECEDED; a separator (comma) will be prefixed before serialising
+*       object key-pairs or an envelope start. It is ignored in case
+*       #SERIAL_ENVELOPE_E without #SERIAL_ENVELOPE_S has been specified.
 *
 * @param[in] tokens An array of parameter-tokens (strings) that are to be
 *   used as object keys.
@@ -212,8 +224,11 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
 *   each string provided in @p tokens (#DataType and, perhaps, size).
 * @param[in] len The amount of elements in @p tokens and @c values (obviously,
 *   the same for both).
-*/
-void json_serialise(uint8_t** tokens, ParamValue* values, uint8_t len);
+* @param[in] ctr Serialising directives (see above).
+*/void json_serialise(uint8_t** tokens,
+                      ParamValue* values,
+                      uint8_t len,
+                      uint8_t ctr);
 
 /**
 * @brief Advance the stream till a non-white-space character.
