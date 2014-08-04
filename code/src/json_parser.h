@@ -202,6 +202,9 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
 * For #DTYPE_STRING, the contents of @link ParamValue#data_ptr data_ptr@endlink
 * are copied (within double quotes) until the first occurrence of a null-byte.
 *
+*an "atomic" is series of key-value pairs (which may be
+*       separated among different calls). 
+*
 * Simple support is provided for serialising directives, as follows:
 *   - #SERIAL_FLUSH; flush data after serialising the supplied values.
 *   - #SERIAL_ATOMIC_S; the supplied values are the entry of an object and
@@ -217,6 +220,53 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
 *   - #SERIAL_PRECEDED; a separator (comma) will be prefixed before serialising
 *       object key-pairs or an envelope start. It is ignored in case
 *       #SERIAL_ENVELOPE_E without #SERIAL_ENVELOPE_S has been specified.
+*
+* Examples:
+*   1. Serialise an empty object, flushing after doing so: @verbatim
+(NULL, NULL, 1, SERIAL_DEFAULT)
+Produces:
+{
+}
+@endverbatim
+*   2. Serialise an object with two key-value pairs, flushing after doing so:
+*       @verbatim
+(tokens, values, 2, SERIAL_ATOMIC_S | SERIAL_ATOMIC_E | SERIAL_FLUSH)
+Produces:
+{
+"token1":    14,
+"token2": "string"
+}
+@endverbatim
+*   3. Serialise the start of an object with one key-value pair. Do not send
+*       the result, yet: @verbatim
+(tokens, values, 1, SERIAL_ATOMIC_S)
+Produces:
+{
+"token1":    14
+@endverbatim
+*   4. Serialise the start of an array that contains one key-value pair.
+*       Designate that the array is preceded by another key-value pair. Do not
+*       send the result, yet: @verbatim
+(tokens, values, 2, SERIAL_PRECEDED | SERIAL_ENVELOPE_S)
+Produces:
+,
+"array": [
+"token3": "more strings"
+@endverbatim
+*   5. Serialise the tail of an object that has an open envelope with a
+*       key-value pair. Send the result, afterwards: @verbatim
+(tokens, values, 1, SERIAL_PRECEDED
+                  | SERIAL_ENVELOPE_E
+                  | SERIAL_ATOMIC_E
+                  | SERIAL_FLUSH)
+Produces:
+,
+"token4": "and.. flush!"
+]}
+@endverbatim
+*
+* Note that examples 3 through 5 could be part of the same entity.
+*
 *
 * @param[in] tokens An array of parameter-tokens (strings) that are to be
 *   used as object keys.
