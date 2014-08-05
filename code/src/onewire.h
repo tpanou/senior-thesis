@@ -1,6 +1,12 @@
 /**
 * @file
 * @addtogroup 1_wire 1-wire bus
+* @{
+*
+* @brief Single drop 1-wire bus interface.
+*
+* The current implementation provides functions to reset, read and write the DQ
+* line. No device negotiation is implemented (ROM Search).
 */
 
 #ifndef ONEWIRE_H_INCL
@@ -12,6 +18,21 @@
 #include <util/delay.h>
 
 #include <inttypes.h>
+
+/**
+* @brief ROM command: access memory functions without supplying device code.
+*/
+#define W1_ROM_SKIP             0xCC
+
+/**
+* @brief Memory command: start reading scratchpad memory contents.
+*/
+#define W1_READ_SCRATCHPAD      0xBE
+
+/**
+* @brief Memory command: begin temperature conversion.
+*/
+#define W1_CONVERT_T            0x44
 
 /**
 * @brief The bit read over 1-wire DQ line.
@@ -45,4 +66,22 @@ W1_DQ_DDR          &= ~_BV(W1_DQ)
 */
 uint8_t w1_reset();
 
+/**
+* @brief Send a data byte over the 1-wire DQ line.
+*
+* Upon completion, the DQ bus is ready to be operated upon immediately.
+*
+* @param[in] byte Data to send.
+*/
+void w1_write(uint8_t byte);
+
+/**
+* @brief Read up to 16 bits from the 1-wire DQ line.
+*
+* @param[in] bits Amount of bits to read (up to 16).
+* @return Data read from DQ line.
+*/
+uint16_t w1_read(uint8_t bits);
+
 #endif /* ONEWIRE_H_INCL */
+/** @} */
