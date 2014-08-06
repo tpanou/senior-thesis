@@ -331,22 +331,6 @@ static void motor_stop() {
     LOCK_ENABLE();
 }
 
-/**
-* @brief Backtrack a motor that has engaged a limit switch.
-*
-* In order for this to operate correctly, @c OCR1A/B and #MTR_IS_Z, if needed,
-* must be populated with an appropriate value beforehand. This means that this
-* function cannot be used to backtrack on an axis the limit switch of which has
-* been engaged *before* the initiation of motion (such as before device
-* power-on).
-*
-* Note that the position of the backtracked motor in #cur_pos is not updated.
-* This function should be followed by another operation to update the position
-* (eg, reset).
-*
-* @returns The axis that has been backtracked; @c 0 in the event that no limit
-*   switch signal read as logic low.
-*/
 static MotorAxis motor_backtrack() {
     MotorAxis   axis;   /* _BV() of one of #MTR_RESET_[X|Y|Z]_DONE. */
 
