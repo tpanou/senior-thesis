@@ -36,6 +36,12 @@ static Position new_pos;
 
 /**
 * @ingroup motor
+* @brief Pointer to function to call on various motor events.
+*/
+static void (*motor_callback)(Position pos, uint8_t status);
+
+/**
+* @ingroup motor
 * @brief Operating (maximum) limits of the device.
 *
 * The operating limits are managed via motor_get_max() and motor_set_max() and
@@ -77,6 +83,10 @@ void motor_init() {
     /* Enable pin change interrupts on pins connected to the limit switches. */
     PCICR          |=  _BV(LMT_PCIE);
     LMT_PCMSK      |=  LMT_PCMSK_VAL;
+}
+
+void motor_set_callback(void (*callback)(Position pos, uint8_t event)) {
+    motor_callback  =  callback;
 }
 
 void motor_reset() {

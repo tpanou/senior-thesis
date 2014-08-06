@@ -352,11 +352,27 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_LIMIT           6
 
 /**
+* @brief Call motor callback if it has been set.
+*/
+#define MTR_CALL(pos, evt)       \
+if(motor_callback)(*motor_callback)(pos, evt)
+
+/**
 * @brief Initializes all pins and registers used for motor operation.
 *
 * Motors are operated through #motor_reset(), #motor_set() and #motor_get().
 */
 void motor_init();
+
+/**
+* @brief Function to call on various motor-related events.
+*
+* For a list of advertised events, see the various MTR_EVT_* macros.
+*
+* @param[in] The callback function receives the position of the motors and an
+*   event code.
+*/
+void motor_set_callback(void (*callback)(Position pos, uint8_t event));
 
 /**
 * @brief Resets the motors to a known state (homing to absolute zero).
