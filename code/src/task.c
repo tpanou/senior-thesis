@@ -13,6 +13,29 @@ void task_init() {
     motor_set_callback(&task_handle_motor);
 }
 
+void task_log_samples(uint8_t count) {
+    if(count) {
+        Position pos;
+
+        /* TODO: Request the first random position and begin sampling. */
+        pos.z   =  0;
+        motor_set(pos);
+        pending_samples     =  count;
+    }
+}
+
+uint8_t task_log_sample(Position* pos) {
+
+    /* Request the sensor head be submerged. */
+    pos->z  =  0;
+
+    /* Stop, if the position is not valid. */
+    if(motor_set(*pos)) return -1;
+
+    pending_samples =  1;       /* Schedule a single sampling. */
+    return 0;
+}
+
 static void task_handle_motor(Position pos, uint8_t evt) {
     printf("Motor handler: %d @ [%d,%d,%d]\n", evt, pos.x, pos.y, pos.z);
 
