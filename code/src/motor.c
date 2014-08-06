@@ -367,7 +367,7 @@ static MotorAxis motor_backtrack() {
     /* Limit Y detected. */
     } else if(IS_LMT_nY()) {
 
-        OCR1A           =  MTR_Y_INC;
+        OCR1A           =  OCR1A == MTR_Y_INC ? MTR_Y_DEC : MTR_Y_INC;
         axis            =  AXIS_Y;
 
         BCK_Y_PORT     |=  _BV(BCK_Y);
