@@ -352,6 +352,14 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 #define MTR_LIMIT           6
 
 /**
+* @brief A request to reposition the motors has been successfully completed.
+*
+* The position supplied on this event contains the current motor position. Upon
+* invocation, the motors are quiescent and a new position may be requested.
+*/
+#define MTR_EVT_OK          1
+
+/**
 * @brief Call motor callback if it has been set.
 */
 #define MTR_CALL(pos, evt)       \

@@ -232,6 +232,9 @@ static int8_t motor_update() {
     } else {
         /* Already at #new_pos. */
         motor_status   &= ~_BV(MTR_IS_Z);
+
+        /* Inform that motors have reached their destination. */
+        MTR_CALL(cur_pos, MTR_EVT_OK);
         return -1;
     }
 
