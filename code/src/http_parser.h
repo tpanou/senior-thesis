@@ -51,9 +51,12 @@ void http_parser_set_server(ServerSettings* srvr);
 * #c_next() gives direct (transparent) access to the entity-body and should be
 * preferred over #s_next().
 *
+* Parsing of the incoming message stops, if the supplied URI has not been
+* specified in #server_consts.
+*
 * @param[in,out] req An #HTTPRequest representation of the HTTP request found on
-*   the input stream. All @c query_* members should be set to appropriate values
-*   by the time, or when, srvr_inform() is invoked. The other members will be
+*   the input stream. All @c .query members should be set to appropriate values
+*   by the time, or when, rsrc_inform() is invoked. The other members will be
 *   internally initialised to #SRVR_NOT_SET.
 */
 void http_parse_request(HTTPRequest* req);

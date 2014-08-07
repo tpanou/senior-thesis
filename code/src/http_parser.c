@@ -46,6 +46,8 @@ void http_parse_request(HTTPRequest* req) {
     c_type = s_next(&c);
     c_type = parse_request_line(req, &c);
 
+    if(req->uri == SRVR_NOT_SET) return;
+
     /* Parse headers. */
     c_type = s_next(&c);    /* Discard LF and load next character. */
     c_type = parse_headers(req, &c);
