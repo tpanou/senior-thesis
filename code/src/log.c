@@ -1,5 +1,19 @@
 #include "log.h"
 
+#include <avr/eeprom.h>
+
+/**
+* @brief Offset of the first stored record.
+*
+* It spans from @c 0 up to #LOG_LEN - 1.
+*/
+static uint8_t log_index EEMEM = 0;
+
+/**
+* @brief The amount of stored records.
+*/
+static uint8_t log_count EEMEM = 0;
+
 /**
 * @ingroup log
 * @brief Internal Log state.
@@ -12,6 +26,11 @@
 * @link LogRecordSet#count .count@endlink is the amount of valid Log records.
 */
 static LogRecordSet log;
+
+void log_init() {
+    log.index   =  eeprom_read_byte(&log_index);
+    log.count   =  eeprom_read_byte(&log_count);
+}
 
 static uint8_t log_get_offset(uint8_t index) {
     uint8_t offset;

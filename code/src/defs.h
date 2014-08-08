@@ -27,6 +27,29 @@ typedef enum {
 } MotorAxis;
 
 /**
+* @brief A date in BCD format.
+*/
+typedef struct {
+    /** @brief Year: @f$0x00-0x99@f$. */
+    uint8_t year;
+
+    /** @brief Month: @f$0x01-0x12@f$. */
+    uint8_t mon;
+
+    /** @brief Date: @f$0x01-0x31@f$. */
+    uint8_t date;
+
+    /** @brief Hours: @f$0x00-0x23@f$. */
+    uint8_t hour;
+
+    /** @brief Minutes: @f$0x00-0x59@f$. */
+    uint8_t min;
+
+    /** @brief Seconds: @f$0x00-0x59@f$. */
+    uint8_t sec;
+} BCDDate;
+
+/**
 @brief The frequency of CPU clock, required by <avr/delay.h> convenience
 functions.
 */

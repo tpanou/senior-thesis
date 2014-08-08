@@ -31,6 +31,8 @@
 #ifndef LOG_H_INCL
 #define LOG_H_INCL
 
+#include "defs.h"
+
 #include <inttypes.h>
 
 /**
@@ -62,6 +64,39 @@ typedef struct {
     /** @brief Amount of records. */
     uint8_t count;
 } LogRecordSet;
+
+/**
+* @brief Record structure.
+*
+* Note that the first member must be #BCDDate. This helps to avoid loading a
+* record in its entirety when searching for a particular date.
+*/
+typedef struct {
+    /** @brief Date of record. Must be unique among all records. */
+    BCDDate     date;
+
+    /** @brief Abscissa of sample coordinates. */
+    uint8_t     x;
+
+    /** @brief Ordinate of sample coordinates. */
+    uint8_t     y;
+
+    /** @brief Temperature of sample. */
+    uint8_t     t;
+
+    /** @brief Relative humidity of sample. */
+    uint8_t     rh;
+
+    /** @brief pH of sample. */
+    uint8_t     ph;
+} LogRecord;
+
+/**
+* @brief Initialise Log dependencies.
+*
+* It loads @c index and @c count from EEPROM into #log.
+*/
+void log_init();
 
 /**
 * @brief Translate a logical to a physical offset.
