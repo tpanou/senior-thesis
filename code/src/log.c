@@ -56,6 +56,23 @@ void log_append(LogRecord* rec) {
     eeprom_update_block(rec, (void*)LOG_ADDR(write_offset), sizeof(LogRecord));
 }
 
+uint8_t log_get_next(LogRecord* rec, LogRecordSet* set) {
+    uint8_t     read_offset;
+
+    /* Read the next record provided there is one. */
+    if(set->count && set->index < LOG_LEN) {
+        read_offset = log_get_offset(set->index);
+
+        eeprom_read_block(rec, (void*)LOG_ADDR(read_offset), sizeof(LogRecord));
+
+        ++(set->index);
+        --(set->count);
+
+        return 0;
+    }
+    return -1;
+}
+
 static uint8_t log_get_offset(uint8_t index) {
     uint8_t offset;
 

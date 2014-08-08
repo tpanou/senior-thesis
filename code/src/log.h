@@ -114,6 +114,24 @@ void log_init();
 void log_append(LogRecord* rec);
 
 /**
+* @brief Read the next record found in the record @p set.
+*
+* Each successive call to this function reads one more record into @p rec. @c -1
+* is returned when there are no more records available.
+*
+* A valid #LogRecordSet is obtained via log_get_set(). As @p set is modified
+* internally, any external modification could cause unexpected behaviour and
+* should be avoided.
+*
+* @param[in] rec Contents of the next record.
+* @param[in,out] set Set of records to return.
+* @returns @c 0, if a record has been loaded into @p rec; @c -1, if there are no
+*   more records available (in which case, the contents of @p rec are *not*
+*   updated).
+*/
+uint8_t log_get_next(LogRecord* rec, LogRecordSet* set);
+
+/**
 * @brief Translate a logical to a physical offset.
 *
 * Physical offsets are used to access a record within the storage structure.
