@@ -46,6 +46,11 @@
 #define LOG_BASE_ADDR       34
 
 /**
+* @brief Shorthand to calculate the address of a physical offset.
+*/
+#define LOG_ADDR(offset)   (LOG_BASE_ADDR + offset*sizeof(LogRecord))
+
+/**
 * @brief Index of a single record and the total amount of records.
 *
 * This is returned by log_get_set() and may be used with log_get_next() to
@@ -97,6 +102,16 @@ typedef struct {
 * It loads @c index and @c count from EEPROM into #log.
 */
 void log_init();
+
+/**
+* @brief Add a new log record.
+*
+* Apart from writing the record, it also updates @c index, @c count (in EEPROM)
+* and #log, as needed.
+*
+* @param[in] rec The record to append to the log.
+*/
+void log_append(LogRecord* rec);
 
 /**
 * @brief Translate a logical to a physical offset.

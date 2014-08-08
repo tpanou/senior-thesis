@@ -32,6 +32,30 @@ void log_init() {
     log.count   =  eeprom_read_byte(&log_count);
 }
 
+void log_append(LogRecord* rec) {
+    uint8_t     write_offset;   /* Offset from #LOG_BASE_ADDR to write to. */
+
+    /* If the storage if full, replace the oldest record with this one. */
+    if(log.count == LOG_LEN) {
+        write_offset    =  log.index;
+
+        /* Update the physical offset of the oldest record. */
+        log.index       =  log.index == LOG_LEN - 1 ? 0 : log.index + 1;
+        eeprom_write_byte(&log_index, log.index);
+
+    } else {
+        write_offset    =  log_get_offset(log.index + log.count);
+
+        /* Update the count of available records. */
+        ++log.count;
+        eeprom_write_byte(&log_count, log.count);
+    }
+
+    /* Calculate the physical address that corresponds to @c write_offset and
+    * write to it. */
+    eeprom_update_block(rec, (void*)LOG_ADDR(write_offset), sizeof(LogRecord));
+}
+
 static uint8_t log_get_offset(uint8_t index) {
     uint8_t offset;
 
