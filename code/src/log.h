@@ -132,6 +132,40 @@ void log_append(LogRecord* rec);
 uint8_t log_get_next(LogRecord* rec, LogRecordSet* set);
 
 /**
+* @brief Give a description of records that span between two dates.
+*
+* It initialises @p set so it may later be used to extract the desired amount of
+* records that lay within the two specified dates. @p set should be a valid
+* variable address and not @c NULL. Once initialised, @p set may be used with
+* log_get_next() to retrieve each record. The contents of @p set are meaningful
+* to and altered by the underlying API and should not be tampered with.
+*
+* @param[out] set A valid #LogRecordSet variable address to initialise.
+* @param[in] since The starting date of the returned records (inclusive).
+* @param[in] until The ending date of the returned records (inclusive).
+* @returns Amount of records to be returned with this set.
+*/
+uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until);
+
+/**
+* @brief Locate the closest record index to the supplied date.
+*
+* It implements a simple binary search algorithm to avoid unnecessary EEPROM
+* reads. It uses <string.h>memcmp() for the date comparisons. If a record with
+* the specified date is not found, the closest logical offset is returned,
+* instead.
+*
+* This function makes the assumption that each record begins with a #BCDDate (or
+* equivalent) data structure and only reads that many bytes.
+*
+* @param[out] index The logical offset of the closest matching record date to
+*   @p q.
+* @param[in] q The date of the record in question.
+* @returns The output of memcmp() of the last comparison.
+*/
+static uint8_t log_find(uint8_t* index, BCDDate* q);
+
+/**
 * @brief Translate a logical to a physical offset.
 *
 * Physical offsets are used to access a record within the storage structure.

@@ -2,6 +2,8 @@
 
 #include <avr/eeprom.h>
 
+#include "string.h"
+
 /**
 * @brief Offset of the first stored record.
 *
@@ -71,6 +73,71 @@ uint8_t log_get_next(LogRecord* rec, LogRecordSet* set) {
         return 0;
     }
     return -1;
+}
+
+uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until) {
+    uint8_t i_since;        /* Index of date @p since. */
+    uint8_t i_until;        /* Index of date @p until. */
+    int8_t  c_since;        /* Comparison result of date @p since. */
+    int8_t  c_until;        /* Comparison result of date @p until. */
+
+    /* Find the closest matching index for each date. */
+    c_since =  log_find(&i_since, since);
+    c_until =  log_find(&i_until, until);
+
+    /* Avoid counting records for the empty set. An empty set occurs when both
+    * upper and lower limits point at the same index and their respective
+    * dates are both either greater or less than the date at that index. */
+    if(i_since == i_until && c_since == c_until && c_until != 0) {
+
+        set->count = 0;
+
+    /* Determine whether the limits need to be adjusted. */
+    } else {
+
+        /* If date @p since is greater than the date at the returned index, that
+        * date must not be included in the set (increase lower limit). */
+        if(c_since > 0 && i_since < LOG_LEN - 1) ++i_since;
+
+        /* Likewise, for date @p until (decrease upper limit). */
+        if(c_until < 0 && i_until > 0) --i_until;
+
+        set->index  =  i_since;
+        set->count  =  i_until - i_since + 1;
+    }
+
+    return set->count;
+}
+
+static uint8_t log_find(uint8_t* index, BCDDate* q) {
+    uint8_t start   =  0;           /* Sub-array lower search limit. */
+    uint8_t end     =  LOG_LEN - 1; /* Sub-array upper search limit. */
+
+    BCDDate dt;                     /* Loaded record date. */
+    int8_t cmp;                     /* Comparison result. */
+
+    while(end >= start) {
+        *index  =  start + (end - start)/2;
+
+        /* Load date for the physical offset that corresponds to @c i. */
+        eeprom_read_block(&dt,
+                          (void*)LOG_ADDR(log_get_offset(*index)),
+                          sizeof(BCDDate));
+
+        cmp     =  memcmp(q, &dt, sizeof(BCDDate));
+
+        if(cmp < 0) {
+            end     =  *index - 1;
+
+        } else if(cmp > 0) {
+            start   =  *index + 1;
+
+        } else {
+            break;
+        }
+    }
+
+    return cmp;
 }
 
 static uint8_t log_get_offset(uint8_t index) {
