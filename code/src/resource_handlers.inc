@@ -11,6 +11,7 @@
 #include "util.h"
 #include "motor.h"
 #include "rtc.h"
+#include "log.h"
 #include "w5100/w5100.h"
 
 #include <avr/pgmspace.h>
@@ -612,6 +613,114 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
 }
 
 void rsrc_handle_index(HTTPRequest* req) {
+}
+
+/**
+* @brief Serialise statistical information of records to be returned.
+*
+* The result is similar to this: @verbatim {
+    "page-index": number,
+    "page-size" : number,
+    "total"     : number
+@endverbatim
+*
+* No flushing is performed.
+*
+* @param[in] page_index The page of results.
+* @param[in] page_size The (maximum) number of records within this
+*   page/response.
+* @param[in] total The amount of available records (regardless of pagination).
+*/
+static void rsrc_measurement_serial_info(uint8_t page_index,
+                                         uint8_t page_size,
+                                         uint8_t total) {
+
+    uint8_t  token_buf[31];     /* Key tokens. */
+    uint8_t* tokens[4];         /* Pointers to each token in @c token_buf. */
+
+    ParamValue params[] =  {PARAM_UINT8(page_index),
+                            PARAM_UINT8(page_size),
+                            PARAM_UINT8(total)};
+
+    /* Load tokens into main memory. */
+    pgm_read_str_array(tokens, token_buf, prm_page_index,
+                                          prm_page_size,
+                                          prm_total,
+                                          prm_log, NULL);
+
+    (*serialiser)(tokens, params, 3, SERIAL_ATOMIC_S);
+
+    /* An envelope directive takes precedence over the actual parameters so, in
+    * this case, needs to be opened independently. */
+    (*serialiser)(&tokens[3], NULL, 1, SERIAL_PRECEDED | SERIAL_ENVELOPE_S);
+
+}
+
+/**
+* @brief Serialise the records contained within @p set.
+*
+* The result is similar to this: @verbatim {
+    "date"      : "YYYY-MM-DDTHH:mm:ss.000Z",
+    "x"         : number,
+    "y"         : number,
+    "t"         : temperature,      // One-digit fraction; in Celsius.
+    "ph"        : pH,               // Not sampled; always 255.
+    "rh"        : relative humidity // Not sampled; always 255.
+}
+@endverbatim
+*
+* Additional objects may follow.
+*
+* No flushing is performed.
+*
+* @param[in,out] set #LogRecordSet from which to extract records. Upon return,
+*   @p set will be empty unless @p count records have been serialised, instead.
+* @param[in] count Maximum number of records to serialise.
+* @returns The amount of serialised records.
+*/
+static uint8_t rsrc_measurement_serial_log(LogRecordSet* set, uint8_t count) {
+    uint8_t  i;                 /* Counts the amount of serialised records. */
+    uint8_t  token_buf[47];     /* Key tokens. */
+    uint8_t* tokens[6];         /* Pointers to each token in @c token_buf. */
+
+    /* Parameter value buffers. */
+    uint8_t  s_date     [PRM_DATE_LEN];     /* String form of rec.date */
+    uint8_t  s_temp     [PRM_TEMP_LEN];     /* String form of rec.t */
+
+    LogRecord rec;
+
+    /* Set-up output value references. */
+    ParamValue params[]     =  {PARAM_STRING(s_date, PRM_DATE_LEN),
+                                PARAM_UINT8(rec.x),
+                                PARAM_UINT8(rec.y),
+                                PARAM_STRING(s_temp, PRM_TEMP_LEN),
+                                PARAM_UINT8(rec.ph),
+                                PARAM_UINT8(rec.rh)};
+
+    /* Load tokens into main memory. */
+    pgm_read_str_array(tokens, token_buf, prm_date,
+                                          prm_x,
+                                          prm_y,
+                                          prm_t,
+                                          prm_ph,
+                                          prm_rh, NULL);
+
+    /* The first record is not preceded by another record. */
+    uint8_t serial = SERIAL_ATOMIC_S | SERIAL_ATOMIC_E;
+
+    while(!log_get_next(&rec, set) && i < count) {
+
+        date_to_str(s_date, &rec.date);
+        temp_to_str(s_temp, PRM_TEMP_LEN, rec.t);
+
+        printf("T %d → %s\n", rec.t, s_temp);
+
+        (*serialiser)(tokens, params, 6, serial);
+
+        serial |= SERIAL_PRECEDED;
+        ++i;
+    }
+    return i;
 }
 
 void rsrc_handle_measurement(HTTPRequest* req) {
