@@ -149,9 +149,9 @@ void rsrc_set_serial(void (*serialiser)(uint8_t**, ParamValue*, uint8_t len, uin
 * handler with a new one, simply call this function with the appropriate
 * settings.
 *
-* Also, see #MethodFlag and #ServerResource.
+* Also, see #MethodFlag and #ResourceHandler.
 *
-* @param[in] uri A value among #URI_MIN and #URI_MAX describing one of the
+* @param[in] uri A value within #rsrc_handlers describing one of the
 *   available server resources.
 * @param[in] methods Any bit-wise OR combination of acceptable #MethodFlag bits
 *   for @p uri.

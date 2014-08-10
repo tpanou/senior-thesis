@@ -216,7 +216,7 @@ int8_t json_parse(uint8_t** tokens, ParamValue* values, uint8_t len);
 *       "token": [
 *   - #SERIAL_ENVELOPE_E; terminate a previously initiated envelope (see
 *       previous bullet). The envelope may or may not have been initiated with
-*       this call. @p tokens and @values is not accessed in this case.
+*       this call. @p tokens and @p values is not accessed in this case.
 *   - #SERIAL_PRECEDED; a separator (comma) will be prefixed before serialising
 *       object key-pairs or an envelope start. It is ignored in case
 *       #SERIAL_ENVELOPE_E without #SERIAL_ENVELOPE_S has been specified.

@@ -33,7 +33,8 @@ uint8_t txf_retry_after[] PROGMEM   = "Retry-After";
 uint8_t txf_server[] PROGMEM        = "Server:uServer (TEIA)";
 uint8_t txf_comma[] PROGMEM         = ",";
 
-/**
+/* Doxygen does not handle attributes (like PROGMEM) very well. */
+/*
 * @ingroup http_server
 * @brief Text fragments stored in program space (Flash memory).
 *

@@ -66,7 +66,7 @@ static uint8_t* rsrc_tokens[RSRC_LEN] = {
 * @ingroup resource
 * @brief Available methods and corresponding handlers for each resource.
 *
-* This array and #rsrc_tokens are correlated through #resources.
+* This array and #rsrc_tokens are correlated through srvr_set_resources().
 */
 static ResourceHandler rsrc_handlers[RSRC_LEN]; /* Definition is in the end. */
 
@@ -79,8 +79,10 @@ void rsrc_set_parser(int8_t
     parser  = new_parser;
 }
 
-void rsrc_set_serial(void
-                    (*new_serialiser)(uint8_t**, ParamValue*, uint8_t len, uint8_t ctr)) {
+void rsrc_set_serial(void (*new_serialiser)(uint8_t**,
+                                           ParamValue*,
+                                           uint8_t len,
+                                           uint8_t ctr)) {
     serialiser  = new_serialiser;
 }
 

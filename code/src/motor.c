@@ -9,7 +9,7 @@
 * @ingroup motor
 * @brief Contains flags concerning the current status of the motors.
 *
-* See #MTR_STATUS(), #MTR_IS_Z, #MTR_RESET, #MTR_RESET_X_DONE, #MTR_RESET_Y_DONE
+* See #MTR_IS_Z, #MTR_RESET, #MTR_RESET_X_DONE, #MTR_RESET_Y_DONE
 * and #MTR_RESET_Z_DONE.
 */
 static uint8_t motor_status = 0;

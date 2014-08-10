@@ -90,7 +90,8 @@ typedef enum {
 *   and XZ, respectively).
 * - @c OC1A and/ or @c OC1B has been connected to the port (#PWM_XZ_ENABLE() and
 *   #PWM_Y_ENABLE()).
-* - An optical encoder has been selected (#MTR_ROUTE_XZ() or #MTR_ROUTE_Y()).
+* - An optical encoder has been selected (#MTR_ROUTE_X, #MTR_ROUTE_Z() or
+*   #MTR_ROUTE_Y()).
 * - The multiplexer has been chip-selected (#MUX_ENABLE()).
 */
 #define MTR_PWM_START()     TCCR1B         |=  MTR_PRESCALER
@@ -288,10 +289,10 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * reset.
 *
 * This flag is set by the ISR that responds to limit switch interrupts and is
-* used by #reset_motor() to determine the state of the motor reset process.
+* used by #motor_reset() to determine the state of the motor reset process.
 * Motors X and Y are reset concurrently and when both their corresponding
 * flag-bits (#MTR_RESET_X_DONE and #MTR_RESET_Y_DONE) are set, the operation is
-* finalized by #reset_motor().
+* finalized by #motor_reset().
 *
 * Also, see #motor_status, #MTR_RESET, #MTR_IS_Z and
 * #MTR_RESET_Z_DONE.
@@ -303,10 +304,10 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * reset.
 *
 * This flag is set by the ISR that responds to limit switch interrupts and is
-* used by #reset_motor() to determine the state of the motor reset process.
+* used by #motor_reset() to determine the state of the motor reset process.
 * Motors X and Y are reset concurrently and when both their corresponding
 * flag-bits (#MTR_RESET_X_DONE and #MTR_RESET_Y_DONE) are set, the operation is
-* finalized by #reset_motor().
+* finalized by #motor_reset().
 *
 * Also, see #motor_status, #MTR_RESET, #MTR_IS_Z and
 * #MTR_RESET_Z_DONE.
@@ -318,11 +319,11 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 * reset.
 *
 * Like #MTR_RESET_X_DONE and #MTR_RESET_Y_DONE, this flag is set by the ISR that
-* responds to limit switch interrupts and is used by #reset_motor() to determine
+* responds to limit switch interrupts and is used by #motor_reset() to determine
 * the state of the motor reset process.
 *
 * Motor Z is always the first motor to be reset independently from the other
-* two. Once this is set (ie, motor Z has been reset), #reset_motor() will
+* two. Once this is set (ie, motor Z has been reset), #motor_reset() will
 * initiate resetting of motors X and Y.
 *
 * Also, see #motor_status, #MTR_RESET, #MTR_IS_Z,
@@ -377,8 +378,8 @@ void motor_init();
 *
 * For a list of advertised events, see the various MTR_EVT_* macros.
 *
-* @param[in] The callback function receives the position of the motors and an
-*   event code.
+* @param[in] callback The callback function receives the position of the motors
+*   and an event code.
 */
 void motor_set_callback(void (*callback)(Position pos, uint8_t event));
 
@@ -410,7 +411,7 @@ void motor_get_max(Position* max);
 * terminated.
 *
 * @param[in] max Variable that holds the new operating limits.
-* @retuns @c 0, if the limits where acceptable; non-zero, otherwise.
+* @returns @c 0, if the limits where acceptable; non-zero, otherwise.
 */
 int8_t motor_set_max(Position* max);
 
@@ -450,9 +451,10 @@ int8_t motor_get(Position *pos);
 * invocation of this function will configure the other motor to perform the
 * remainder of steps. Note that #cur_pos should be updated before this new
 * invocation occurs. Motor Z takes precedence over motors X and Y when its new
-* position (#new_pos.z) is greater than its current (#cur_pos.z) (that is, when
-* the sensor head is lowered, it must first be retracted before moving to a new
-* X-Y position).
+* position (@link #new_pos new_pos.z@endlink) is greater than its current
+* (@link #cur_pos cur_pos.z@endlink) (that is the
+* sensor head will first be retracted and then moved on X-Y plane). The reverse
+* holds true when lowering the head.
 *
 * This function should only be called while all motors are at rest
 * (#PWM_IS_ON()). Generally, this occurs from within #motor_set(), which will

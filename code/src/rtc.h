@@ -88,7 +88,7 @@ typedef struct {
 * bit corresponds to AM/PM, @c 0 denoting AM. If in 24-hour mode, this bit is
 * part of BCD hour value.
 */
-#define RTC_AP_MP       5
+#define RTC_AM_PM       5
 
 /**
 * @brief Determines the constant output on pin @c SQW/OUT.

@@ -67,7 +67,7 @@
 
 /**
 * @ingroup resource
-* @brief Size of #prm_date (inclusive of null-byte).
+* @brief Size of a date string (ISO8601 format) (inclusive of null-byte).
 */
 #define PRM_DATE_LEN        25
 
@@ -116,8 +116,7 @@
 #define BV(x)              (1 << x)
 #endif
 
-/**
-* @ingroup resource
+/*
 * @brief Token: x
 *
 * This is used by rsrc_handle_coordinates() to read and return device
@@ -125,8 +124,8 @@
 */
 static uint8_t prm_x[] PROGMEM = "x";
 
-/**
-* @ingroup resource
+/* Doxygen does not handle attributes (like PROGMEM) very well. */
+/*
 * @brief Token: y
 *
 * This is used by rsrc_handle_coordinates() to read and return device
@@ -134,8 +133,7 @@ static uint8_t prm_x[] PROGMEM = "x";
 */
 static uint8_t prm_y[] PROGMEM = "y";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: z
 *
 * This is used by rsrc_handle_coordinates() to read and return device
@@ -143,8 +141,7 @@ static uint8_t prm_y[] PROGMEM = "y";
 */
 static uint8_t prm_z[] PROGMEM = "z";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: date
 *
 * This is used by rsrc_handle_configuration() to parse a new or return the
@@ -152,8 +149,7 @@ static uint8_t prm_z[] PROGMEM = "z";
 */
 static uint8_t prm_date[] PROGMEM = "date";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: day
 *
 * This is used by rsrc_handle_configuration() to parse a new or return the
@@ -161,8 +157,7 @@ static uint8_t prm_date[] PROGMEM = "date";
 */
 static uint8_t prm_day[] PROGMEM = "day";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: gateway
 *
 * This is used by rsrc_handle_configuration() to parse a new or return the
@@ -170,8 +165,7 @@ static uint8_t prm_day[] PROGMEM = "day";
 */
 static uint8_t prm_gateway[] PROGMEM = "gateway";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: ip
 *
 * This is used by rsrc_handle_configuration() to parse a new or return the
@@ -179,8 +173,7 @@ static uint8_t prm_gateway[] PROGMEM = "gateway";
 */
 static uint8_t prm_iaddr[] PROGMEM = "iaddr";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: subnet
 *
 * This is used by rsrc_handle_configuration() to parse a new or return the
@@ -188,8 +181,7 @@ static uint8_t prm_iaddr[] PROGMEM = "iaddr";
 */
 static uint8_t prm_subnet[] PROGMEM = "subnet";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: page-index
 *
 * It specifies the page of search results returned by
@@ -197,8 +189,7 @@ static uint8_t prm_subnet[] PROGMEM = "subnet";
 */
 static uint8_t prm_page_index[] PROGMEM = "page-index";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: page-size
 *
 * It specifies the number of search results returned by
@@ -206,8 +197,7 @@ static uint8_t prm_page_index[] PROGMEM = "page-index";
 */
 static uint8_t prm_page_size[] PROGMEM = "page-size";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: date-since
 *
 * It specifies the starting date of search results returned by
@@ -215,8 +205,7 @@ static uint8_t prm_page_size[] PROGMEM = "page-size";
 */
 static uint8_t prm_date_since[] PROGMEM = "date-since";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: date-until
 *
 * It specifies the end date of search results returned by
@@ -224,16 +213,14 @@ static uint8_t prm_date_since[] PROGMEM = "date-since";
 */
 static uint8_t prm_date_until[] PROGMEM = "date-until";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: log
 *
 * It contains the records returned by rsrc_handle_measurement().
 */
 static uint8_t prm_log[] PROGMEM = "log";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: total
 *
 * It specifies the total amount of available records to be returned by
@@ -241,16 +228,14 @@ static uint8_t prm_log[] PROGMEM = "log";
 */
 static uint8_t prm_total[] PROGMEM = "total";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: ph
 *
 * The pH value of a record, as returned by rsrc_handle_measurement().
 */
 static uint8_t prm_ph[] PROGMEM = "ph";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: rh
 *
 * The Relative Humidity value of a record, as returned by
@@ -258,8 +243,7 @@ static uint8_t prm_ph[] PROGMEM = "ph";
 */
 static uint8_t prm_rh[] PROGMEM = "rh";
 
-/**
-* @ingroup resource
+/*
 * @brief Token: t
 *
 * The Temperature value of a record, as returned by rsrc_handle_measurement().

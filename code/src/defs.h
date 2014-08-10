@@ -10,8 +10,13 @@
 * @brief A coordinate in device space.
 */
 typedef struct {
+    /** @brief X-coordinate (surface abscissa). */
     uint8_t x;
+
+    /** @brief Y-coordinate (surface ordinate). */
     uint8_t y;
+
+    /** @brief Z-coordinate (head elevation). */
     uint8_t z;
 } Position;
 
@@ -239,13 +244,13 @@ down-scaled to 4MHz, and\n
 #define MUX_2Z_PIN      PIND
 
 /**
-* @brief Pin of #MUX_2Z_PORT MUX @c 2Z connects to.
+* @brief Pin of #MUX_2Z_PIN MUX @c 2Z connects to.
 *
 * This pin gives the output of the rotary encoders (step) of motors Y, Z and X
 * on pins @c 2Y0, @c 2Y1 and @c 2Y2 of the multiplexer, respectively. Pin @c 2Y3
 * gives access to the 1-wire DQ line.
 *
-* Also, see #MUX_2Z_PIN and #MUX_2Z_PORT.
+* Also, see #MUX_2Z_PIN and #MUX_2Z_PIN.
 */
 #define MUX_2Z          PORTD4
 
@@ -372,7 +377,7 @@ down-scaled to 4MHz, and\n
 #define LMT_nY_PIN      PINC
 
 /**
-* @brief Pin of #LMT_nY_PORT Y limit strobe connects to.
+* @brief Pin of #LMT_nY_PIN Y limit strobe connects to.
 *
 * The line is externally pulled high. When one of the Y SPDT limit switches are
 * reached, the line is pulled low indicating the incident and remains low until
@@ -401,7 +406,7 @@ down-scaled to 4MHz, and\n
 #define LMT_nXZ_PIN     PINC
 
 /**
-* @brief Pin of #LMT_nXZ_PORT XZ limit strobes connect to.
+* @brief Pin of #LMT_nXZ_PIN XZ limit strobes connect to.
 *
 * The line is externally pulled high. When one of the X or Z SPDT limit switches
 * are reached, the line is pulled low indicating the incident and remains low
@@ -423,7 +428,7 @@ down-scaled to 4MHz, and\n
 /**
 * @brief Data Direction Register the Backtrack MOSFET's Gate connects to.
 *
-* Also, see #BCK_DS_PORT and #BCK_XZ.
+* Also, see #BCK_XZ_PORT and #BCK_XZ.
 */
 #define BCK_XZ_DDR      DDRD
 
@@ -470,6 +475,36 @@ down-scaled to 4MHz, and\n
 * Also, see #BCK_Y_DDR and #BCK_Y_PORT.
 */
 #define BCK_Y           PORTB0
+
+/**
+* @brief Pin of #W1_DQ_PORT where 1-wire DQ line connects to.
+*
+* This pin is used for communicating via the 1-wite protocol.
+*
+* Also, see #W1_DQ_PORT, #W1_DQ_DDR and #W1_DQ_PIN.
+*/
+#define W1_DQ           PORTD4
+
+/**
+* @brief The pin port 1-wire DQ connects to.
+*
+* Also, see #W1_DQ, #W1_DQ_DDR and #W1_DQ_PIN.
+*/
+#define W1_DQ_PORT      PORTD
+
+/**
+* @brief Data Direction Register of pin 1-wire DQ connects to.
+*
+* Also, see #W1_DQ_PORT, #W1_DQ_DDR and #W1_DQ_PIN.
+*/
+#define W1_DQ_DDR       DDRD
+
+/**
+* @brief The pin port 1-wire DQ connects to.
+*
+* Also, see #W1_DQ, #W1_DQ_PORT and #W1_DQ_DDR.
+*/
+#define W1_DQ_PIN       PIND
 
 /**
 * @brief MCU pin which the \f$\overline{RESET}\f$ pin of the network controller

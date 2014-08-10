@@ -67,8 +67,8 @@ uint8_t str_to_inet(uint8_t* ip, uint8_t* buf);
 * address string (null-terminated).
 *
 * More specifically, for each address byte, an initial position is estimated and
-* then incremented dependent on the number of its digits. Then, a character is
-* passed into #host_name for each of its digits (using modulo and quotient).
+* then incremented depending on the number of its digits. Then, a character is
+* passed into @p buf for each of its digits (using modulo and quotient).
 *
 * @param[out] buf The string array to write to.
 * @param[in] ip A four-byte array of an IP address (or mask).
