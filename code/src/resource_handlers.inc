@@ -78,6 +78,12 @@
 
 /**
 * @ingroup resource
+* @brief Size of any temperature reading (inclusive of null-byte).
+*/
+#define PRM_TEMP_LEN        6
+
+/**
+* @ingroup resource
 * @brief Index of parameter "date-since" (in resource /measurement).
 */
 #define PRM_MSR_DATE_SINCE 0
@@ -113,7 +119,7 @@
 * @ingroup resource
 * @brief Token: x
 *
-* This is used by rsrc_handler_coordinates() to read and return device
+* This is used by rsrc_handle_coordinates() to read and return device
 * coordinates.
 */
 static uint8_t prm_x[] PROGMEM = "x";
@@ -122,7 +128,7 @@ static uint8_t prm_x[] PROGMEM = "x";
 * @ingroup resource
 * @brief Token: y
 *
-* This is used by rsrc_handler_coordinates() to read and return device
+* This is used by rsrc_handle_coordinates() to read and return device
 * coordinates.
 */
 static uint8_t prm_y[] PROGMEM = "y";
@@ -131,7 +137,7 @@ static uint8_t prm_y[] PROGMEM = "y";
 * @ingroup resource
 * @brief Token: z
 *
-* This is used by rsrc_handler_coordinates() to read and return device
+* This is used by rsrc_handle_coordinates() to read and return device
 * coordinates.
 */
 static uint8_t prm_z[] PROGMEM = "z";
@@ -140,7 +146,7 @@ static uint8_t prm_z[] PROGMEM = "z";
 * @ingroup resource
 * @brief Token: date
 *
-* This is used by rsrc_handler_configuration() to parse a new or return the
+* This is used by rsrc_handle_configuration() to parse a new or return the
 * current server date and time.
 */
 static uint8_t prm_date[] PROGMEM = "date";
@@ -149,7 +155,7 @@ static uint8_t prm_date[] PROGMEM = "date";
 * @ingroup resource
 * @brief Token: day
 *
-* This is used by rsrc_handler_configuration() to parse a new or return the
+* This is used by rsrc_handle_configuration() to parse a new or return the
 * current server day (eg, @c 1 for Sunday).
 */
 static uint8_t prm_day[] PROGMEM = "day";
@@ -158,7 +164,7 @@ static uint8_t prm_day[] PROGMEM = "day";
 * @ingroup resource
 * @brief Token: gateway
 *
-* This is used by rsrc_handler_configuration() to parse a new or return the
+* This is used by rsrc_handle_configuration() to parse a new or return the
 * current server default gateway.
 */
 static uint8_t prm_gateway[] PROGMEM = "gateway";
@@ -167,7 +173,7 @@ static uint8_t prm_gateway[] PROGMEM = "gateway";
 * @ingroup resource
 * @brief Token: ip
 *
-* This is used by rsrc_handler_configuration() to parse a new or return the
+* This is used by rsrc_handle_configuration() to parse a new or return the
 * current server IP address.
 */
 static uint8_t prm_iaddr[] PROGMEM = "iaddr";
@@ -176,7 +182,7 @@ static uint8_t prm_iaddr[] PROGMEM = "iaddr";
 * @ingroup resource
 * @brief Token: subnet
 *
-* This is used by rsrc_handler_configuration() to parse a new or return the
+* This is used by rsrc_handle_configuration() to parse a new or return the
 * current server subnet mask.
 */
 static uint8_t prm_subnet[] PROGMEM = "subnet";
@@ -186,7 +192,7 @@ static uint8_t prm_subnet[] PROGMEM = "subnet";
 * @brief Token: page-index
 *
 * It specifies the page of search results returned by
-* rsrc_handler_measurement().
+* rsrc_handle_measurement().
 */
 static uint8_t prm_page_index[] PROGMEM = "page-index";
 
@@ -195,7 +201,7 @@ static uint8_t prm_page_index[] PROGMEM = "page-index";
 * @brief Token: page-size
 *
 * It specifies the number of search results returned by
-* rsrc_handler_measurement().
+* rsrc_handle_measurement().
 */
 static uint8_t prm_page_size[] PROGMEM = "page-size";
 
@@ -204,7 +210,7 @@ static uint8_t prm_page_size[] PROGMEM = "page-size";
 * @brief Token: date-since
 *
 * It specifies the starting date of search results returned by
-* rsrc_handler_measurement().
+* rsrc_handle_measurement().
 */
 static uint8_t prm_date_since[] PROGMEM = "date-since";
 
@@ -213,9 +219,51 @@ static uint8_t prm_date_since[] PROGMEM = "date-since";
 * @brief Token: date-until
 *
 * It specifies the end date of search results returned by
-* rsrc_handler_measurement().
+* rsrc_handle_measurement().
 */
 static uint8_t prm_date_until[] PROGMEM = "date-until";
+
+/**
+* @ingroup resource
+* @brief Token: log
+*
+* It contains the records returned by rsrc_handle_measurement().
+*/
+static uint8_t prm_log[] PROGMEM = "log";
+
+/**
+* @ingroup resource
+* @brief Token: total
+*
+* It specifies the total amount of available records to be returned by
+* rsrc_handle_measurement().
+*/
+static uint8_t prm_total[] PROGMEM = "total";
+
+/**
+* @ingroup resource
+* @brief Token: ph
+*
+* The pH value of a record, as returned by rsrc_handle_measurement().
+*/
+static uint8_t prm_ph[] PROGMEM = "ph";
+
+/**
+* @ingroup resource
+* @brief Token: rh
+*
+* The Relative Humidity value of a record, as returned by
+* rsrc_handle_measurement().
+*/
+static uint8_t prm_rh[] PROGMEM = "rh";
+
+/**
+* @ingroup resource
+* @brief Token: t
+*
+* The Temperature value of a record, as returned by rsrc_handle_measurement().
+*/
+static uint8_t prm_t[] PROGMEM = "t";
 
 void rsrc_handle_server(HTTPRequest* req) {
 }
@@ -233,7 +281,7 @@ void rsrc_handle_client_js(HTTPRequest* req) {
 * Method GET:
 * Returns the current configuration of the device. The response status code is
 * always 200. Format: @verbatim {
-    "date"      : string,       // Format ISO8601: YYYY-MM-DDTHH:mm:ss[.sss]Z
+    "date"      : string,       // Format ISO8601: YYYY-MM-DDTHH:mm:ss[.sss][Z]
     "day"       : number,       // Day-of-the-week; 1 denotes Sunday
     "gateway"   : string,       // Server default gateway (dot-notation)
     "ip"        : string,       // Server IP address
@@ -247,7 +295,7 @@ void rsrc_handle_client_js(HTTPRequest* req) {
 *       parsed. Time-zone is UTC (@c Z).
 *   - `dot-notation' is: xxx.xxx.xxx.xxx
 *   - Custom maximum dimensions allow operating the device in a subset of the
-*       maximum allowed device-space (#GRID_X_LEN, #GRID_Y_LEN, #GRID_Z_LEN).
+*       physical device-space (#GRID_X_LEN, #GRID_Y_LEN, #GRID_Z_LEN).
 *
 * Method PUT:
 * Updates the configuration.
