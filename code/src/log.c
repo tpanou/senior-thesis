@@ -78,19 +78,26 @@ uint8_t log_get_next(LogRecord* rec, LogRecordSet* set) {
 uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until) {
     uint8_t i_since;        /* Index of date @p since. */
     uint8_t i_until;        /* Index of date @p until. */
-    int8_t  c_since;        /* Comparison result of date @p since. */
-    int8_t  c_until;        /* Comparison result of date @p until. */
+    int16_t c_since;        /* Comparison result of date @p since. */
+    int16_t c_until;        /* Comparison result of date @p until. */
+
+    set->count  = 0;
+
+    /* Return the empty set, for improper date range. */
+    if(memcmp(since, until, sizeof(BCDDate)) > 0) {
+        return 0;
+    }
 
     /* Find the closest matching index for each date. */
     c_since =  log_find(&i_since, since);
     c_until =  log_find(&i_until, until);
 
-    /* Avoid counting records for the empty set. An empty set occurs when both
+    /* Avoid counting records for the empty set. An empty set occurs the upper
+    * limit is lower than the lower limit or when both
     * upper and lower limits point at the same index and their respective
     * dates are both either greater or less than the date at that index. */
-    if(i_since == i_until && c_since == c_until && c_until != 0) {
-
-        set->count = 0;
+    if(i_since == i_until &&
+      (c_since & 0x80) == (c_until & 0x80) && c_until != 0) {
 
     /* Determine whether the limits need to be adjusted. */
     } else {
@@ -109,12 +116,12 @@ uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until) {
     return set->count;
 }
 
-static uint8_t log_find(uint8_t* index, BCDDate* q) {
-    uint8_t start   =  0;           /* Sub-array lower search limit. */
-    uint8_t end     =  LOG_LEN - 1; /* Sub-array upper search limit. */
+static int16_t log_find(uint8_t* index, BCDDate* q) {
+    int16_t start   =  0;           /* Sub-array lower search limit. */
+    int16_t end     =  LOG_LEN - 1; /* Sub-array upper search limit. */
 
     BCDDate dt;                     /* Loaded record date. */
-    int8_t cmp;                     /* Comparison result. */
+    int16_t cmp;                    /* Comparison result. */
 
     while(end >= start) {
         *index  =  start + (end - start)/2;

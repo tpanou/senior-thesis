@@ -163,7 +163,7 @@ uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until);
 * @param[in] q The date of the record in question.
 * @returns The output of memcmp() of the last comparison.
 */
-static uint8_t log_find(uint8_t* index, BCDDate* q);
+static int16_t log_find(uint8_t* index, BCDDate* q);
 
 /**
 * @brief Translate a logical to a physical offset.
