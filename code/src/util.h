@@ -34,6 +34,21 @@
 uint8_t uint_to_str(uint8_t* buf, uint16_t number);
 
 /**
+* @brief Convert a temperature reading into a string.
+*
+* @p t is expected to contain the integral part of the number in the 7 most
+* significant bits. Bit @c 0 is the fraction @f$ 2^{-1} @f$. For more
+* information, see #LogRecord.
+*
+* @param[out] buf The result of the conversion (null-terminated).
+* @param[in] len Size of @p buf. Although specified, @p buf should be large
+*   enough to accommodate the result, regardless.
+* @param[in] t The value to convert.
+* @returns The amount of bytes written (non-inclusive of null-byte).
+*/
+uint8_t temp_to_str(uint8_t* buf, uint8_t len, uint8_t t);
+
+/**
 * @brief Convert and IP address string into four bytes.
 *
 * Uses <stdlib.h>strtol().

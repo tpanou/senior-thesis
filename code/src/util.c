@@ -23,6 +23,21 @@ uint8_t uint_to_str(uint8_t* buf, uint16_t number) {
     return i;
 }
 
+uint8_t temp_to_str(uint8_t* buf, uint8_t len, uint8_t t) {
+    uint8_t digits;
+    uint8_t i;
+
+    digits  =  uint_to_str(buf + len - 1, t >> 1);
+    for(i = 0 ; i < digits ; ++i) {
+        buf[i]  =  buf[len - 1 - digits + i];
+    }
+    buf[i++]    =  '.';
+    buf[i++]    =  t & 0x01 ? '5' : '0';
+    buf[i]      =  0;
+
+    return i;
+}
+
 uint8_t str_to_inet(uint8_t* ip, uint8_t* buf) {
     uint8_t  i;
     uint8_t* j = buf;
