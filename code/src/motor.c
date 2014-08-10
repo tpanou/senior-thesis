@@ -232,9 +232,6 @@ static int8_t motor_update() {
     } else {
         /* Already at #new_pos. */
         motor_status   &= ~_BV(MTR_IS_Z);
-
-        /* Inform that motors have reached their destination. */
-        MTR_CALL(cur_pos, MTR_EVT_OK);
         return -1;
     }
 
@@ -470,6 +467,9 @@ ISR(TIMER0_COMPA_vect) {
         /* The motors have successfully reached their destination. Remove
         * #MTR_FRESH_RST flag as they are not reset any more. */
         motor_status   &= ~_BV(MTR_IS_RST_FRESH);
+
+        /* Inform that motors have reached their destination. */
+        MTR_CALL(cur_pos, MTR_EVT_OK);
     }
 }
 
