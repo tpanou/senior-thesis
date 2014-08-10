@@ -723,7 +723,189 @@ static uint8_t rsrc_measurement_serial_log(LogRecordSet* set, uint8_t count) {
     return i;
 }
 
+/**
+* @ingroup resource
+* @brief Manage device measurements.
+*
+* Method GET:
+* Fetch logged measurements. By default, all measurements are returned. The
+* following query string parameters may be used to return a subset of results:
+* @verbatim
+    date-since                  // Format ISO8601: YYYY-MM-DDTHH:mm:ss[.sss][Z]
+    date-until                  // Format ISO8601: YYYY-MM-DDTHH:mm:ss[.sss][Z]
+    page-index                  // 0 up to 255
+    page-size                   // 0 up to 255
+@endverbatim
+* Additional notes:
+*   - Fraction of second and time-zone (in dates) are never parsed and may be
+*       omitted. Time-zone is always UTC (@c Z).
+*   - Dates since 2000-01-01 up to 2099-12-31 are accepted.
+*   - Pagination is applied last, ie, after a subset of results has been
+*       selected based on the other parameters, if such parameters were
+*       specified.
+*   - Any of the above specified parameters may be used, the order of which is
+*       irrelevant. If found multiple times, only the first non-empty value of
+*       each is preserved.
+*   - Unrecognised parameters are ignored. Permissible parameters, although
+*       optional, must be valid. Otherwise, 400 is returned.
+*   - @c page-index is only relevant, if @c page-size has been specified (to a
+*       value greater than @c 0).
+*   - To query the amount of records without fetching them, @c page-size may be
+*       set to @c 0. @c total will contain the amount of available records (see
+*       response format below).
+*
+* Returns:
+*   - 200 OK; the body contains the logged measurements. Format: @verbatim {
+    "page-index": number,
+    "page-size" : number,
+    "total"     : number,
+    "log"       : [{
+            "date"      : "YYYY-MM-DDTHH:mm:ss.000Z",
+            "x"         : number,
+            "y"         : number,
+            "t"         : temperature,      // One-digit fraction; in Celsius.
+            "ph"        : pH,               // Not sampled; always 255.
+            "rh"        : relative humidity // Not sampled; always 255.
+        },
+    …
+]} @endverbatim
+*   Additional notes:
+*       - @c page-index is the requested result page. Defaults to @c 0, if none
+*           was specified.
+*       - @c page-size is the maximum size of @c log. Defaults to @c  total, if
+*           none was specified.
+*       - @c total is the available amount of records, if pagination options
+*           were not applied.
+*       - @c log contains a maximum of @c page-size measurement records. It is
+*           always present, even if it is empty.
+*   - 400 Bad Request; if a wrong value for any of the permissible parameters
+*       has been specified.
+*   - 414 Request-URI Too Long; the query string exceeds the allocated buffer
+*       size. The request should be reconstructed to contain a smaller query
+*       string.
+*
+* Example: @verbatim
+/measurement?page-size=10&page-index=2&date-since=2015-01-01T12:30:00
+@endverbatim
+*
+* Method POST:
+* Performs and records a new measurement.
+* The message body should be empty. Returns:
+*   - 202 Accepted; sampling has been initiated. Header `Retry-After' designates
+*       the estimated time until completion.
+*   - 503 Service Unavailable; the device is currently busy (repositioning
+*       itself or taking a measurement). The request should be reattempted
+*       later, as specified in the `Retry-After' header. Currently, the
+*       estimated time is hard-coded but could change in the future.
+*/
 void rsrc_handle_measurement(HTTPRequest* req) {
+    uint8_t  status;                /* Status of response. */
+
+    if(req->method == METHOD_POST) {
+
+        Position pos;
+        if(motor_get(&pos)) {
+            status      =  TXF_STATUS_503;
+
+        } else {
+            task_log_sample(&pos);
+
+            status      =  TXF_STATUS_202;
+        }
+
+    } else if(req->method == METHOD_GET) {
+
+        /* Default date limits. */
+        BCDDate since   = {.year = 0x00, .mon = 0x01, .date = 0x01,
+                           .hour = 0x00, .min = 0x00, .sec  = 0x00};
+        BCDDate until   = {.year = 0x99, .mon = 0x12, .date = 0x31,
+                           .hour = 0x23, .min = 0x59, .sec  = 0x59};
+
+        QueryString* q = &req->query;   /* Access to query parameters. */
+        uint8_t page_index  =  0;       /* Requested page index. */
+        uint8_t page_size   =  0;       /* Requested page size. */
+        uint8_t total;                  /* Total records returned. */
+        uint8_t errors      =  0;       /* Parser errors. */
+        uint16_t size       = 71;       /* Content-length with 0 records. */
+        LogRecordSet set;               /* Results that match current params.*/
+
+        /* Parse string values for the query string. */
+        if(q->values[PRM_MSR_DATE_SINCE]) {
+            errors     +=  str_to_date(&since, q->values[PRM_MSR_DATE_SINCE]);
+        }
+        if(q->values[PRM_MSR_DATE_UNTIL]) {
+            errors     +=  str_to_date(&until, q->values[PRM_MSR_DATE_UNTIL]);
+        }
+        if(q->values[PRM_MSR_PAGE_SIZE]) {
+            page_size   =  atoi(q->values[PRM_MSR_PAGE_SIZE]);
+        }
+        if(q->values[PRM_MSR_PAGE_INDEX]) {
+            page_index  =  atoi(q->values[PRM_MSR_PAGE_INDEX]);
+        }
+
+        /* Execute the request, if there were no errors in the params.*/
+        if(!errors) {
+
+            /* Find records within the specified dates. */
+            total   =  log_get_set(&set, &since, &until);
+            if(total) {
+                /* @c 102 includes the object separator (comma), which is
+                * excluded for the first record. */
+                size   += 102*total - 1;
+            }
+
+            /* TODO: Serialise in chunks. */
+
+            srvr_prep(TXF_STATUS_200, TXF_ln,
+                      TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
+                      TXF_lnln);
+
+            /* Serialise statistical info. */
+            rsrc_measurement_serial_info(page_index, page_size, total);
+
+            /* Serialise the records, if any. */
+            if(total) {
+                rsrc_measurement_serial_log(&set, total);
+            }
+
+            /* rsrc_measurement_info() opens an envelope. Finalise it, as well
+            * an the whole object and then flush the response. */
+            (*serialiser)(NULL, NULL, 1, SERIAL_ENVELOPE_E
+                                       | SERIAL_ATOMIC_E
+                                       | SERIAL_FLUSH);
+
+        /* Return 400 on erroneous parameter values. */
+        } else {
+            status      =  TXF_STATUS_400;
+        }
+    }
+
+    switch(status) {
+        case TXF_STATUS_202:
+            /* TODO: Return an *actual* estimate with `Retry-After'. */
+            srvr_send(TXF_STATUS_202, TXF_ln,
+                      TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_LENGTH_ZERO_ln,
+                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, 10,
+                      TXF_lnln);
+
+        break;
+        case TXF_STATUS_400:
+            srvr_send(TXF_STATUS_400, TXF_ln,
+                      TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_LENGTH_ZERO_ln, TXF_ln);
+
+        break;
+        case TXF_STATUS_503:
+            srvr_send(TXF_STATUS_503, TXF_ln,
+                      TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_LENGTH_ZERO_ln,
+                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, 10,
+                      TXF_lnln);
+        break;
+        /* Case TXF_STATUS_200 is implemented in-line, above. */
+    }
 }
 
 void rsrc_handle_style_css(HTTPRequest* req) {
