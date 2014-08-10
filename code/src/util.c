@@ -1,4 +1,6 @@
 #include "util.h"
+#include "rtc.h"
+
 #include <avr/pgmspace.h>
 #include <stdarg.h>
 #include <string.h>
@@ -70,9 +72,23 @@ uint8_t inet_to_str(uint8_t* buf, uint8_t* ip) {
     return pos;
 }
 
+void get_date(BCDDate* dt, uint8_t* day) {
+    RTCMap rtc;
+    rtc_get(&rtc);
+    rtc_to_date(dt, &rtc);
+    *day    =  rtc.day;
+}
+
+void set_date(BCDDate* dt, uint8_t day) {
+    RTCMap rtc;
+    date_to_rtc(&rtc, dt);
+    rtc.day     =  day;
+    rtc_set(&rtc);
+}
+
 #define TO_BCD8(d, u)  ((d << 4) | u)
 
-int8_t str_to_rtc(RTCMap* dt, uint8_t* buf) {
+int8_t str_to_date(BCDDate* dt, uint8_t* buf) {
     uint8_t num     =  0;
     uint8_t error   =  0;
 
@@ -120,6 +136,43 @@ int8_t str_to_rtc(RTCMap* dt, uint8_t* buf) {
     return error > 0;
 }
 
+void date_to_str(uint8_t* buf, BCDDate* dt) {
+    /* This is equivalent to the following: @verbatim
+sprintf(buf, "20%02x-%02x-%02xT%02x:%02x:%02x.000Z", dt->year,
+                                                     dt->mon,
+                                                     dt->date,
+                                                     dt->hour,
+                                                     dt->min,
+                                                     dt->sec);@endverbatim
+    * but is faster, requires less memory and does not force a dependency on
+    * vprintf(). */
+    buf[0]  =  '2';
+    buf[1]  =  '0';
+    buf[2]  =  '0' + ((dt->year & 0xF0) >> 4);
+    buf[3]  =  '0' +  (dt->year & 0x0F);
+    buf[4]  =  '-';
+    buf[5]  =  '0' + ((dt->mon & 0xF0)  >> 4);
+    buf[6]  =  '0' +  (dt->mon & 0x0F);
+    buf[7]  =  '-';
+    buf[8]  =  '0' + ((dt->date & 0xF0) >> 4);
+    buf[9]  =  '0' +  (dt->date & 0x0F);
+    buf[10] =  'T';
+    buf[11] =  '0' + ((dt->hour & 0xF0) >> 4);
+    buf[12] =  '0' +  (dt->hour & 0x0F);
+    buf[13] =  ':';
+    buf[14] =  '0' + ((dt->min & 0xF0)  >> 4);
+    buf[15] =  '0' +  (dt->min & 0x0F);
+    buf[16] =  ':';
+    buf[17] =  '0' + ((dt->sec & 0xF0)  >> 4);
+    buf[18] =  '0' +  (dt->sec & 0x0F);
+    buf[19] =  '.';
+    buf[20] =  '0';
+    buf[21] =  '0';
+    buf[22] =  '0';
+    buf[23] =  'Z';
+    buf[24] =  0;
+}
+
 uint16_t pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...) {
     va_list ap;         /* Pointer to each optional argument. */
     PGM_P str;          /* Address of a string in Flash. */
@@ -141,4 +194,22 @@ uint16_t pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...) {
         str = va_arg(ap, PGM_P);
     }
     return buf - init;
+}
+
+static inline void rtc_to_date(BCDDate* dt, RTCMap* rtc) {
+    dt->year    =  rtc->year;
+    dt->mon     =  rtc->mon;
+    dt->date    =  rtc->date;
+    dt->hour    =  rtc->hour;
+    dt->min     =  rtc->min;
+    dt->sec     =  rtc->sec;
+}
+
+static inline void date_to_rtc(RTCMap* rtc, BCDDate* dt) {
+    rtc->year   =  dt->year;
+    rtc->mon    =  dt->mon;
+    rtc->date   =  dt->date;
+    rtc->hour   =  dt->hour;
+    rtc->min    =  dt->min;
+    rtc->sec    =  dt->sec;
 }

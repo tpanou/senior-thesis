@@ -7,6 +7,7 @@
 #define UTIL_H_INCL
 
 #include "rtc.h"
+#include "defs.h"
 
 #include <inttypes.h>
 
@@ -30,7 +31,7 @@
 * @param[in] number The number to convert into string.
 * @returns The amount of digits written (null-byte not included).
 */
-uint8_t int_to_str(uint8_t* buf, uint16_t number);
+uint8_t uint_to_str(uint8_t* buf, uint16_t number);
 
 /**
 * @brief Convert and IP address string into four bytes.
@@ -60,6 +61,23 @@ uint8_t str_to_inet(uint8_t* ip, uint8_t* buf);
 */
 uint8_t inet_to_str(uint8_t* buf, uint8_t* ip);
 
+
+/**
+* @brief Read the current date and time from the RTC.
+*
+* @param[out] dt The current date and time.
+* @param[out] day Day of week; @c 1 denotes Sunday.
+*/
+void get_date(BCDDate* dt, uint8_t* day);
+
+/**
+* @brief Set the current date and time of the RTC.
+*
+* @param[in] dt The current date and time.
+* @param[in] day Day of week; @c 1 denotes Sunday.
+*/
+void set_date(BCDDate* dt, uint8_t day);
+
 /**
 * @brief Read string into an #RTCMap variable.
 *
@@ -72,7 +90,22 @@ uint8_t inet_to_str(uint8_t* buf, uint8_t* ip);
 * @param[in] buf String in ISO8601 format (YYYY-MM-DDTHH:mm:ss.sssZ).
 * @returns @c 0, if parsing the date was successful; @c 0, otherwise.
 */
-int8_t str_to_rtc(RTCMap* dt, uint8_t* buf);
+int8_t str_to_date(BCDDate* dt, uint8_t* buf);
+
+/**
+* @brief Convert the supplied date and time into ISO8601 format.
+*
+* Although <stdio.h>sprintf() could be used to format the date, it is chosen not
+* to, because this way, it results in smaller code footprint, no need to use the
+* stack (for the variable arguments) or store the format string.
+*
+* @param[out] buf An array, at least 25 bytes wide, that accepts the ISO8601
+*   format of the supplied date and time (YYYY-MM-DDTHH:mm:ss.sssZ). The string
+*   will be null-terminated. Fraction of a second always reads zero; time-zone
+*   is set to @c Z (UTC).
+* @param[in] day Date to convert into string.
+*/
+void date_to_str(uint8_t* buf, BCDDate* dt);
 
 /**
 * @brief Read a number of program memory chunks into @p buf.
@@ -96,5 +129,26 @@ int8_t str_to_rtc(RTCMap* dt, uint8_t* buf);
 *   which further strings may be written, if required.
 */
 uint16_t pgm_read_str_array(uint8_t** indices, uint8_t* buf, ...);
+
+/**
+* @brief Map an #RTCMap to a #BCDDate variable.
+*
+* It is used in-line by get_date().
+*
+* @param[out] dt Conversion destination.
+* @param[in] rtc Source.
+*/
+static inline void rtc_to_date(BCDDate* dt, RTCMap* rtc);
+
+/**
+* @brief Map a #BCDDate to an #RTCMap variable.
+*
+* It is used in-line by set_date().
+* Note that @link RTCMap#date date@endlink will not be set.
+*
+* @param[out] rtc Conversion destination.
+* @param[in] dt Source.
+*/
+static inline void date_to_rtc(RTCMap* rtc, BCDDate* dt);
 
 #endif /* UTIL_H_INCL */

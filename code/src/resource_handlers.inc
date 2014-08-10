@@ -310,7 +310,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     uint8_t iaddr[4];       /* Numerical IP address. */
     uint8_t subnet[4];      /* Numerical subnet mask. */
     uint8_t gateway[4];     /* Numerical default gateway address. */
-    RTCMap  dt;             /* Date and time. */
+    BCDDate  dt;             /* Date and time. */
     uint8_t set_params = 0; /* Flags of parameters that have been set (mostly
     * for PRM_SRVR_*. */
 
@@ -327,14 +327,12 @@ void rsrc_handle_configuration(HTTPRequest* req) {
             if(PARAM_IS_SET(params, PRM_SRVR_DATE)
             && PARAM_IS_SET(params, PRM_SRVR_DAY)) {
 
-                if(str_to_rtc(&dt, s_date) || day > 7) {
+                if(str_to_date(&dt, s_date) || day > 7) {
                     status      =  TXF_STATUS_400;
 
                 /* Set date to RTC. */
                 } else {
-                    dt.day      =  day;
-                    dt.sqw      =  0;
-                    rtc_set(&dt);
+                    set_date(&dt, day);
                 }
             }
 
@@ -395,7 +393,8 @@ void rsrc_handle_configuration(HTTPRequest* req) {
             size += inet_to_str(s_gateway, gateway);
             size += inet_to_str(s_iaddr, iaddr);
             size += inet_to_str(s_subnet, subnet);
-            rtc_format(s_date, &day);
+            get_date(&dt, &day);
+            date_to_str(s_date, &dt);
 
             srvr_prep(TXF_STATUS_200, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
