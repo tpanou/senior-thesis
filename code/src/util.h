@@ -108,7 +108,7 @@ void set_date(BCDDate* dt, uint8_t day);
 int8_t str_to_date(BCDDate* dt, uint8_t* buf);
 
 /**
-* @brief Convert the supplied date and time into ISO8601 format.
+* @brief Convert the supplied date and time into an ISO8601-formatted string.
 *
 * Although <stdio.h>sprintf() could be used to format the date, it is chosen not
 * to, because this way, it results in smaller code footprint, no need to use the
@@ -118,7 +118,7 @@ int8_t str_to_date(BCDDate* dt, uint8_t* buf);
 *   format of the supplied date and time (YYYY-MM-DDTHH:mm:ss.sssZ). The string
 *   will be null-terminated. Fraction of a second always reads zero; time-zone
 *   is set to @c Z (UTC).
-* @param[in] day Date to convert into string.
+* @param[in] dt Date to convert into string.
 */
 void date_to_str(uint8_t* buf, BCDDate* dt);
 
