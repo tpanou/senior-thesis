@@ -407,6 +407,21 @@ void srvr_set_resources(uint8_t** tokens,
 void srvr_set_host_name_ip(uint8_t* ip);
 
 /**
+* @brief Send the chunk size of a chunk.
+*
+* Insignificant leading zeros are not prohibited by the specification
+* (<a href="http://tools.ietf.org/html/rfc2616#section-3.6.1">RFC2616 -
+* 3.6.1 Chunked Transfer Coding</a>) and, so, four hexadecimal digits are always
+* printed, followed by a @c CRLF sequence. The output is not flushed.
+*
+* @param[in] len The size of the chunk. This will be converted into hexadecimal
+*   notation.
+* @returns The outcome of send() (for details, see the return value of
+*   srvr_compile()).
+*/
+int16_t srvr_prep_chunk_head(uint16_t num);
+
+/**
 * @brief Compiles a response based on the specified text fragments.
 *
 * The header section of all HTTP responses should be compiled from pieces of

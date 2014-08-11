@@ -164,6 +164,24 @@ void srvr_set_host_name_ip(uint8_t* ip) {
     inet_to_str(srvr.host_name, ip);
 }
 
+int16_t srvr_prep_chunk_head(uint16_t num) {
+    uint8_t size[6];        /* Chunk-size (four hex digits + CRLF). */
+    uint8_t nibble;         /* Nibble of @p num to convert. */
+    int8_t  i = 3;          /* Index of @c size to write hex-digit. */
+
+    size[5] =  '\n';
+    size[4] =  '\r';
+    
+    while(i >= 0) {
+        nibble      =  num & 0x0F;
+        size[i]     =  nibble + (nibble < 10 ? '0' : 'A' - 10);
+        num       >>=  4;
+        --i;
+    }
+
+    return send(HTTP_SOCKET, size, 6, 0);
+}
+
 int16_t srvr_compile(uint8_t flush, ...) {
     int16_t outcome = 0;        /* As returned from send(). */
     uint8_t buf[TXF_BUF_LEN];   /* Stores a fragment until it is sent. */
