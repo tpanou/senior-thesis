@@ -660,10 +660,14 @@ static void rsrc_measurement_serial_info(uint8_t page_index,
 * @param[in,out] set #LogRecordSet from which to extract records. Upon return,
 *   @p set will be empty unless @p count records have been serialised, instead.
 * @param[in] count Maximum number of records to serialise.
+* @param[in] is_preceded Whether the records to be serialised are preceded by
+*   other items; non-zero denotes yes.
 * @returns The amount of serialised records.
 */
-static uint8_t rsrc_measurement_serial_log(LogRecordSet* set, uint8_t count) {
-    uint8_t  i;                 /* Counts the amount of serialised records. */
+static uint8_t rsrc_measurement_serial_log(LogRecordSet* set,
+                                           uint8_t count,
+                                           uint8_t is_preceded) {
+    uint8_t  i      =  0;       /* Counts the amount of serialised records. */
     uint8_t  token_buf[47];     /* Key tokens. */
     uint8_t* tokens[6];         /* Pointers to each token in @c token_buf. */
 
@@ -690,14 +694,13 @@ static uint8_t rsrc_measurement_serial_log(LogRecordSet* set, uint8_t count) {
                                           prm_rh, NULL);
 
     /* The first record is not preceded by another record. */
-    uint8_t serial = SERIAL_ATOMIC_S | SERIAL_ATOMIC_E;
+    uint8_t serial  =  SERIAL_ATOMIC_S | SERIAL_ATOMIC_E;
+    if(is_preceded)    serial |= SERIAL_PRECEDED;
 
-    while(!log_get_next(&rec, set) && i < count) {
+    while(i < count && !log_get_next(&rec, set)) {
 
         date_to_str(s_date, &rec.date);
         temp_to_str(s_temp, PRM_TEMP_LEN, rec.t);
-
-        printf("T %d → %s\n", rec.t, s_temp);
 
         (*serialiser)(tokens, params, 6, serial);
 
