@@ -86,6 +86,12 @@ down-scaled to 4MHz, and\n
 #define HTTP_SOCKET     0
 
 /**
+* @brief Available output buffer size in the network module (chip).
+*
+* This is just a convenience. The actual setting is done in code (main()).
+*/
+#define HTTP_BUF_SIZE   2048
+/**
 * @brief Size of the buffer used in parsing query parameters.
 *
 * This much space is allocated upon calling srvr_call() and should be large

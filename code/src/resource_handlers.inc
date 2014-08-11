@@ -711,6 +711,64 @@ static uint8_t rsrc_measurement_serial_log(LogRecordSet* set,
 }
 
 /**
+* @brief Serialise log records in chunks.
+*
+*
+* @param[in,out] Set of records to serialise.
+* @param[in] page_size The size of each result page.
+* @param[in] page_index The index of result page.
+* @param[in] total The total amount of available records.
+* @param[in] count The amount of records to return (either @p total or @p
+*   page_size).
+*/
+static inline void rsrc_measurement_chunk_log(LogRecordSet* set,
+                                              uint8_t page_size,
+                                              uint8_t page_index,
+                                              uint8_t total,
+                                              uint8_t count) {
+
+    uint16_t size;              /* Size (octets) of each chunk. */
+    uint8_t  is_next =  0;      /* @c 1 for the second group and forth. */
+    uint8_t  chunk;             /* Number of records within this chunk group. */
+
+    /* The preamble accounts for 67 bytes (including envelope start). Serialise
+    * a chunk containing statistical info. */
+    size = 67;
+    srvr_prep_chunk_head(size);
+    rsrc_measurement_serial_info(page_index, page_size, total);
+    srvr_send(TXF_ln);
+
+    /* Serialise records in groups that fit within the allocated output buffer
+    * of the network module. */
+    while(count) {
+        chunk       =  count < HTTP_BUF_SIZE/102 ? count : HTTP_BUF_SIZE/102;
+
+        size        =  102*chunk - (!is_next);
+        srvr_prep_chunk_head(size);
+        rsrc_measurement_serial_log(set, chunk, is_next);
+        srvr_send(TXF_ln);
+
+        is_next     =  1;
+        count      -=  chunk;
+    }
+
+    /* rsrc_measurement_info() opens an envelope. Finalise it, as well
+    * an the whole object and then flush the response. */
+    size = 4;
+    srvr_prep_chunk_head(size);
+
+    (*serialiser)(NULL, NULL, 1, SERIAL_ENVELOPE_E
+                               | SERIAL_ATOMIC_E
+                               | SERIAL_FLUSH);
+
+    srvr_prep(TXF_ln);
+
+    /* Last chunk (should be 0-length). */
+    srvr_prep_chunk_head(0);
+    srvr_send(TXF_ln);
+}
+
+/**
 * @ingroup resource
 * @brief Manage device measurements.
 *
@@ -861,26 +919,18 @@ void rsrc_handle_measurement(HTTPRequest* req) {
                 size   += 102*count - 1;
             }
 
-            /* TODO: Serialise in chunks. */
-
+            /* Serialise in chunks. */
             srvr_prep(TXF_STATUS_200, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
-                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
+                      TXF_CONTENT_TYPE_JSON_ln,
+                      TXF_CHUNKED,
                       TXF_lnln);
 
-            /* Serialise statistical info. */
-            rsrc_measurement_serial_info(page_index, page_size, total);
-
-            /* Serialise the records, if any. */
-            if(count) {
-                rsrc_measurement_serial_log(&set, count);
-            }
-
-            /* rsrc_measurement_info() opens an envelope. Finalise it, as well
-            * an the whole object and then flush the response. */
-            (*serialiser)(NULL, NULL, 1, SERIAL_ENVELOPE_E
-                                       | SERIAL_ATOMIC_E
-                                       | SERIAL_FLUSH);
+            rsrc_measurement_chunk_log(&set,
+                                        page_size,
+                                        page_index,
+                                        total,
+                                        count);
 
         /* Return 400 on erroneous parameter values. */
         } else {
