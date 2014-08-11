@@ -431,6 +431,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 
             srvr_prep(TXF_STATUS_200, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_TYPE_JSON_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
                       TXF_lnln);
 
@@ -456,6 +457,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 
             srvr_send(TXF_STATUS_400, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_TYPE_JSON_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
 
@@ -560,10 +562,9 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
         case TXF_STATUS_200:
             srvr_prep(TXF_STATUS_200, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
-                      TXF_CONTENT_TYPE, TXF_HS,
                           /* This should be using req->accept, after it is set
                           * to specific type (ie, not app/* but app/json). */
-                          TXFx_FROMRAM, MIME_MIN + MIME_APP_JSON, TXF_ln,
+                      TXF_CONTENT_TYPE_JSON_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
             (*serialiser)(tokens, params, 3, SERIAL_DEFAULT);
@@ -581,6 +582,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
         case TXF_STATUS_400:
             srvr_send(TXF_STATUS_400, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
+                      TXF_CONTENT_TYPE_JSON_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
 

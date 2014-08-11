@@ -30,7 +30,7 @@
 * with any requested text fragments and should be large enough to contain the
 * longest TXF_* string.
 */
-#define TXF_BUF_LEN     32
+#define TXF_BUF_LEN     44
 
 #ifndef NULL
 /**
