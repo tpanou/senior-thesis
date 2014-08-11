@@ -114,6 +114,15 @@ void log_init();
 void log_append(LogRecord* rec);
 
 /**
+* @brief Advance @p set to skip an @p amount of records.
+*
+* @param[in,out] set #LogRecordSet to update.
+* @param[in] amount Amount of records to skip.
+* @returns The amount of available records after skipping.
+*/
+uint8_t log_skip(LogRecordSet* set, uint8_t amount);
+
+/**
 * @brief Read the next record found in the record @p set.
 *
 * Each successive call to this function reads one more record into @p rec. @c -1

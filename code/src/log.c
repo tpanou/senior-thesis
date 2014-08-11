@@ -58,6 +58,19 @@ void log_append(LogRecord* rec) {
     eeprom_update_block(rec, (void*)LOG_ADDR(write_offset), sizeof(LogRecord));
 }
 
+uint8_t log_skip(LogRecordSet* set, uint8_t amount) {
+    /* Ensure there are enough records to skip. */
+    if(set->count > amount) {
+        set->index +=  amount;
+        set->count -=  amount;
+
+    /* Otherwise, specify the set is empty. */
+    } else {
+        set->count  =  0;
+    }
+    return set->count;
+}
+
 uint8_t log_get_next(LogRecord* rec, LogRecordSet* set) {
     uint8_t     read_offset;
 

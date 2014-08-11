@@ -808,9 +808,13 @@ void rsrc_handle_measurement(HTTPRequest* req) {
         QueryString* q = &req->query;   /* Access to query parameters. */
         uint8_t page_index  =  0;       /* Requested page index. */
         uint8_t page_size   =  0;       /* Requested page size. */
-        uint8_t total;                  /* Total records returned. */
+        uint8_t total;                  /* Total available records. */
+        uint8_t count;                  /* Amount of records returned. */
+
+        uint8_t is_size     =  0;       /* Flags whether page-size was set. */
         uint8_t errors      =  0;       /* Parser errors. */
         uint16_t size       = 71;       /* Content-length with 0 records. */
+
         LogRecordSet set;               /* Results that match current params.*/
 
         /* Parse string values for the query string. */
@@ -820,11 +824,13 @@ void rsrc_handle_measurement(HTTPRequest* req) {
         if(q->values[PRM_MSR_DATE_UNTIL]) {
             errors     +=  str_to_date(&until, q->values[PRM_MSR_DATE_UNTIL]);
         }
-        if(q->values[PRM_MSR_PAGE_SIZE]) {
+        if(is_size = (q->values[PRM_MSR_PAGE_SIZE] != 0)) {
             page_size   =  atoi(q->values[PRM_MSR_PAGE_SIZE]);
-        }
-        if(q->values[PRM_MSR_PAGE_INDEX]) {
-            page_index  =  atoi(q->values[PRM_MSR_PAGE_INDEX]);
+
+            /* Page index is relevant only if page size has been specified. */
+            if(q->values[PRM_MSR_PAGE_INDEX]) {
+                page_index  =  atoi(q->values[PRM_MSR_PAGE_INDEX]);
+            }
         }
 
         /* Execute the request, if there were no errors in the params.*/
@@ -832,10 +838,24 @@ void rsrc_handle_measurement(HTTPRequest* req) {
 
             /* Find records within the specified dates. */
             total   =  log_get_set(&set, &since, &until);
-            if(total) {
-                /* @c 102 includes the object separator (comma), which is
-                * excluded for the first record. */
-                size   += 102*total - 1;
+
+            if(is_size) {
+                /* Skip the specified amount of records. @c count may be less or
+                * equal to @c total. */
+                count   =  log_skip(&set, page_size*page_index);
+
+                /* Return the lesser amount of records between @c page_size and
+                * @c count. */
+                if(page_size < count)   count   =  page_size;
+            } else {
+                count   =  total;
+            }
+
+            if(count) {
+                /* @c 102 includes the object separator (comma) for @c count
+                * records (the actual size of each being 101 bytes), which is
+                * not incorporated with the first record (and thus, @c -1). */
+                size   += 102*count - 1;
             }
 
             /* TODO: Serialise in chunks. */
@@ -849,8 +869,8 @@ void rsrc_handle_measurement(HTTPRequest* req) {
             rsrc_measurement_serial_info(page_index, page_size, total);
 
             /* Serialise the records, if any. */
-            if(total) {
-                rsrc_measurement_serial_log(&set, total);
+            if(count) {
+                rsrc_measurement_serial_log(&set, count);
             }
 
             /* rsrc_measurement_info() opens an envelope. Finalise it, as well
