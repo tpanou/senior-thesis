@@ -32,6 +32,11 @@ uint8_t txf_content_type[] PROGMEM  = "Content-Type";
 uint8_t txf_retry_after[] PROGMEM   = "Retry-After";
 uint8_t txf_server[] PROGMEM        = "Server:uServer (TEIA)";
 uint8_t txf_comma[] PROGMEM         = ",";
+uint8_t txf_semicolon[] PROGMEM     = ";";
+uint8_t txf_chunked[] PROGMEM       = "Transfer-Encoding:chunked";
+uint8_t txf_char_utf8[] PROGMEM     = "charset=utf-8";
+uint8_t txf_JSON_line[] PROGMEM
+        = "Content-Type:application/json;charset=utf-8";
 
 /* Doxygen does not handle attributes (like PROGMEM) very well. */
 /*
@@ -59,7 +64,11 @@ PGM_P srvr_txf[] PROGMEM = {
     txf_retry_after,
     txf_status_202,
     txf_status_400,
-    txf_status_503
+    txf_status_503,
+    txf_semicolon,
+    txf_chunked,
+    txf_char_utf8,
+    txf_JSON_line
 };
 
 /**

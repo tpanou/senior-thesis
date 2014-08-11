@@ -148,7 +148,7 @@ typedef struct HTTPRequest {
 * @brief The total amount of text fragments that may be used with
 * srvr_compile().
 */
-#define TXF_MAX              18
+#define TXF_MAX              22
 #define TXF_SPACE             0 /**< @brief A single space. */
 #define TXF_COLON             1 /**< @brief A single colon. */
 #define TXF_CRLF              2 /**< @brief A CRLF sequence (0x0D, 0x0A). */
@@ -167,6 +167,10 @@ typedef struct HTTPRequest {
 #define TXF_STATUS_202       15 /**< @brief The text: 202 Accepted */
 #define TXF_STATUS_400       16 /**< @brief The text: 400 Bad Request */
 #define TXF_STATUS_503       17 /**< @brief The text: 503 Service Unavailable */
+#define TXF_SEMICOLON        18 /**< @brief A single semicolon. */
+#define TXF_CHUNKED          19 /**< @brief Chunked transfer encoding header. */
+#define TXF_CHAR_UTF8        20 /**< @brief The text: charset=utf-8 */
+#define TXF_JSON_LINE        21 /**< @brief A complete JSON type header line. */
 
 /**
 * @brief Alias of #TXF_SPACE.
@@ -330,6 +334,11 @@ srvr_compile(0, __VA_ARGS__, SRVR_NOT_SET)
 * @brief Convert a METHOD_ macro to a MethodFlag bit.
 */
 #define TO_METHOD_FLAG(x)      (1<<(x - METHOD_MIN))
+
+/**
+* @brief Convenience macro to print: Content-Type:application/json;charset=utf-8
+*/
+#define TXF_CONTENT_TYPE_JSON_ln    TXF_JSON_LINE, TXF_ln
 
 /**
 * @brief HTTP method flag-bits that may be OR-ed together.
