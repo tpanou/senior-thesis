@@ -54,7 +54,7 @@ int8_t parse_uint16(uint16_t* value, uint8_t* c) {
 }
 
 int8_t parse_uint8(uint8_t* value, uint8_t* c) {
-    int8_t c_type   =  0;
+    int8_t c_type   =  OTHER;
     int8_t digits;
     *value          =  0;
 
