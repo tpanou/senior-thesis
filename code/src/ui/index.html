@@ -3,10 +3,36 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="client.js" type="text/javascript" charset="UTF-8"></script>
+        <script src="client.js" type="text/javascript" defer="defer"></script>
 
         <title></title>
     </head>
     <body>
+
+        <div id="container">
+
+            <div id="header">
+                <div id="logo"></div>
+                <div id="logo-text">
+                    <p>ΤΕΙ Αθήνας</p>
+                    <p>Σχολή Τεχνολογικών Εφαρμογών</p>
+                    <p>Τμήμα Μηχανικών Πληροφορικής ΤΕ</p>
+                    <p>Ακαδημαϊκό έτος 2013</p>
+                </div>
+            </div>
+
+            <ul id="nav">
+                <li id="current" class="nav-menu"><a href="#">Γενικά</a></li>
+                <li class="nav-menu"><a href="#log">Μετρήσεις</a></li>
+                <li class="nav-menu"><a href="#">Ρυθμίσεις</a></li>
+            </ul>
+
+            <div id="content-wrapper">
+                <div id="infobox" class="hidden"></div>
+
+                <div id="content"></div>
+            </div>
+
+        </div>
     </body>
 </html>
