@@ -16,8 +16,8 @@
     * altered. Reloading the state `onhashchange' responds to hash changes due
     * to history traversal (eg, pressing back or forward), whereas `onload'
     * deals with direct visiting (eg, a bookmarked link or page refresh). */
-    add_event_listener(window, "hashchange", load_state);
-    add_event_listener(window, "load", load_state);
+    addEventListener(window, "hashchange", load_state);
+    addEventListener(window, "load", load_state);
 
     /**
     * @brief Updates the main content of the page.
@@ -25,8 +25,8 @@
     * The state of the page, and thus the content to load, is determined by the
     * URL fragment (or hash) which is interpreted as a state indicator. This
     * function simply calls the handler specified for the corresponding hash
-    * in #STATE_HANDLERS (see handle_* functions). */
-    function load_state() {
+    * in #STATE_HANDLERS (see handle* functions). */
+    function loadState() {
         var hash        =  window.location.hash,
             handler     =  STATE_HANDLERS[hash];
 
@@ -36,11 +36,11 @@
         }
     }
 
-    function handle_index() {
+    function handleIndex() {
         document.getElementById("content").innerHTML = "";
     }
 
-    function handle_show_log() {
+    function handleShowLog() {
         document.getElementById("content").innerHTML = "Hello world";
     }
 
@@ -53,7 +53,7 @@
     * @param[in] event String of the event name (non-inclusive of "on").
     * @param[in] fn The callback function / event handler.
     */
-    function add_event_listener(el, event, fn) {
+    function addEventListener(el, event, fn) {
         if(el.addEventListener) {
             el.addEventListener(event, fn);
 
