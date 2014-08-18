@@ -16,8 +16,8 @@
     * altered. Reloading the state `onhashchange' responds to hash changes due
     * to history traversal (eg, pressing back or forward), whereas `onload'
     * deals with direct visiting (eg, a bookmarked link or page refresh). */
-    addEventListener(window, "hashchange", load_state);
-    addEventListener(window, "load", load_state);
+    sfAddEventListener(window, "hashchange", loadState);
+    sfAddEventListener(window, "load", loadState);
 
     /**
     * @brief Updates the main content of the page.
@@ -44,6 +44,13 @@
         document.getElementById("content").innerHTML = "Hello world";
     }
 
+    /*
+    * Safe functions.
+    *
+    * Functions that attempt to provide some compatibility layer with older
+    * browsers. `sf' prefix stands for 'safe'.
+    */
+
     /**
     * @brief Register a callback function for a particular element.
     *
@@ -53,7 +60,7 @@
     * @param[in] event String of the event name (non-inclusive of "on").
     * @param[in] fn The callback function / event handler.
     */
-    function addEventListener(el, event, fn) {
+    function sfAddEventListener(el, event, fn) {
         if(el.addEventListener) {
             el.addEventListener(event, fn);
 
@@ -66,4 +73,33 @@
         }
     }
 
+    /**
+    * @brief Return an object that can be used to make HTTP request objects.
+    *
+    * If instantiation of XMLHttpRequest is not possible, Msxml2.XMLHTTP and
+    * Microsoft.XMLHTTP will be attempted (in that order). If none of these
+    * works, @c NULL is returned.
+    *
+    * @returns An XML HTTP object or @c NULL.
+    */
+    function sfCreateRequest() {
+        var request;
+
+        if(window.XMLHttpRequest) {
+          request       =  new XMLHttpRequest();
+
+        } else if(window.ActiveXObject) {
+          try {
+            request     =  new ActiveXObject("Msxml2.XMLHTTP");
+
+          } catch(e) {
+            try {
+              request   =  new ActiveXObject("Microsoft.XMLHTTP");
+
+            } catch(e) {
+            }
+          }
+        }
+        return request;
+    }
 })();
