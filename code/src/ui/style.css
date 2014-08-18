@@ -1,1 +1,108 @@
- 
+body {
+    background:         repeating-linear-gradient(to right, #DDD, #FFF, #DDD);
+    font-family:        "MgOpen Cosmetica";
+}
+
+p {
+    margin:             0.3em;
+}
+
+a:visited {
+    color:              inherit;
+}
+
+#container {
+    min-width:          500px;
+    min-height:         15em;
+    max-width:          850px;;
+
+    margin:             auto;
+    background-color:   white;
+    box-shadow:         0 0 3px 1px #AAA;
+    border-radius:      3px;
+}
+
+#header {
+    padding:            5px;
+}
+#header > * {
+    vertical-align:     middle;
+}
+
+#logo {
+    background-image:   url('logo.png');
+    width:              96px;
+    height:             96px;
+    margin:             5px;
+    display:            inline-block;
+}
+#logo-text {
+    display:            inline-block;
+}
+
+#nav {
+    border-top:         3px solid #DDD;
+    border-bottom:      3px solid #DDD;
+
+    margin:             0;
+    padding:            0 0 0.5em 0;
+    padding:            0;
+
+    text-align:         center;
+    background:         #EEE;
+}
+
+#nav > li {
+    display:            inline-block;
+    padding:            0.2em 1em;
+    margin:             0 0.2em 0.1em 0.2em;
+    margin:             0 0.2em;
+    transition:         background 0.2s;
+}
+#nav > li#current {
+    background: #DDD;
+}
+
+#nav > li:hover {
+    background: #DDD;
+}
+
+#nav a {
+    text-decoration:    none;
+    color:              inherit;
+}
+
+#content-wrapper {
+    padding:            0.1em;
+}
+
+#content {
+    margin:             1em;
+    transition:         opacity 0.2s;
+}
+
+#infobox {
+    margin:             1em 2em;
+    padding:            0.3em;
+    border-radius:      0.2em;
+    color:              #333;
+    transition:         opacity 0.2s;
+}
+
+.hidden {
+    display:            none;
+}
+
+.faded {
+    opacity:            0;
+}
+
+.emerged {
+    opacity:            1;
+}
+
+.important {
+}
+
+.fatal {
+}
