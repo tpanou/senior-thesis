@@ -16,9 +16,8 @@
     * altered. Reloading the state `onhashchange' responds to hash changes due
     * to history traversal (eg, pressing back or forward), whereas `onload'
     * deals with direct visiting (eg, a bookmarked link or page refresh). */
-    /* TODO: Allow for browsers that do not support `addEventListener'. */
-    window.addEventListener("hashchange", load_state);
-    window.addEventListener("load", load_state);
+    add_event_listener(window, "hashchange", load_state);
+    add_event_listener(window, "load", load_state);
 
     /**
     * @brief Updates the main content of the page.
@@ -38,9 +37,33 @@
     }
 
     function handle_index() {
+        document.getElementById("content").innerHTML = "";
     }
 
     function handle_show_log() {
+        document.getElementById("content").innerHTML = "Hello world";
+    }
+
+    /**
+    * @brief Register a callback function for a particular element.
+    *
+    * Currently, a single callback is supported in fallback mode.
+    *
+    * @param[in] el The element to be attached a listener.
+    * @param[in] event String of the event name (non-inclusive of "on").
+    * @param[in] fn The callback function / event handler.
+    */
+    function add_event_listener(el, event, fn) {
+        if(el.addEventListener) {
+            el.addEventListener(event, fn);
+
+        /* This should suffice for versions prior to IE9. */
+        } else if(el.attachEvent) {
+            el.attachEvent("on" + event, fn);
+
+        } else {
+            el["on" + event] = fn;
+        }
     }
 
 })();
