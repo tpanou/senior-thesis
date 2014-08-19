@@ -8,9 +8,10 @@
     /* TODO: Verify that this last bit is the default behaviour of browsers
     * other than FF. */
     var STATE_HANDLERS = {
-        ""              : handle_index,
-        "#content"      : handle_show_log
-    }
+        ""                  : handleIndex,
+        "#log"              : handleShowLog,
+        "#configuration"    : handleIndex
+    };
 
     /**
     * @brief A simplistic menu bar wrapper.
@@ -119,11 +120,16 @@
         var hash        =  window.location.hash,
             handler     =  STATE_HANDLERS[hash];
 
+        /* If there is no query fragment, use the default menu (which has `href'
+        * set to #. */
+        if(hash === "") hash = "#";
+
         /* Any unknown hashes will not affect the state of the page. */
         if(handler) {
+            MAIN_MENU.selectMenu(hash);
             handler();
         }
-    }
+    };
 
     function handleIndex() {
         document.getElementById("content").innerHTML = "";
