@@ -54,12 +54,14 @@ a:visited {
 
 #nav > li {
     display:            inline-block;
-    padding:            0.2em 1em;
     margin:             0 0.2em 0.1em 0.2em;
     margin:             0 0.2em;
     transition:         background 0.2s;
 }
-#nav > li#current {
+#nav > li#current-menu {
+    background: #DDD;
+}
+#nav > li.current {
     background: #DDD;
 }
 
@@ -70,6 +72,9 @@ a:visited {
 #nav a {
     text-decoration:    none;
     color:              inherit;
+    outline:            none;
+    display:            block;
+    padding:            0.2em 1em;
 }
 
 #content-wrapper {
