@@ -25,22 +25,22 @@
     *   element as active/selected.
     */
     var MAIN_MENU = (function MenuBar(elNav, selMenu, clsActive) {
-        /* Pairs of a hash and the element that contains an anchor to that hash
-        * (see init()). */
+        /* Pairs of menu names and the element that contains an anchor to that
+        * name (see init()). */
         var menuItems;
 
         /**
         * @brief Initialise references to a menu bar.
         *
         * Populates an internal structure with references to menu elements (as
-        * selected with `selMenu'). Each such element is correlated to a URL
-        * fragment which is also required to activate a menu over another (see
-        * `selectMenu()').
+        * selected with `selMenu'). Each such element is correlated to a menu
+        * name which is required when selecting a new menu (see `selectMenu()').
         *
-        * Note that the URL fragment is extracted from the `href' attribute of
-        * the *first* anchor element descendant of each menu. Also note that the
-        * URL fragments must be unique for each menu within a particular
-        * `elNav'.
+        * Note that the name of each menu is extracted from the `href' attribute
+        * of the *first* descendant anchor element. The initial hash sign (if
+        * one is present in `href', which should) is omitted. Also note that the
+        * names must be unique for each menu within a particular `elNav'
+        * because, for each menu name, only one element reference is maintained.
         */
         var init = function() {
             var menus,              // All menus in elNav
@@ -52,26 +52,31 @@
             menus       =  elNav.querySelectorAll(selMenu);
 
             /* For all menu elements within elNav, fetch their first descendant
-            * anchor in order to store the URL fragment of that menu in
-            * `menuItems'. */
+            * anchor in order to store the URI fragment of that menu in
+            * `menuItems'. The hash sign is omitted. */
             for(i = 0 ; i < menus.length ; ++i) {
                 menu            =  menus[i];
                 hash            =  menu.querySelector("a").getAttribute("href");
+
+                if(hash.indexOf("#") == 0) {
+                    hash        =  hash.substr(1);
+                }
+
                 menuItems[hash] =  menu;
             }
         };
 
         /**
-        * @brief Apply `clsActive' to the menu that corresponds to `hash'.
+        * @brief Apply `clsActive' to the menu that corresponds to `menu'.
         *
-        * 
-        * Any previously selected menu is always deselected, even if `hash' does
-        * not identify a particular menu.
+        * Any previously selected menu is deselected, even if `menu' is not a
+        * registered menu name.
         *
-        * @param[in] hash The menu to activate/select.
+        * @param[in] menu The menu to activate/select. It should not contain the
+        * initial hash sigh.
         * @returns @c 1, if a new menu was selected; @c 0 otherwise.
         */
-        var selectMenu = function(hash) {
+        var selectMenu = function(menu) {
             var curMenu;        // Currently selected menu.
 
             /* Deselect the current menu, even if the new one is not valid. */
@@ -84,9 +89,9 @@
                                     .replace(/^\s+|\s+$/g, "");
             }
 
-            /* Select the new menu, if one with such a hash exists. */
-            if(menuItems[hash]) {
-                menuItems[hash].className += " " + clsActive;
+            /* Select the new menu, if one with such a name exists. */
+            if(menuItems[menu]) {
+                menuItems[menu].className += " " + clsActive;
                 return 1;
             }
             return 0;
