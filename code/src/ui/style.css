@@ -3,10 +3,21 @@ body {
     font-family:        "MgOpen Cosmetica", "Arial Unicode MS";
 }
 
+.button {
+    font-family:        "MgOpen Cosmetica", "Arial Unicode MS";
+}
+
 p {
     margin:             0.3em;
 }
 
+a {
+    color:              inherit;
+    text-decoration:    none;
+    border-bottom:      1px dotted #000;
+    line-height:        100%;
+    display:            inline-block;
+}
 a:visited {
     color:              inherit;
 }
@@ -100,6 +111,10 @@ th, td {
     transition:         opacity 0.2s;
 }
 
+.visible {
+    display:            inherit;
+}
+
 .hidden {
     display:            none;
 }
@@ -185,6 +200,31 @@ label {
     padding:            0;
 }
 
+.button {
+    padding:            0.2em 1em;
+    display:            inline-block;
+    background:         #EEE;
+    border:             1px solid #CCC;
+    border-radius:      3px;
+    transition:         background 0.2s;
+}
+.button:hover {
+    background:         #DDD;
+}
+
 .field-wrapper {
     margin:             0 0 0.4em 0;
+}
+
+.field-msg {
+    display:            inline-block;
+    font-size:          small;
+    margin-left:        0.2em;
+    vertical-align:     top;
+}
+.field-msg.hidden {
+    display:            none;
+}
+.field-msg.error {
+    color:              #B00;
 }
