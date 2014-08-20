@@ -104,6 +104,14 @@ th, td {
     display:            none;
 }
 
+.right {
+    text-align:         right;
+}
+
+.small {
+    font-size:          small;
+}
+
 .faded {
     opacity:            0;
 }
@@ -115,7 +123,17 @@ th, td {
 .important {
 }
 
-.fatal {
+.tiny {
+    width:              1.5em;
+}
+.short {
+    width:              2em;
+}
+.medium {
+    width:              2.5em;
+}
+.big {
+    width:              10em;
 }
 
 table.log {
@@ -155,4 +173,18 @@ table.stripe tbody tr {
 }
 table.stripe tbody tr:hover {
     background:         #DDD;
+}
+
+label {
+    display:            inline-block;
+    text-align:         right;
+    margin-right:       0.25em;
+}
+
+.textfield {
+    padding:            0;
+}
+
+.field-wrapper {
+    margin:             0 0 0.4em 0;
 }
