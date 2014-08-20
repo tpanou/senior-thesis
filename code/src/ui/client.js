@@ -151,6 +151,33 @@
     };
 
     /**
+    * @brief Switch visibility between current page and `idPage'
+    *
+    * Apply classes "page hidden" to the first element within content (ie, the
+    * element with ID set to "content") that possesses classes "page visible".
+    * Then, apply class "page visible" to the element with its ID set to
+    * `idPage'.
+    *
+    * @param[in] idPage The ID attribute of the element to display. It will be
+    *   applied the classes "page visible". Any other classes are removed.
+    */
+    function switchToPage(idPage) {
+        var curPage,
+            newPage;
+        curPage =  document.getElementById("content")
+                  .querySelector(".page.visible");
+
+        if(curPage) {
+            curPage.className    = "page hidden";
+        }
+
+        newPage =  document.getElementById(idPage);
+        if(newPage) {
+            newPage.className    = "page visible";
+        }
+    }
+
+    /**
     * @brief Responsible for displaying the home page.
     */
     function handlePageHome() {
