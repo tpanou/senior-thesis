@@ -11,6 +11,15 @@ a:visited {
     color:              inherit;
 }
 
+tr {
+    line-height: 150%;
+}
+
+th, td {
+    padding:            0 0.3em;
+    vertical-align:     top;
+}
+
 #container {
     min-width:          500px;
     min-height:         15em;
@@ -107,4 +116,43 @@ a:visited {
 }
 
 .fatal {
+}
+
+table.log {
+    width:              100%;
+    text-align:         center;
+}
+table.log th:nth-child(1), td:nth-child(1) {
+    text-align:         right;
+}
+table.log th:nth-child(2), td:nth-child(2) {
+    text-align:         left;
+}
+table.log td:nth-child(3) {
+    text-align:         right;
+}
+table.log td:nth-child(4) {
+    text-align:         left;
+}
+
+table.stripe {
+    border-collapse:    separate;
+    border-spacing:     0;
+    border-top:         3px solid #CCC;
+    border-bottom:      3px solid #CCC;
+    border-left:        1px solid #CCC;
+    border-right:       1px solid #CCC;
+    border-radius:      3px;
+}
+table.stripe thead tr:nth-child(1) {
+    background:         #CCC;
+}
+table.stripe tbody tr:nth-of-type(2n-1) {
+    background:         #EEE;
+}
+table.stripe tbody tr {
+    transition:         background 0.2s;
+}
+table.stripe tbody tr:hover {
+    background:         #DDD;
 }
