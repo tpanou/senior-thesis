@@ -1,5 +1,14 @@
 (function() {
 
+    /**************************************************************************\
+    *
+    * SECTION Globals
+    *
+    * Global variables that are used through this implementation (possibly
+    * excluding any modules contained herein, such as `MenuBar').
+    *
+    \**************************************************************************/
+
     /* An object of key-value pairs of URI fragments (non-inclusive of the hash
     * sigh)
     * and their corresponding
@@ -107,13 +116,26 @@
 
     })(document.getElementById("nav"), "li", "current");
 
+    /**************************************************************************\
+    *
+    * SECTION Initialisation
+    *
+    * Initialisation of elements and event listeners.
+    *
+    \**************************************************************************/
 
-    /* Add listeners to update the page content when the URL fragment is
+    /* Add listeners to update the page content when the URI fragment is
     * altered. Reloading the state `onhashchange' responds to hash changes due
     * to history traversal (eg, pressing back or forward), whereas `onload'
     * deals with direct visiting (eg, a bookmarked link or page refresh). */
     sfAddEventListener(window, "hashchange", loadState);
     sfAddEventListener(window, "load", loadState);
+
+    /**************************************************************************\
+    *
+    * SECTION General functions
+    *
+    \**************************************************************************/
 
     /**
     * @brief Updates the main content of the page.
@@ -177,6 +199,16 @@
         }
     }
 
+    /**************************************************************************\
+    *
+    * SECTION Handlers
+    *
+    * Callback functions for STATE_HANDLERS and, consequently, `loadState()'.
+    * These functions are responsible for responding to user requests that alter
+    * the UI (such as clicking on an anchor that switches to different page).
+    *
+    \**************************************************************************/
+
     /**
     * @brief Responsible for displaying the home page.
     */
@@ -218,12 +250,14 @@
         switchToPage("help-page");
     }
 
-    /*
-    * Safe functions.
+    /**************************************************************************\
+    *
+    * SECTION Safe functions
     *
     * Functions that attempt to provide some compatibility layer with older
     * browsers. `sf' prefix stands for 'safe'.
-    */
+    *
+    \**************************************************************************/
 
     /**
     * @brief Register a callback function for a particular element.
