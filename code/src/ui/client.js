@@ -1,16 +1,17 @@
 (function() {
 
-    /* An object of key-value pairs of URL fragments and their corresponding
+    /* An object of key-value pairs of URI fragments (non-inclusive of the hash
+    * sigh)
+    * and their corresponding
     * handler function that updates the page as required. Note that the hash
-    * sign must be provided as part of all keys. An exception to this is the
-    * empty string which is matched against no hash at all and hash with no
-    * succeeding text. */
-    /* TODO: Verify that this last bit is the default behaviour of browsers
-    * other than FF. */
+    * sign must not be provided as part of the keys.
+    */
     var STATE_HANDLERS = {
-        ""                  : handleIndex,
-        "#log"              : handleShowLog,
-        "#configuration"    : handleIndex
+        "home"              : handlePageHome,
+        "log"               : handlePageLog,
+        "config"            : handlePageConfig,
+        "operate"           : handlePageOperate,
+        "help"              : handlePageHelp
     };
 
     /**
@@ -113,30 +114,76 @@
     * @brief Updates the main content of the page.
     *
     * The state of the page, and thus the content to load, is determined by the
-    * URL fragment (or hash) which is interpreted as a state indicator. This
-    * function simply calls the handler specified for the corresponding hash
-    * in #STATE_HANDLERS (see handle* functions). */
+    * URI fragment (or hash) which is interpreted as a state indicator. This
+    * function simply calls the handler specified by the corresponding hash
+    * in #STATE_HANDLERS (see handle* functions).
+    *
+    * The URI fragment may contain comma-separated options, each followed by a
+    * colon and a value. The current fragment is split into an array of string
+    * at every comma. The whole array (including the first string which
+    * identifies the 
+    */
     function loadState() {
-        var hash        =  window.location.hash,
-            handler     =  STATE_HANDLERS[hash];
+        var hash        =  window.location.hash.split(","),
+            handler;
 
         /* If there is no query fragment, use the default menu (which has `href'
-        * set to #. */
-        if(hash === "") hash = "#";
+        * set to #home. In any case, the hash sign is removed. */
+        if(hash[0] === "") {
+            hash[0]     =  "home";
+        } else {
+            if(hash[0].indexOf("#") == 0) {
+                hash[0] =  hash[0].substr(1);
+            }
+        }
 
         /* Any unknown hashes will not affect the state of the page. */
+        handler         =  STATE_HANDLERS[hash[0]];
         if(handler) {
-            MAIN_MENU.selectMenu(hash);
-            handler();
+            MAIN_MENU.selectMenu(hash[0]);
+            handler(hash);
         }
     };
 
-    function handleIndex() {
-        document.getElementById("content").innerHTML = "";
+    /**
+    * @brief Responsible for displaying the home page.
+    */
+    function handlePageHome() {
+        switchToPage("home-page");
+    };
+
+    /**
+    * @brief Responsible for displaying the log page.
+    *
+    * @brief[in] p The parameters specified within the URI fragment.
+    */
+    function handlePageLog(p) {
+        var req     =  sfCreateRequest();
+
+        if(req) {
+            switchToPage("log-page");
+        }
+    };
+
+    /**
+    * @brief Responsible for displaying the configuration page.
+    */
+    function handlePageConfig() {
+        switchToPage("config-page");
     }
 
-    function handleShowLog() {
-        document.getElementById("content").innerHTML = "Hello world";
+    /**
+    * @brief Responsible for displaying the manual operation page.
+    */
+    function handlePageOperate() {
+        switchToPage("operate-page");
+    }
+
+    /**
+    * @brief Responsible for displaying the help page.
+    */
+    function handlePageHelp() {
+        switchToPage("help-page");
     }
 
     /*
