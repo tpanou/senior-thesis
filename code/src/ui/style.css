@@ -1,6 +1,6 @@
 body {
-    background:         repeating-linear-gradient(to right, #DDD, #FFF, #DDD);
-    font-family:        "MgOpen Cosmetica";
+    background:         repeating-linear-gradient(to right, #CCC, #FFF, #CCC);
+    font-family:        "MgOpen Cosmetica", "Arial Unicode MS";
 }
 
 p {
@@ -41,8 +41,8 @@ a:visited {
 }
 
 #nav {
-    border-top:         3px solid #DDD;
-    border-bottom:      3px solid #DDD;
+    border-top:         3px solid #CCC;
+    border-bottom:      3px solid #CCC;
 
     margin:             0;
     padding:            0 0 0.5em 0;
@@ -58,11 +58,8 @@ a:visited {
     margin:             0 0.2em;
     transition:         background 0.2s;
 }
-#nav > li#current-menu {
-    background: #DDD;
-}
 #nav > li.current {
-    background: #DDD;
+    background: #CCC;
 }
 
 #nav > li:hover {
