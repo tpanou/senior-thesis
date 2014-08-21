@@ -159,6 +159,10 @@ table.log {
     width:              100%;
     text-align:         center;
 }
+table.log td {
+    font-family:        mono;
+    font-size:          small;
+}
 table.log th:nth-child(1), td:nth-child(1) {
     text-align:         right;
 }
@@ -197,6 +201,14 @@ table.stripe tbody tr:hover {
 label {
     display:            block;
     font-size:          90%;
+}
+
+.pagination-wrapper {
+    margin:             0.5em 0 0.2em;
+}
+
+.pagination > a {
+    margin:             0 0.2em;
 }
 
 .textfield {

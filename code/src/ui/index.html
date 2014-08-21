@@ -38,6 +38,38 @@
                     </div>
 
                     <div id="log-page" class="page hidden">
+                        <h1>Ιστορικό μετρήσεων</h1>
+                        <div class="field-wrapper">
+                            <label for="log-since-date">Από</label>
+                            <input id="log-since-date" class="textfield tiny right" type="text"> /
+                            <input id="log-since-mon" class="textfield tiny right" type="text"> /
+                            <input id="log-since-year" class="textfield medium right" type="text">
+                            <input id="log-since-hour" class="textfield tiny right" type="text"> :
+                            <input id="log-since-min" class="textfield tiny right" type="text"> :
+                            <input id="log-since-sec" class="textfield tiny right" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="log-until-date">Μέχρι</label>
+                            <input id="log-until-date" class="textfield tiny right" type="text"> /
+                            <input id="log-until-mon" class="textfield tiny right" type="text"> /
+                            <input id="log-until-year" class="textfield medium right" type="text">
+                            <input id="log-until-hour" class="textfield tiny right" type="text"> :
+                            <input id="log-until-min" class="textfield tiny right" type="text"> :
+                            <input id="log-until-sec" class="textfield tiny right" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="log-page-size" class="inline">Αποτελέσματα ανά σελίδα</label>
+                            <input id="log-page-size" class="textfield short" type="text" value="5">
+                        </div>
+                        <button type="button" id="log-search" class="button small">Αναζήτηση</button>
+
+                        <div class="pagination-wrapper">Εγγραφές <span class="total-results">10</span>. Σελίδες:<span class="pagination"></span></div>
+                        <table class="stripe log">
+                            <thead>
+                                <tr><th>α/α</th><th>Ημερομηνία</th><th colspan="2">Θέση</th><th>&deg;C</th><th>RH</th><th>pH</th></tr>
+                            </thead>
+                            <tbody id="log-table"></tbody>
+                        </table>
                     </div>
 
                     <div id="config-page" class="page hidden">
