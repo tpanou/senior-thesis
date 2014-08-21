@@ -30,7 +30,9 @@
         error   : {
             "iaddr4"        : "Χρειάζονται 4 αριθμοί (0 έως 255) " +
                               "διαχωρισμένοι με τελεία.",
-            "date-invalid"  : "Μη έγκυρη ημερομηνία/ώρα."
+            "date-invalid"  : "Μη έγκυρη ημερομηνία/ώρα.",
+            "xyz-positive"  : "Απαιτούνται θετικοί ακέραιοι.",
+            "not-int"       : "Απαιτείται ακέραιος.",
         }
     }
 
@@ -320,6 +322,101 @@
             return dt;
         }
         return null;
+    };
+
+    /**
+    * @brief Validate coordinate fields.
+    *
+    * Field values are updated to match the one parsed.
+    *
+    * @param[out] error Contains error strings. If any errors occurred during
+    *   parsing, they will be inserted into `error[id]' as an array of
+    *   strings, where @c id is the first non-null supplied id.
+    * @param[in] idX The id attribute of the field containing the X-coordinate.
+    *   Optional.
+    * @param[in] idY The id attribute of the field containing the Y-coordinate.
+    *   Optional.
+    * @param[in] idZ The id attribute of the field containing the Z-coordinate.
+    *   Optional.
+    * @returns An object with @p idX, @p idY and @p idZ as keys (those that are
+    *   non-null), each with its corresponding value.
+    */
+    function fieldsCoordinates(error, idX, idY, idZ) {
+        var values  =  {},
+            args,           // @p idX, @p idY and @p idZ
+            el,             // The field element
+            value   =  0,   // Parsed value
+            i;
+
+        /* Not using arguments so done manually. */
+        args        =  [idX, idY, idZ];
+
+        for(i = 0 ; i < args.length ; ++i) {
+            /* Not all coordinates may be required. */
+            if(args[i]) {
+                el          =  document.getElementById(args[i]);
+                number      =  parseInt(el.value, 10);
+
+                if(sfIsNaN(number) || number < 0) {
+                    error[args[i]]  =  [MSG.error["xyz-positive"]];
+                    break;
+                }
+                el.value    =  number;
+                values[args[i]] =  number;
+            }
+        }
+        return values;
+    };
+
+    /**
+    * @brief Validate an integer field.
+    *
+    * The field value is updated to match the one parsed.
+    *
+    * @param[out] error Contains error strings. If any errors occurred during
+    *   parsing, they will be inserted into `error[idInt]' as an array of
+    *   strings.
+    * @param[in] mn The minimum permissive number. Optional.
+    * @param[in] mx The maximum permissive number. Optional.
+    * @returns A valid integer (in the specified range); @c null, on error.
+    */
+    function fieldInt(error, idInt, mn, mx) {
+        var el,             // The field element
+            number,         // The value of the element
+            value   =  0;   // Parsed value
+
+        /* Construct the appropriate error message. */
+        var msg     =  MSG.error["not-int"];
+        var msgTail =  "";
+
+        if(mn && mx) {
+            msgTail = " (από " + mn + " μέχρι " + mx + ").";
+
+        } else if(mn) {
+
+            msgTail = " (από " + mn + " και πάνω).";
+        } else if(mx) {
+
+            msgTail = " (μέχρι " + mx + ").";
+        }
+        if(msgTail.length) {
+
+            /* Remove last period (if there is one) and append @c msgTail. */
+            if(msg.charAt(msg.length - 1) === '.') {
+                msg =  msg.substring(0, msg.length - 1);
+            }
+            msg    +=  msgTail;
+        }
+
+        /* Validate field value. */
+        el          =  document.getElementById(idInt);
+        number      =  parseInt(el.value, 10);
+        if(sfIsNaN(number) || mn > number || mx < number) {
+            error[idInt]    =  [msg];
+            return null;
+        }
+
+        return number;
     };
 
     /**************************************************************************\
