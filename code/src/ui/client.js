@@ -41,8 +41,8 @@
     *
     * @param[in] elNav An element that contains the menus.
     * @param[in] selMenu A selector that returns the elements each one of which
-    * constitutes a menu within `elNav'. These elements are applied class
-    *   `clsActive' to change their appearance as active.
+    * constitutes a menu within @p elNav. These elements are applied class
+    *   @p clsActive to change their appearance as active.
     * @param[in] clsActive The class (with no dot prefixed) that defines a menu
     *   element as active/selected.
     */
@@ -55,29 +55,29 @@
         * @brief Initialise references to a menu bar.
         *
         * Populates an internal structure with references to menu elements (as
-        * selected with `selMenu'). Each such element is correlated to a menu
+        * selected with @p selMenu). Each such element is correlated to a menu
         * name which is required when selecting a new menu (see `selectMenu()').
         *
         * Note that the name of each menu is extracted from the `href' attribute
         * of the *first* descendant anchor element. The initial hash sign (if
         * one is present in `href', which should) is omitted. Also note that the
-        * names must be unique for each menu within a particular `elNav'
+        * names must be unique for each menu within a particular @p elNav
         * because, for each menu name, only one element reference is maintained.
         */
         var init = function() {
             var menus,              // All menus in elNav
-                menu,               // A single menu from `menus'
-                i,                  // Iterator over `menus'
-                hash;               // The `href' of the anchor within `menu'
+                menu,               // A single menu from @c menus
+                i,                  // Iterator over @c menus
+                hash;               // The `href' of the anchor within @c menu
 
             menuItems   =  {};      // Remove any previously set menus.
             menus       =  elNav.querySelectorAll(selMenu);
 
             /* For all menu elements within elNav, fetch their first descendant
             * anchor in order to store the URI fragment of that menu in
-            * `menuItems'. The hash sign is omitted. */
+            * @c menuItems. The hash sign is omitted. */
             for(i = 0 ; i < menus.length ; ++i) {
-                menu            =  menus[i];
+                menu            =  menus.item(i);
                 hash            =  menu.querySelector("a").getAttribute("href");
 
                 if(hash.indexOf("#") == 0) {
@@ -89,9 +89,9 @@
         };
 
         /**
-        * @brief Apply `clsActive' to the menu that corresponds to `menu'.
+        * @brief Apply @p clsActive to the menu that corresponds to @p menu.
         *
-        * Any previously selected menu is deselected, even if `menu' is not a
+        * Any previously selected menu is deselected, even if @p menu is not a
         * registered menu name.
         *
         * @param[in] menu The menu to activate/select. It should not contain the
@@ -104,7 +104,7 @@
             /* Deselect the current menu, even if the new one is not valid. */
             curMenu =  elNav.querySelector("." + clsActive);
             if(curMenu) {
-                /* Remove class `clsActive'. Spaces around the class name are
+                /* Remove class @p clsActive. Spaces around the class name are
                 * added to avoid replacing a partial match.  */
                 curMenu.className = (" " + curMenu.className + " ")
                                     .replace(" " + clsActive + " ", "")
@@ -156,7 +156,7 @@
     * The state of the page, and thus the content to load, is determined by the
     * URI fragment (or hash) which is interpreted as a state indicator. This
     * function simply calls the handler specified by the corresponding hash
-    * in #STATE_HANDLERS (see handle* functions).
+    * in #STATE_HANDLERS (see handlePage* functions).
     *
     * The URI fragment may contain comma-separated options, each followed by a
     * colon and a value. The current fragment is split into an array of string
@@ -186,14 +186,14 @@
     };
 
     /**
-    * @brief Switch visibility between current page and `idPage'
+    * @brief Switch visibility between current page and @p idPage.
     *
     * Apply classes "page hidden" to the first element within content (ie, the
     * element with ID set to "content") that possesses classes "page visible".
     * Then, apply class "page visible" to the element with its ID set to
-    * `idPage'.
+    * @p idPage.
     *
-    * @param[in] idPage The ID attribute of the element to display. It will be
+    * @param[in] idPage The id attribute of the element to display. It will be
     *   applied the classes "page visible". Any other classes are removed.
     */
     function switchToPage(idPage) {
@@ -210,12 +210,12 @@
         if(newPage) {
             newPage.className    = "page visible";
         }
-    }
+    };
 
     /**
     * @brief Append a message list, sibling to each specified element.
     *
-    * Each key in `objMsg' is taken as the id attribute of a document element.
+    * Each key in @p objMsg is taken as the id attribute of a document element.
     * For each such element, a new `ul' with its class attribute set to @p cls
     * is created. The @c ul is then appended to the element's direct parent.
     *
@@ -242,6 +242,8 @@
     /**
     * @brief Validate an IP address field.
     *
+    * The field value is updated to match the one parsed.
+    *
     * @param[out] error Contains error strings. If any errors occurred during
     *   parsing, they will be inserted into `error[idIAddr]' as an array of
     *   strings.
@@ -250,10 +252,10 @@
     *   field, after removing insignificant zeros); @c null, on error.
     */
     function fieldIAddr(error, idIAddr) {
-        var el,             // The field element.
-            segments,       // An array of IP segments (4 numbers).
-            number,         // One of `segments'.
-            value   =  0,   // Parsed value.
+        var el,             // The field element
+            segments,       // An array of IP segments (4 numbers)
+            number,         // One of @p segments
+            value   =  0,   // Parsed value
             i       =  0;
 
         el          =  document.getElementById(idIAddr);
@@ -267,7 +269,7 @@
             for(i = 0 ; i < segments.length ; ++i)  {
 
                 number = parseInt(segments[i], 10);
-                if(number < 0 || number > 255 || sfIsNaN(number)) {
+                if(sfIsNaN(number) || number < 0 || number > 255) {
                     error[idIAddr]  =  [MSG.error.iaddr4];
                     break;
                 }
@@ -290,17 +292,18 @@
     /**
     * @brief Validate a date-time spread over multiple fields.
     *
-    * Granted a valid date-time, the fields' value will be updated to the one
-    * returned to avoid, for instance, insignificant zeros or date overflow.
+    * The field value is updated to match the one parsed.
     *
     * @param[out] error Contains error strings. If any errors occurred during
     *   parsing, they will be inserted into `error[idYear]'.
-    * @param[in] idYear The id attribute of field containing the year.
-    * @param[in] idMonth The id attribute of field containing the month.
-    * @param[in] idDate The id attribute of field containing the date.
-    * @param[in] idHours The id attribute of field containing the hours.
-    * @param[in] idMinuntes The id attribute of field containing the minutes.
-    * @param[in] idSecondes The id attribute of field containing the seconds.
+    * @param[in] idYear The id attribute of the field containing the year.
+    * @param[in] idMonth The id attribute of the field containing the month.
+    * @param[in] idDate The id attribute of the field containing the date.
+    * @param[in] idHours The id attribute of the field containing the hours.
+    * @param[in] idMinutes The id attribute of the field containing the
+    *   minutes.
+    * @param[in] idSeconds The id attribute of the field containing the
+    *   seconds.
     * @returns A Date instance, if the values where valid; @c null, on error.
     */
     function fieldsDate(error,
@@ -308,7 +311,7 @@
                         idMonth,
                         idDate,
                         idHours,
-                        idMinutes, 
+                        idMinutes,
                         idSeconds) {
 
         var fYear   =  document.getElementById(idYear),
@@ -448,7 +451,7 @@
 
     /**************************************************************************\
     *
-    * SECTION Handlers
+    * SECTION Page handlers
     *
     * Callback functions for STATE_HANDLERS and, consequently, `loadState()'.
     * These functions are responsible for responding to user requests that alter
@@ -526,16 +529,16 @@
         } else {
             el["on" + event] = fn;
         }
-    }
+    };
 
     /**
     * @brief Return an object that can be used to make HTTP request objects.
     *
     * If instantiation of XMLHttpRequest is not possible, Msxml2.XMLHTTP and
     * Microsoft.XMLHTTP will be attempted (in that order). If none of these
-    * works, @c NULL is returned.
+    * works, @c null is returned.
     *
-    * @returns An XML HTTP object or @c NULL.
+    * @returns An XML HTTP object or @c null.
     */
     function sfCreateRequest() {
         var request;
@@ -556,7 +559,7 @@
           }
         }
         return request;
-    }
+    };
 
     /**
     * @brief Check whether @p value is NaN.
