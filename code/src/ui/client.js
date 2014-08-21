@@ -310,4 +310,36 @@
         }
         return request;
     }
+
+    /**
+    * @brief Check whether @p value is NaN.
+    *
+    * This deals with the issue of isNaN() returning @c false even for
+    * non-number values.
+    *
+    * @param[in] value The value to check.
+    * @returns @c true if @p value is NaN; @p false, otherwise.
+    */
+    function sfIsNaN(value) {
+        if(typeof value !== 'number') return false;
+        return isNaN(value);
+    };
+
+    /**
+    * @brief Check whether @p collection is empty.
+    *
+    * @param[in] collection The collection to check.
+    * @returns @c true if @p collection is empty or @c null; @p false,
+    *   otherwise.
+    */
+    function sfIsEmpty(collection) {
+        var i   =  0,
+            val;        // A key.
+
+        for(val in collection) {
+            ++i;
+            break;
+        }
+        return i === 0;
+    };
 })();
