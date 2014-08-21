@@ -324,16 +324,20 @@
             fMin    =  document.getElementById(idMinutes),
             fSec    =  document.getElementById(idSeconds),
             month   =  fMon.value,
+            date    =  fDate.value,
             dt;
 
         /* Month is zero-based. */
         if(!sfIsNaN(month) && month > 0) --month;
 
+        /* Avoid date underflow to previous month. */
+        if(date == 0) date = 1;
+
         /* The device operates in UTC. Assume the values inserted are UTC as
         * well. */
         dt          =  new Date(Date.UTC(fYear.value,
                                          month,
-                                         fDate.value,
+                                         date,
                                          fHour.value,
                                          fMin.value,
                                          fSec.value));
