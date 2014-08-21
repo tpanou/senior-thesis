@@ -422,13 +422,13 @@
         var msg     =  MSG.error["not-int"];
         var msgTail =  "";
 
-        if(mn && mx) {
+        if(mn !== null && mx) {
             msgTail = " (από " + mn + " μέχρι " + mx + ").";
 
-        } else if(mn) {
+        } else if(mn !== null) {
 
             msgTail = " (από " + mn + " και πάνω).";
-        } else if(mx) {
+        } else if(mx !== null) {
 
             msgTail = " (μέχρι " + mx + ").";
         }
