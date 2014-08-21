@@ -28,8 +28,9 @@
     */
     var MSG = {
         error   : {
-            iaddr4          : "Πρέπει να αποτελείται από 4 αριθμούς (0 έως" +
-                              " 255) διαχωρισμένους με τελεία."
+            "iaddr4"        : "Χρειάζονται 4 αριθμοί (0 έως 255) " +
+                              "διαχωρισμένοι με τελεία.",
+            "date-invalid"  : "Μη έγκυρη ημερομηνία/ώρα."
         }
     }
 
@@ -257,6 +258,70 @@
         return null;
     };
 
+    /**
+    * @brief Validate a date-time spread over multiple fields.
+    *
+    * Granted a valid date-time, the fields' value will be updated to the one
+    * returned to avoid, for instance, insignificant zeros or date overflow.
+    *
+    * @param[out] error Contains error strings. If any errors occurred during
+    *   parsing, they will be inserted into `error[idYear]'.
+    * @param[in] idYear The id attribute of field containing the year.
+    * @param[in] idMonth The id attribute of field containing the month.
+    * @param[in] idDate The id attribute of field containing the date.
+    * @param[in] idHours The id attribute of field containing the hours.
+    * @param[in] idMinuntes The id attribute of field containing the minutes.
+    * @param[in] idSecondes The id attribute of field containing the seconds.
+    * @returns A Date instance, if the values where valid; @c null, on error.
+    */
+    function fieldsDate(error,
+                        idYear,
+                        idMonth,
+                        idDate,
+                        idHours,
+                        idMinutes, 
+                        idSeconds) {
+
+        var fYear   =  document.getElementById(idYear),
+            fMon    =  document.getElementById(idMonth),
+            fDate   =  document.getElementById(idDate),
+            fHour   =  document.getElementById(idHours),
+            fMin    =  document.getElementById(idMinutes),
+            fSec    =  document.getElementById(idSeconds),
+            month   =  fMon.value,
+            dt;
+
+        /* Month is zero-based. */
+        if(!sfIsNaN(month) && month > 0) --month;
+
+        /* The device operates in UTC. Assume the values inserted are UTC as
+        * well. */
+        dt          =  new Date(Date.UTC(fYear.value,
+                                         month,
+                                         fDate.value,
+                                         fHour.value,
+                                         fMin.value,
+                                         fSec.value));
+
+        /* Check validity of date. For instance, if non-digits where inserted,
+        * that would have caused an invalid date. */
+        if(sfIsNaN(dt.getTime())) {
+            error[idYear]  =  [MSG.error["date-invalid"]];
+
+        } else {
+            /* Update field values. Note that the device assumes UTC time. */
+            fYear.value =  dt.getUTCFullYear();
+            fMon.value  =  sfFixInt(dt.getUTCMonth() + 1, 2);
+            fDate.value =  sfFixInt(dt.getUTCDate(), 2);
+            fHour.value =  sfFixInt(dt.getUTCHours(),  2);
+            fMin.value  =  sfFixInt(dt.getUTCMinutes(), 2);
+            fSec.value  =  sfFixInt(dt.getUTCSeconds(), 2);
+
+            return dt;
+        }
+        return null;
+    };
+
     /**************************************************************************\
     *
     * SECTION Handlers
@@ -399,5 +464,23 @@
             break;
         }
         return i === 0;
+    };
+
+    /**
+    * @brief Convert a number into a string of fixed amount of digits.
+    *
+    * @param[in] num The number to prefix with zeros.
+    * @param[in] digits The number of total digits to produce.
+    * @returns A string number with that many @p digits.
+    */
+    function sfFixInt(num, digits) {
+        var value   =  num.toString(10),
+            times   =  digits - value.length,
+            i;
+
+        for(i = 0 ; i < times ; ++i) {
+            value = "0" + value;
+        }
+        return value;
     };
 })();
