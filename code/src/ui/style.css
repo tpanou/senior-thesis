@@ -222,6 +222,11 @@ label {
     margin-left:        0.2em;
     vertical-align:     top;
 }
+ul.field-msg {
+    padding:            0;
+    margin:             0 0 0.2em 0;
+    list-style-position:inside;
+}
 .field-msg.hidden {
     display:            none;
 }

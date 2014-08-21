@@ -213,6 +213,33 @@
     }
 
     /**
+    * @brief Append a message list, sibling to each specified element.
+    *
+    * Each key in `objMsg' is taken as the id attribute of a document element.
+    * For each such element, a new `ul' with its class attribute set to @p cls
+    * is created. The @c ul is then appended to the element's direct parent.
+    *
+    * @param[in] objMsg Object with field ids paired to array of messages.
+    */
+    function fieldShowMsg(objMsg, cls) {
+        var id,         // Id of each field with a message to display
+            el,         // The element with its id equal to @c id
+            ul;         // The generated list
+
+        for(id in objMsg) {
+
+            /* Create the message container. */
+            ul      =  document.createElement("ul");
+            ul.innerHTML    =  "<li>" + objMsg[id].join("</li><li>") + "</li>";
+            ul.className    =  cls;
+
+            /* Append the message. */
+            el      =  document.getElementById(id);
+            el.parentNode.appendChild(ul);
+        }
+    };
+
+    /**
     * @brief Validate an IP address field.
     *
     * @param[out] error Contains error strings. If any errors occurred during
@@ -579,5 +606,29 @@
             value = "0" + value;
         }
         return value;
+    };
+
+    /**
+    * @brief Remove the specified @p selNodes from @p elParent.
+    *
+    * @param[in] elParent An element which will be queried for matching
+    *   children. The nodes to remove need not be immediate descendants of this
+    *   element.
+    * @param[in] selNodes A selector to match the nodes to be removed.
+    */
+    function sfRemoveNodes(elParent, selNodes) {
+        var nodes,      // All nodes returned with @p selNodes
+            el,         // A single element from @c nodes
+            parent,     // Parent of @c el
+            i;
+
+        nodes   =  elParent.querySelectorAll(selNodes);
+        for(i = 0 ; i < nodes.length ; ++i) {
+            el      =  nodes.item(i);
+
+            /* Since `Node.removeChild()' is not yet available, do this
+            * manually. */
+            parent  =  el.parentNode.removeChild(el);
+        }
     };
 })();
