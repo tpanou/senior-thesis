@@ -143,6 +143,9 @@
     * deals with direct visiting (eg, a bookmarked link or page refresh). */
     sfAddEventListener(window, "hashchange", loadState);
     sfAddEventListener(window, "load", loadState);
+    sfAddEventListener(document.getElementById("config-save"),
+                       "click",
+                       handleConfigSave);
 
     /**************************************************************************\
     *
@@ -499,6 +502,56 @@
     function handlePageHelp() {
         switchToPage("help-page");
     }
+
+    /**************************************************************************\
+    *
+    * SECTION Other handlers
+    *
+    * Callbacks that perform general tasks such as form handling.
+    *
+    \**************************************************************************/
+
+    /**
+    * @brief Validate and update the device configuration.
+    */
+    function handleConfigSave() {
+        var errors  = {},
+            req     = {},
+            date,           // Special-case value to separate day-of-week
+            coords;         // Parse coordinates as one field; then, separate.
+
+        /* Clear any previously set field messages. */
+        sfRemoveNodes(document.getElementById("config-page"), ".field-msg");
+
+        req["iaddr"]    =  fieldIAddr(errors, "config-iaddr");
+        req["subnet"]   =  fieldIAddr(errors, "config-subnet");
+        req["gateway"]  =  fieldIAddr(errors, "config-gateway");
+
+        coords          =  fieldsCoordinates(errors, "config-x",
+                                                     "config-y",
+                                                     "config-z");
+
+        date            =  fieldsDate(errors, "config-date-year",
+                                              "config-date-mon",
+                                              "config-date-date",
+                                              "config-date-hour",
+                                              "config-date-min",
+                                              "config-date-sec");
+
+        /* Display error messages, if there has been errors. */
+        if(!sfIsEmpty(errors)) {
+            fieldShowMsg(errors, "field-msg error");
+
+        } else {
+
+            req["x"]    =  coords["config-x"];
+            req["y"]    =  coords["config-y"];
+            req["z"]    =  coords["config-z"];
+            req["date"] =  date.toJSON();
+            req["day"]  =  date.getDay();
+
+        }
+    };
 
     /**************************************************************************\
     *
