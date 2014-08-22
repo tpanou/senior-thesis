@@ -216,6 +216,48 @@
     };
 
     /**
+    * @brief Split each item of @p arrStr into key and value.
+    *
+    * The array is traversed from the beginning to the end. Each item is split
+    * into two parts; one up to the first occurrence of a colon (:); the other,
+    * after the colon up to the end. If an item starts with a colon, it is
+    * omitted. If an item does not contain a colon, it is included as a key, but
+    * is set to @c null.
+    *
+    * The key-part of each item need not be enclosed in double quotes. The value
+    * of the last occurrence of each key is preserved.
+    *
+    * Currently, only single-level parsing is performed (ie, arrays and objects
+    * are passed as string values to their respective key).
+    *
+    * @param[in] arrStr An array of `key:value' strings.
+    * @returns An object with key-value pairs extracted from the array items.
+    */
+    function objectifyStrings(arrStr) {
+        var object  = {},       // The object to return
+            colon,              // Index of the first colon in each @p arrStr
+            key,                // Key to add
+            i;
+
+        for(i = 0; i < arrStr.length ; ++i) {
+            colon   =  arrStr[i].indexOf(":");
+
+            if(colon > 0) {
+                /* Write to a key equal to each string up to the first colon and
+                * use the rest of the string (after the colon) as its value. */
+                object[arrStr[i].substring(0, colon)]
+                    =  arrStr[i].substring(colon + 1);
+
+            } else if(colon < 0) {
+
+                /* If no colon was found, append the key without a value. */
+                object[arrStr[i]]   =  null;
+            }
+        }
+        return object;
+    };
+
+    /**
     * @brief Append a message list, sibling to each specified element.
     *
     * Each key in @p objMsg is taken as the id attribute of a document element.
