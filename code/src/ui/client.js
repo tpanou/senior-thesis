@@ -289,6 +289,21 @@
     };
 
     /**
+    * @brief Empty field value attribute.
+    *
+    * This actually sets the value attribute of each specified element to "".
+    *
+    * @param[in] arrId An array of ids of input to reset.
+    */
+    function fieldReset(arrId) {
+        var i;
+
+        for(i = 0 ; i < arrId.length ; ++i) {
+            document.getElementById(arrId[i]).value =  "";
+        }
+    }
+
+    /**
     * @brief Validate an IP address field.
     *
     * The field value is updated to match the one parsed.
