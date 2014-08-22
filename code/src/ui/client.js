@@ -147,6 +147,10 @@
                        "click",
                        handleConfigSave);
 
+    sfAddEventListener(document.getElementById("log-search"),
+                       "click",
+                       handleLogURI);
+
     /**************************************************************************\
     *
     * SECTION General functions
@@ -596,6 +600,85 @@
             req["date"] =  date.toJSON();
             req["day"]  =  date.getDay();
 
+        }
+    };
+
+    /**
+    * @brief Validate log search fields and create the new URI fragment.
+    *
+    * This function alters the `href' attribute of the triggering element (@c
+    * this) so that it contains the values of the search fields (granted they
+    * are valid). The format of the `href' value is the following: @verbatim
+    *#log,index:val-1,size:val-2,since:val-3,until:val-4@endverbatim
+    * @c index is always provided and set to @c 1. The remaining parameters are
+    * only provided, if they where set by the user.
+    *
+    * @param[in] evt The event that triggered this function. This function uses
+    *   Event.preventDefault() in case of an erroneous field value.
+    */
+    function handleLogURI(evt) {
+        var errors  = {},
+            since,              // `date-since' parameter value
+            until,              // `date-until' parameter value
+            size;               // `page-size' parameter value
+
+        /* Clear any previously set field messages. */
+        sfRemoveNodes(document.getElementById("log-page"), ".field-msg");
+
+        /* Ignore and reset date fields, if neither month nor year has been
+        * set. */
+        if(document.getElementById("log-since-year").value
+        && document.getElementById("log-since-mon").value) {
+
+            since   =  fieldsDate(errors, "log-since-year",
+                                          "log-since-mon",
+                                          "log-since-date",
+                                          "log-since-hour",
+                                          "log-since-min",
+                                          "log-since-sec");
+        } else {
+            /* Reset fields. */
+            fieldReset(["log-since-year", "log-since-mon", "log-since-date",
+                        "log-since-hour", "log-since-min", "log-since-sec"]);
+        }
+
+        if(document.getElementById("log-until-year").value
+        && document.getElementById("log-until-mon").value) {
+
+            until   =  fieldsDate(errors, "log-until-year",
+                                          "log-until-mon",
+                                          "log-until-date",
+                                          "log-until-hour",
+                                          "log-until-min",
+                                          "log-until-sec");
+        } else {
+            /* Reset fields. */
+            fieldReset(["log-until-year", "log-until-mon", "log-until-date",
+                        "log-until-hour", "log-until-min", "log-until-sec"]);
+        }
+
+        /* Not imposing a page size will return all the available records. */
+        if(document.getElementById("log-page-size").value) {
+            size        =  fieldInt(errors, "log-page-size", 0, 255);
+        }
+
+        /* Display error messages and do not allow the page to update, if there
+        * have been errors. */
+        if(!sfIsEmpty(errors)) {
+            fieldShowMsg(errors, "field-msg error");
+            evt.preventDefault();
+
+        } else {
+            /* Change the `href' of this anchor to contain the new search
+            * parameters. Note, this function is called as a result of
+            * activating an anchor, yet its link has not yet been resolved. */
+            this.href   =  "#log,index:1";
+            if(size)    this.href  +=  ",size:" + size;
+            if(since)   this.href  +=  ",since:" + since.toJSON();
+            if(until)   this.href  +=  ",until:" + since.toJSON();
+
+            /* The rest will be taken care of by `loadState()' which will be
+            * triggered now that the URI has been altered. */
         }
     };
 
