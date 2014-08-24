@@ -429,4 +429,76 @@
         }
     };
 
+    /**
+    * @brief Track an integer Field.
+    *
+    * Since a FieldInt requires a single input field, most of the core
+    * functionality remains intact. Only validate() and _getErrors() are
+    * implemented.
+    *
+    * @param[in] idInt id of the input element.
+    * @param[in] min The minimum allowable value. The validation and the
+    *   generated error message are affected by this value. Optional.
+    * @param[in] max The maximum allowable value. The validation and the
+    *   generated error message are affected by this value. Optional.
+    */
+    ns.FieldInt =
+    function(idInt, min, max) {
+        this.id     =  idInt;
+        this.el     =  document.getElementById(idInt);
+        this.min    =  min;
+        this.max    =  max;
+    };
+    ns.FieldInt.prototype = {
+
+        /**
+        * @brief Parse @p value as an integer within this.min, this.max.
+        *
+        * If this.min or this.max are @c undefined, they do not affect the
+        * validation.
+        *
+        * @returns A valid integer (within this.min and this.max); @c null, on
+        *   error.
+        */
+        validate : function(value) {
+            value   =  parseInt(value, 10);
+
+            if(ns.isNaN(value)
+            || (this.min !== undefined && this.min > value)
+            || (this.max !== undefined && this.max < value))
+                  return null;
+            return value;
+        },
+
+        /**
+        * @brief Constructs an error message for this Field's constraints.
+        *
+        * `FieldInt' only returns a single string (wrapped in an array) adjusted
+        * to the value of this.min and this.max of an instance at the time of
+        * its invocation.
+        *
+        * @returns An array of string errors.
+        */
+        _getErrors : function() {
+            /* Construct the appropriate error message. */
+            var msg     =  "";
+
+            /* Construct the tail of the error *without* the period. */
+            if(this.min !== undefined && this.max !== undefined) {
+                msg = " από " + this.min + " μέχρι " + this.max;
+
+            } else if(this.min !== undefined) {
+                msg = " από " + this.min + " και πάνω";
+
+            } else if(this.max !== undefined) {
+                msg = " μέχρι " + this.max;
+            }
+
+            /* Combine the constant part, the tail (if any) and the period.*/
+            msg =  "Απαιτείται ακέραιος" + msg + ".";
+            return [msg];
+        }
+    };
+    ns.augment(ns.FieldInt, ns.Field);
+
 }(window.gNS = window.gNS || {}));

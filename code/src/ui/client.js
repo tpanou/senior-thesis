@@ -477,57 +477,6 @@
         return values;
     };
 
-    /**
-    * @brief Validate an integer field.
-    *
-    * The field value is updated to match the one parsed.
-    *
-    * @param[out] error Contains error strings. If any errors occurred during
-    *   parsing, they will be inserted into `error[idInt]' as an array of
-    *   strings.
-    * @param[in] mn The minimum permissive number. Optional.
-    * @param[in] mx The maximum permissive number. Optional.
-    * @returns A valid integer (in the specified range); @c null, on error.
-    */
-    function fieldInt(error, idInt, mn, mx) {
-        var el,             // The field element
-            number,         // The value of the element
-            value   =  0;   // Parsed value
-
-        /* Construct the appropriate error message. */
-        var msg     =  MSG.error["not-int"];
-        var msgTail =  "";
-
-        if(mn !== null && mx) {
-            msgTail = " (από " + mn + " μέχρι " + mx + ").";
-
-        } else if(mn !== null) {
-
-            msgTail = " (από " + mn + " και πάνω).";
-        } else if(mx !== null) {
-
-            msgTail = " (μέχρι " + mx + ").";
-        }
-        if(msgTail.length) {
-
-            /* Remove last period (if there is one) and append @c msgTail. */
-            if(msg.charAt(msg.length - 1) === '.') {
-                msg =  msg.substring(0, msg.length - 1);
-            }
-            msg    +=  msgTail;
-        }
-
-        /* Validate field value. */
-        el          =  document.getElementById(idInt);
-        number      =  parseInt(el.value, 10);
-        if(sfIsNaN(number) || mn > number || mx < number) {
-            error[idInt]    =  [msg];
-            return null;
-        }
-
-        return number;
-    };
-
     /**************************************************************************\
     *
     * SECTION Page handlers
