@@ -147,6 +147,161 @@
     };
 
     /**
+    * @brief Facilitate validation and access to input fields.
+    *
+    * A Field is linked to some input elements. It may then be used to validate
+    * and return their value displaying an appropriate error message, if
+    * necessary, empty them or validate candidate values without actually
+    * setting them.
+    *
+    * This is not a complete definition and may not be instantiated. It should
+    * be augmented to provide specific functionality. Any of the provided
+    * members should be replaced to that end.
+    */
+    ns.Field =
+    function () {
+        throw "Error: Instantiating Field.";
+    };
+    ns.Field.prototype = {
+
+        /**
+        * @brief The id of the underlying input field(s).
+        *
+        * This is used to gain a reference to the actual input field(s) as well
+        * as an indicator of the error message (see _showErrors()).
+        */
+        id : null,
+
+        /**
+        * @brief A reference to the underlying element(s).
+        *
+        * Field is defined to support a single input element, though it may be
+        * augmented to support multiple fields, as well.
+        */
+        el : null,
+
+        /**
+        * @brief Reference to the generated error element.
+        */
+        elMsg : null,
+
+        /**
+        * @brief Class string to apply to the element containing the error.
+        *
+        * See _showErrors().
+        */
+        clsError: null,
+
+        /**
+        * @brief Set the value of this Field.
+        *
+        * The value only updates the underlying input fields, if it passes the
+        * validation of validate().
+        *
+        * @param[in] value The value to set to the Field.
+        * @returns The value returned by validate().
+        */
+        set : function(value) {
+            value = this.validate(value);
+            if(value !== null) {
+                this.el.value   =  value;
+            }
+            return value;
+        },
+
+        /**
+        * @brief Parse the current value of the Field.
+        *
+        * @param[in, out] error Object. Designates that, if validation fails,
+        *   an error message should be added to the DOM. This object is added
+        *   a new member named after this.id. Its value is an array of error
+        *   strings. The generated DOM element (containing the error message)
+        *   may be accessed via this.elMsg. Do note that the element is
+        *   automatically appended to the DOM (see, _showErrors()). Optional.
+        * @returns A valid value parsed form the underlying input fields or @c
+        * null.
+        */
+        get : function(errors) {
+            var value   =  this.set(this.el.value);
+
+            if(value === null && typeof errors === "object") {
+                errors[this.id] = this._showErrors();
+            }
+
+            return value;
+        },
+
+        /**
+        * @brief Clear the value of the input field(s).
+        */
+        reset : function() {
+            this.el.value   =  "";
+            return this;
+        },
+
+        /**
+        * @brief Validate the supplied value and return it or return @c null.
+        *
+        * This function accepts a value to test against the constraints of this
+        * Field.
+        *
+        * @return The validated value, which may not be exactly the same as
+        *   @p value (for instance, trimmed of leading and trailing spaces).
+        */
+        validate : null,
+
+        /**
+        * @brief Remove the error message from the DOM.
+        */
+        resetMsg : function() {
+            if(this.elMsg) {
+                this.elMsg.parentNode.removeChild(this.elMsg);
+                delete this.elMsg;
+            }
+            return this;
+        },
+
+        /**
+        * @brief Class string applied to the generated error elements.
+        */
+        setErrorClass : function(clsError) {
+            this.clsError   =  clsError;
+            return this;
+        },
+
+        /**
+        * @brief Construct an appropriate error message for this Field.
+        *
+        * @returns An array of error strings.
+        */
+        _getErrors : null,
+
+        /**
+        * @brief Creates and appends an error element to the DOM.
+        *
+        * @returns The generated element.
+        */
+        _showErrors : function() {
+            var ul,
+                errors = this._getErrors();
+
+            /* Set error message, if validation fails. */
+            ul              =  document.createElement("ul");
+            ul.innerHTML    =  "<li>"
+                            +  errors.join("</li><li>")
+                            +  "</li>";
+
+            this.clsError && (ul.className = this.clsError);
+
+            /* Append the message. */
+            this.el.parentNode.appendChild(ul);
+            this.resetMsg();
+            this.elMsg = ul;
+            return ul;
+        }
+    };
+
+    /**
     * @brief Expand @p child's prototype with @p parent's
     *
     * Prototype members than exist on both @p child and @p parent are ignored,
