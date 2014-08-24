@@ -501,4 +501,66 @@
     };
     ns.augment(ns.FieldInt, ns.Field);
 
+    /**
+    * @brief Tracks an input field that accepts an IPv4 address.
+    *
+    * @param[in] id The id attribute of the input field to track.
+    */
+    ns.FieldIAddr =
+    function (id) {
+        this.id     =  id;
+        this.el     =  document.getElementById(id);
+    };
+    ns.FieldIAddr.prototype = {
+
+        /**
+        * @brief Validate an IP address string.
+        *
+        * @returns A valid IP address string (as it was specified in @p value)
+        *   after removing insignificant zeros and/or leading/trailing white
+        *   spaces; @c null, on error.
+        */
+        validate : function(value) {
+            var segments,   // @p value split on dots
+                number,     // A single byte of the address
+                i;
+
+            segments    =  value.split(".");
+            value       =  "";              // The value is reconstructed
+            if(segments.length !== 4) {
+                value   =  null;
+
+            } else {
+                /* Convert each segment into a number to validate it. */
+                for(i = 0 ; i < segments.length ; ++i)  {
+
+                    number = parseInt(segments[i], 10);
+                    if(sfIsNaN(number) || number < 0 || number > 255) {
+                        value   =  null;
+                        break;
+                    }
+                    /* Join the numbers anew to omit any insignificant zeros. */
+                    value  +=  number + ".";
+                }
+            }
+
+            if(i === 4) {
+                value       =  value.substring(0, value.length - 1);
+            }
+
+            return value;
+        },
+
+        /**
+        * @brief Return an array with a single error string.
+        *
+        * @returns An array of a single string explaining what is a valid IP
+        *   address.
+        */
+        _getErrors : function() {
+            return [MSG.error.iaddr4];
+        }
+    };
+    ns.augment(ns.FieldIAddr, ns.Field);
+
 }(window.gNS = window.gNS || {}));

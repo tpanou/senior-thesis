@@ -315,56 +315,6 @@
     }
 
     /**
-    * @brief Validate an IP address field.
-    *
-    * The field value is updated to match the one parsed.
-    *
-    * @param[out] error Contains error strings. If any errors occurred during
-    *   parsing, they will be inserted into `error[idIAddr]' as an array of
-    *   strings.
-    * @param[in] idIAddr The id attribute of the input field to parse.
-    * @returns A valid IP address string (as it was specified in the input
-    *   field, after removing insignificant zeros); @c null, on error.
-    */
-    function fieldIAddr(error, idIAddr) {
-        var el,             // The field element
-            segments,       // An array of IP segments (4 numbers)
-            number,         // One of @p segments
-            value   =  0,   // Parsed value
-            i       =  0;
-
-        el          =  document.getElementById(idIAddr);
-        segments    =  el.value.split(".");
-        if(segments.length !== 4) {
-            error[idIAddr] = [MSG.error.iaddr4];
-
-        } else {
-
-            /* Convert each segment into a number to validate it. */
-            for(i = 0 ; i < segments.length ; ++i)  {
-
-                number = parseInt(segments[i], 10);
-                if(sfIsNaN(number) || number < 0 || number > 255) {
-                    error[idIAddr]  =  [MSG.error.iaddr4];
-                    break;
-                }
-
-                /* Join the numbers anew to omit any insignificant zeros. */
-                value  +=  number;
-                if(i < 3) {
-                    value += ".";
-                }
-            }
-        }
-
-        if(i === 4) {
-            el.value    =  value;
-            return         value;
-        }
-        return null;
-    };
-
-    /**
     * @brief Validate a date-time spread over multiple fields.
     *
     * The field value is updated to match the one parsed.
