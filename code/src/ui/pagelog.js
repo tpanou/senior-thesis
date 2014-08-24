@@ -18,8 +18,13 @@
             elSection,      // This element is hidden when first reloading
             clsHidden;
 
+        var request;        // XMLHTTPRequest variable
         var objParams;      // An object with valid parameters extracted from
                             // the URI with parseParams().
+
+        request =  ns.createRequest();
+        if(!request) throw "PageLog: Could not instantiate XMLHTTPRequest.";
+
         /**
         * @brief Initialise this instance.
         *
@@ -107,6 +112,8 @@
 
             /* Submit the request. */
             request.open("GET", "measurement.php" + query);
+            request.onreadystatechange = async;
+            request.send();
         };
 
         /**
@@ -175,6 +182,59 @@
         };
 
         /**
+        * @brief Parse the record set into the result table.
+        *
+        * @param[in] set A valid response containing a record set.
+        */
+        var parseResults = function(set) {
+            var recTotal    =  set["total"],
+                pageSize    =  set["page-size"],
+                pageIndex   =  set["page-index"],
+                pageTotal,
+                inc         =  pageSize * pageIndex + 1,
+                rec,                        // A record
+                dt,                         // The date of a record
+                i;
+
+            console.log("parsing", set);
+
+            /* Calculate total pages (links) and current result page index. */
+            pageTotal   =  pageSize === 0 ? 0 : Math.ceil(recTotal/pageSize);
+            pageIndex  >=  pageTotal && (pageIndex = pageTotal);
+            pages.show(recTotal, pageTotal, pageIndex + 1);
+
+            elTable.innerHTML   =  "";
+
+            for(i = 0 ; i < set["log"].length ; ++i) {
+                rec     =  set["log"][i];
+
+                if(!rec) continue;
+                dt      =  new Date(rec["date"]);
+
+                elTable.innerHTML +=  "<tr>"
+                                  +   "<td>" + inc++            + "</td>"
+                                  +   "<td>" + dt.toUTCString() + "</td>"
+                                  +   "<td>" + rec["x"]         + "</td>"
+                                  +   "<td>" + rec["y"]         + "</td>"
+                                  +   "<td>" + rec["t"]         + "</td>"
+                                  +   "<td>" + "&ndash;"        + "</td>"
+                                  +   "<td>" + "&ndash;"        + "</td>"
+                                  +   "</tr>";
+            }
+            elSection.className = "";
+        };
+
+        /**
+        * @brief Called via onreadystatechange. Handles asynchronous responses.
+        */
+        var async = function() {
+
+            if(this.readyState !== 4) return;
+
+            if(this.status === 200) parseResults(JSON.parse(this.responseText));
+        };
+
+        /**
         * @brief Load the supplied object of values into the form Fields.
         *
         * Checks if any of the expected parameters have been set and whether
@@ -229,6 +289,5 @@
             return p;
         };
 
-        var parseParams = function(p) {};
     })();
 })(window.gNS = window.gNS || {});
