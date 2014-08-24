@@ -563,4 +563,154 @@
     };
     ns.augment(ns.FieldIAddr, ns.Field);
 
+    /**
+    * @brief Track a date Field comprised of multiple input fields.
+    *
+    * Do note, this operates on UTC only (meaning that when setting a date with
+    * this.set(), the value for each input element will be extracted via
+    * functions such as Date.getUTCFullYear()).
+    *
+    * To facilitate instantiation, only a single id prefix is required which is
+    * assumed to be shared among all input field elements to be tracked by this
+    * Field. It is also assumed that, in order to identify each element
+    * separately, the following suffixes are:
+    *   - -year
+    *   - -month
+    *   - -date
+    *   - -hours
+    *   - -minutes
+    *   - -seconds
+    *
+    * The id of this element uses the id of the year (@p idPrefix + "-year").
+    *
+    * @param[in] idPrefix The common id part of the underlying input fields.
+    */
+    ns.FieldDateGroup =
+    function (idPrefix) {
+        this.id         =  idPrefix + "-year";
+        this.elYear     =  document.getElementById(idPrefix + "-year");
+        this.elMonth    =  document.getElementById(idPrefix + "-month");
+        this.elDate     =  document.getElementById(idPrefix + "-date");
+        this.elHours    =  document.getElementById(idPrefix + "-hours");
+        this.elMinutes  =  document.getElementById(idPrefix + "-minutes");
+        this.elSeconds  =  document.getElementById(idPrefix + "-seconds");
+        this.el         =  this.elYear;
+    };
+    ns.FieldDateGroup.prototype = {
+
+        /**
+        * @brief Update the Field with the supplied date, provided it is valid.
+        *
+        * Do note, this sets the underlying fields to the UTC-equivalent of the
+        * supplied date.
+        *
+        * @param[in] blob Either a @c String containing the year or a @c Date
+        *   object, in which case, the remaining arguments are ignored.
+        * @param[in] month The month (@c 1 through @c 12).
+        * @param[in] date The date (day of month). If the value supplied
+        *   evaluates to @c 0, it is set to @c 1 to avoid date underflow due to
+        *   an empty string.
+        * @param[in] hours The hours.
+        * @param[in] minutes The minutes.
+        * @param[in] seconds The seconds.
+        * @returns A Date instance, if a valid date could be constructed from
+        *   the arguments; @p null, otherwise.
+        */
+        set : function(blob, month, date, hours, minutes, seconds) {
+            var dt  = this.validate(blob, month, date, hours, minutes, seconds);
+
+            if(dt !== null) {
+                /* Make sure numbers are two digits long (except for year). */
+                this.elYear.value       =  dt.getUTCFullYear();
+                this.elMonth.value      =  sfFixInt(dt.getUTCMonth() + 1,   2);
+                this.elDate.value       =  sfFixInt(dt.getUTCDate(),        2);
+                this.elHours.value      =  sfFixInt(dt.getUTCHours(),       2);
+                this.elMinutes.value    =  sfFixInt(dt.getUTCMinutes(),     2);
+                this.elSeconds.value    =  sfFixInt(dt.getUTCSeconds(),     2);
+            }
+            return dt;
+        },
+
+        get : function(errors) {
+            var dt = this.set(this.elYear.value,
+                              this.elMonth.value,
+                              this.elDate.value,
+                              this.elHours.value,
+                              this.elMinutes.value,
+                              this.elSeconds.value);
+
+            if(dt === null && typeof errors === "object") {
+                errors[this.id] = this._showErrors();
+            }
+
+            return dt;
+        },
+
+        reset : function() {
+            this.elYear.value       =  "";
+            this.elMonth.value      =  "";
+            this.elDate.value       =  "";
+            this.elHours.value      =  "";
+            this.elMinutes.value    =  "";
+            this.elSeconds.value    =  "";
+            return this;
+        },
+
+        /**
+        * @brief Validate the arguments as if there were a date.
+        *
+        * @param[in] blob Either a @c String containing the year or a @c Date
+        *   object, in which case, the remaining arguments are ignored.
+        * @param[in] month The month (@c 1 through @c 12).
+        * @param[in] date The date (day of month). If the value supplied
+        *   evaluates to @c 0, it is set to @c 1 to avoid date underflow due to
+        *   an empty string.
+        * @param[in] hours The hours.
+        * @param[in] minutes The minutes.
+        * @param[in] seconds The seconds.
+        * @returns A Date instance, if a valid date could be constructed from
+        *   the arguments; @p null, otherwise.
+        */
+        validate : function(blob, month, date, hours, minutes, seconds) {
+            var dt;         // The parsed date
+
+            if(typeof blob === "string") {
+
+                /* Month is zero-based. */
+                if(!sfIsNaN(month) && month > 0) --month;
+
+                /* Avoid date underflow to previous month. */
+                if(date == 0) date = 1;
+
+                /* The device operates in UTC. Assume the values inserted are in
+                * UTC as well. */
+                dt  =  new Date(Date.UTC(blob,
+                                         month,
+                                         date,
+                                         hours,
+                                         minutes,
+                                         seconds));
+
+            } else {
+                dt  =  blob;
+            }
+
+            /* Check validity of date. For instance, if non-digits where
+            * supplied, that would have caused an invalid date (NaN). */
+            if(sfIsNaN(dt.getTime())) return null;
+            return dt;
+        },
+
+        /**
+        * @brief Return an array with a single error string.
+        *
+        * @returns An array of a single string explaining that the date is
+        *   invalid.
+        */
+        _getErrors : function() {
+            return ["Μη έγκυρη ημερομηνία/ώρα."];
+        }
+    };
+    ns.augment(ns.FieldDateGroup, ns.Field);
+
 }(window.gNS = window.gNS || {}));
