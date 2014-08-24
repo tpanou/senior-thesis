@@ -133,7 +133,9 @@
                 }
             }
 
-            if(pages === "") pages +=  " 0";
+            if(pages === "") {
+                pages   =  "<a class=\"" + this.clsCurrent + "\">0</a>";
+            }
             this.elPages.innerHTML  =  pages;
         },
 
