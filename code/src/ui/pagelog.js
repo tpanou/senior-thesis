@@ -110,6 +110,59 @@
         };
 
         /**
+        * @brief Validate log search fields and create the new URI fragment.
+        *
+        * This function alters the `href' attribute of the triggering element
+        * (@c this) so that it contains the values of the search fields (granted
+        * they are valid). The format of the `href' value is the following:
+        *@verbatim
+        *#log,index:val-1,size:val-2,since:val-3,until:val-4@endverbatim
+        * @c index is always provided and set to @c 1. The remaining parameters
+        * are only provided, if they where set by the user.
+        *
+        * @param[in] evt The event that triggered this function. This function
+        *   uses Event.preventDefault() in case of an erroneous field value.
+        *   Otherwise, the `href' attribute of the source is modified to a
+        *   fragment that contains the specified search parameters, right before
+        *   the browser loads the link.
+        */
+        var submit = function(evt) {
+            var errors  = {},
+                since,              // field value
+                until,              // field parameter value
+                size;               // field value
+
+            /* Clear any previously set field messages. */
+            resetMsg();
+
+            /* Ignore and reset date fields, if year has been not been set. */
+            fSince.elYear.value ? since = fSince.get(errors) : fSince.reset();
+            fUntil.elYear.value ? until = fUntil.get(errors) : fUntil.reset();
+            /* fSize should accept @c 0 */
+            fSize.el.value !== "" && (size = fSize.get(errors));
+
+            /* Display error messages and do not allow the page to update, if
+            * there have been errors. */
+            if(!ns.isEmpty(errors)) {
+                evt.preventDefault();
+
+            } else {
+
+                /* Change the `href' of this anchor to contain the new search
+                * parameters. Note, this function is called as a result of
+                * activating an anchor, yet its link has not yet been
+                * resolved. */
+                this.href   =  hash  +   ",index:1";
+                if(size || size === 0) this.href   +=  ",size:" + size;
+                since && (this.href  +=  ",since:" + since.toJSON());
+                until && (this.href  +=  ",until:" + until.toJSON());
+
+                /* The rest will be taken care of by `loadState()' which will be
+                * triggered now that the URI has been altered. */
+            }
+        };
+
+        /**
         * @brief Create a URI fragment with the supplied @p index and the
         * current request parameters.
         *
