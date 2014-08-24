@@ -326,7 +326,7 @@
         * @brief Set the value of this Field.
         *
         * The value only updates the underlying input fields, if it passes the
-        * validation of validate().
+        * constrainsts of validate().
         *
         * @param[in] value The value to set to the Field.
         * @returns The value returned by validate().
@@ -341,6 +341,9 @@
 
         /**
         * @brief Parse the current value of the Field.
+        *
+        * To ensure the field remains visually correct when the value is also
+        * correct, its contents are updated after parsing.
         *
         * @param[in, out] error Object. Designates that, if validation fails,
         *   an error message should be added to the DOM. This object is added
