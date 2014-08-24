@@ -170,6 +170,16 @@
         };
 
         /**
+        * @brief Reset the value of Fields (including error messages).
+        */
+        var reset = function() {
+            resetMsg();
+            fSize.reset();
+            fSince.reset();
+            fUntil.reset();
+        }
+
+        /**
         * @brief Create a URI fragment with the supplied @p index and the
         * current request parameters.
         *
@@ -289,5 +299,19 @@
             return p;
         };
 
+        /**
+        * @brief Request that all Fields remove their error messages.
+        */
+        var resetMsg = function() {
+            fSize.resetMsg();
+            fSince.resetMsg();
+            fUntil.resetMsg();
+        };
+
+        /* Advertise privileged functions. */
+        return {"init"      : init,
+                "reload"    : reload,
+                "submit"    : submit,
+                "reset"     : reset};
     })();
 })(window.gNS = window.gNS || {});
