@@ -65,6 +65,47 @@
         };
 
         /**
+        * @brief Responsible for updating the view of the Page.
+        *
+        * @brief[in] params Object containing the parameters specified within
+        *   the URI fragment.
+        */
+        var reload = function(params) {
+
+            var p,              // URI parameters parsed and validated
+                query;          // Query string to submit
+
+
+            /* Do not query the server unless there are parameters set. */
+            if(ns.isEmpty(params)) {
+
+                /* In case the page is loaded without a valid table state (as
+                * indicated by not having any request parameters set), hide the
+                * result section. */
+                if(objParams === undefined) elSection.className = clsHidden;
+                return;
+
+            } else {
+            }
+
+            /* Clear any previously set field messages. */
+            resetMsg();
+
+            /* Build the query string. Note that in the UI, @c index starts at 1
+            * whereas, in the back-end, @c page-index is zero-based. */
+            query   =  "?page-index=" + (p["index"] ? p["index"] - 1 : 0);
+            if(p.size || p.size === 0)   query += "&page-size=" + p.size;
+            p.since && (query += "&date-since=" + p.since);
+            p.until && (query += "&date-until=" + p.until);
+
+            /* Keep a copy of the search values in a private member for
+            * createURI() to use. */
+
+            /* Submit the request. */
+            request.open("GET", "measurement.php" + query);
+        };
+
+        /**
         * @brief Create a URI fragment with the supplied @p index and the
         * current request parameters.
         *
@@ -75,5 +116,7 @@
         */
         var createURI = function(index) {
         };
+
+        var parseParams = function(p) {};
     })();
 })(window.gNS = window.gNS || {});

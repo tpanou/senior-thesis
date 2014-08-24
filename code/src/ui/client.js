@@ -376,56 +376,6 @@
     };
 
     /**
-    * @brief Responsible for displaying the log page.
-    *
-    * @brief[in] params The parameters specified within the URI fragment.
-    */
-    function handlePageLog(p) {
-        var req,            // AJAX request
-            params,         // URI parameters
-            query;          // Query string to submit
-
-        /* TODO: Reset all fields and/or remove messages. */
-
-        switchToPage("log-page");
-
-        /* Do not query server unless hash parameters are set. */
-        if(p.length > 1) {
-            req     =  sfCreateRequest();
-            p.shift();      // Remove the element id from the hash parameters
-
-            /* @p p is typically an array of strings. Form: ["key1:value1", …].
-            * Convert that into an object. */
-            params  =  objectifyStrings(p);
-        } else {
-
-            /* Hide the result section, if no search is due. */
-            document.getElementById("log-section-result").className = "hidden";
-        }
-
-        /* Do not proceed without a request object. */
-        if(!req) {
-            /* TODO: Display error. */
-            return;
-        }
-
-        /* Construct the query string. Note that in the UI, @c index starts at 1
-        * whereas, in the back-end, @c page-index is zero-based. */
-        query   =  "?page-index=" + (params["index"] ? params["index"] - 1 : 0);
-        if(params["size"])    query   +=  "&page-size=" + params["size"];
-        if(params["since"])   query   +=  "&date-since=" + params["since"];
-        if(params["until"])   query   +=  "&date-until=" + params["until"];
-
-        /* Keep a copy of the search values. */
-        LOG_QUERY   =  params;
-
-        /* Submit the request. */
-        req.open("GET", "measurement.php" + query);
-        req.onreadystatechange = handleLogResults;
-        req.send();
-    };
-
-    /**
     * @brief Responsible for displaying the configuration page.
     */
     function handlePageConfig() {
