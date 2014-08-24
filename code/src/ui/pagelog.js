@@ -189,6 +189,16 @@
         *   the current request parameters.
         */
         var createURI = function(index) {
+            var href = hash + ",index:" + index;
+            objParams.size === undefined || (href +=
+                                                ",size:"  + objParams.size);
+
+            objParams.since === undefined || (href +=
+                                                ",since:" + objParams.since);
+
+            objParams.until === undefined || (href +=
+                                                ",until:" + objParams.until);
+            return href;
         };
 
         /**
