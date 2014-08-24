@@ -18,6 +18,8 @@
             elSection,      // This element is hidden when first reloading
             clsHidden;
 
+        var objParams;      // An object with valid parameters extracted from
+                            // the URI with parseParams().
         /**
         * @brief Initialise this instance.
         *
@@ -86,6 +88,7 @@
                 return;
 
             } else {
+                p   =  parseParams(params);
             }
 
             /* Clear any previously set field messages. */
@@ -100,6 +103,7 @@
 
             /* Keep a copy of the search values in a private member for
             * createURI() to use. */
+            objParams =  p;
 
             /* Submit the request. */
             request.open("GET", "measurement.php" + query);
@@ -115,6 +119,61 @@
         *   the current request parameters.
         */
         var createURI = function(index) {
+        };
+
+        /**
+        * @brief Load the supplied object of values into the form Fields.
+        *
+        * Checks if any of the expected parameters have been set and whether
+        * their value is acceptable by its intended field. Otherwise, it resets
+        * the contents of that field and removes (with @c delete) that parameter
+        * from @p.
+        *
+        * @param[in,out] p An object of parameter-value pairs to update the
+        *   Fields with. @p p.index is always set.
+        * @returns The modified @p p.
+        */
+        var parseParams = function(p) {
+            var value;      // Any parsed value
+
+            /* Parameter @c index is an exceptional case; it is wrapped by a
+            * Field(). It suffices, though, if it is a positive number the
+            * server can parse, something that, more or less, applies to @c
+            * size. So, borrow the constraints of that Field to validate the
+            * supplied value of index, if any. The loose equality with @c null
+            * ensures that a value of @c 0 is ignored. */
+            if((value = p.index) === undefined
+            || (value = fSize.validate(value)) == null) {
+                p.index  =  1;
+            } else {
+                p.index =  value;
+            }
+
+            if((value = p.size) === undefined
+            || (value = fSize.set(value)) === null) {
+                fSize.reset();
+                delete p.size;
+            } else {
+                p.size  =  value;
+            }
+
+            if((value = p.since) === undefined
+            || (value = fSince.set(new Date(value))) === null) {
+                fSince.reset();
+                delete p.since;
+            } else {
+                p.since =  value.toJSON();
+            }
+
+            if((value = p.until) === undefined
+            || (value = fUntil.set(new Date(value))) === null) {
+                fUntil.reset();
+                delete p.until;
+            } else {
+                p.until =  value.toJSON();
+            }
+
+            return p;
         };
 
         var parseParams = function(p) {};
