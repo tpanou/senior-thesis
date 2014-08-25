@@ -1,7 +1,7 @@
 ;(function (ns) {
 
     /**
-    * @brief Responsible for rendering the page of Log results.
+    * @brief Responsible for rendering the configuration of the device.
     *
     * Functions of immediate interest are init(), reload(), submit() and
     * reset(). init() should be called first, before attempting to operate this.

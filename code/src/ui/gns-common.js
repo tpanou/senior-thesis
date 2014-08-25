@@ -366,6 +366,8 @@
 
         /**
         * @brief Clear the value of the input field(s).
+        *
+        * @returns this
         */
         reset : function() {
             this.el.value   =  "";
@@ -385,6 +387,8 @@
 
         /**
         * @brief Remove the error message from the DOM.
+        *
+        * @returns this
         */
         resetMsg : function() {
             if(this.elMsg) {
@@ -396,6 +400,8 @@
 
         /**
         * @brief Class string applied to the generated error elements.
+        *
+        * @returns this
         */
         setErrorClass : function(clsError) {
             this.clsError   =  clsError;

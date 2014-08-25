@@ -9,7 +9,7 @@
     ns.PageLog = ns.PageLog || (function() {
 
         /* These must *all* be supplied via init(). */
-        var hash,           // Used to construct 
+        var hash,           // Used to construct URI fragments with createURI()
             fSize,
             fSince,
             fUntil,
@@ -33,9 +33,9 @@
         * hash                  URI fragment of this Page. All links generated
         *                       will be prefixed with this value (so it should
         *                       contain #)
-        * form.idSize           id
-        *     .idSince          id prefix (see FieldDateGroup())
-        *     .idUntil          id prefix (as above)
+        * form.idSize           id of page-size input field
+        *     .idSince          id prefix (see FieldDateGroup()) for date-since
+        *     .idUntil          id prefix (as above) for date-until
         *     .clsError         class of `ul's when displaying field errors
         * data.elTotal          See first 4 parameters of Paginator()
         *     .elPages          Same as above
@@ -141,9 +141,9 @@
         */
         var submit = function(evt) {
             var errors  = {},
-                since,              // field value
-                until,              // field parameter value
-                size;               // field value
+                since,              // Field value
+                until,              // Field parameter value
+                size;               // Field value
 
             /* Clear any previously set field messages. */
             resetMsg();
