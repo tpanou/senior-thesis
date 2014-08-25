@@ -48,10 +48,24 @@
                                   .setErrorClass(cls);
         };
 
-
+        /**
+        * @brief Update the view of the Page.
+        *
+        * The default behaviour is to load the current configuration from the
+        * device, replacing anything that may have been set on a previous visit.
+        * This is done to ensure that the displayed configuration is up-to-date.
+        */
         var reload = function () {
-        };
+            var req =  ns.createRequest();
 
+            if(!req) return;
+
+            reset();
+
+            req.open("GET", "configuration.php");
+            req.onreadystatechange  =  handleGET;
+            req.send();
+        };
 
         var submit = function () {
         };
@@ -80,6 +94,39 @@
             fSubnet.resetMsg();
             fDate.resetMsg();
             fCoords.resetMsg();
+        };
+
+        /**
+        * @brief Called via onreadystatechange. Handles asynchronous GET.
+        *
+        * This Page uses method GET only to retrieve the current configuration
+        * of the device.
+        */
+        var handleGET = function () {
+
+            if(this.readyState !== 4) return;
+
+            if(this.status === 200) loadFields(JSON.parse(this.responseText));
+        };
+
+        /**
+        * @brief Set the fields to the specified values.
+        *
+        * @param[in] conf An object containing the device configuration, as
+        *   returned by the corresponding endpoint.
+        */
+        var loadFields = function (conf) {
+            var errors  =  0;
+
+            reset();        // Clear all fields
+
+            fIAddr.set(conf.iaddr)              || ++errors;
+            fGateway.set(conf.gateway)          || ++errors;
+            fSubnet.set(conf.subnet)            || ++errors;
+            fDate.set(new Date(conf.date))      || ++errors;
+            fCoords.set(conf.x, conf.y, conf.z) || ++errors;
+
+            /* TODO: Show message on the unlikely event of an erroneous value */
         };
 
         return {"init"      : init,
