@@ -78,7 +78,72 @@
             req.send("{\"x\":\"\"}");
         };
 
+        /**
+        * @brief Send new configuration to the device.
+        */
         var submit = function () {
+            var errors  =  {},
+                payload =  {},      // Request
+                value,              // Each parsed value
+                req,
+                date,               // Field value
+                coords;             // Field parameter value
+
+            /* Clear any previously set field messages. */
+            resetMsg();
+
+            /* Only include Fields that have been set. */
+
+            if(fIAddr.el.value && (value = fIAddr.get(errors)) !== null) {
+                payload.iaddr = value;
+            }
+
+            if(fGateway.el.value && (value = fGateway.get(errors)) !== null) {
+                payload.gateway = value;
+            }
+
+            if(fSubnet.el.value && (value = fSubnet.get(errors)) !== null) {
+                payload.subnet = value;
+            }
+
+            if(fDate.elYear.value && fDate.elMonth.value && fDate.elDate.value
+            && fDate.elHours.value && fDate.elMinutes.value) {
+                date            =  fDate.get(errors);
+            } else {
+                fDate.reset();
+            }
+
+            (  fCoords.fieldX.el.value
+            || fCoords.fieldY.el.value
+            || fCoords.fieldZ.el.value)
+            && (value = fCoords.get(errors)) === null || (coords = value);
+
+            if(date) {
+                payload.date    =  date.toJSON();
+                payload.day     =  date.getDay();
+            }
+            if(coords) {
+                payload.x       =  coords.x;
+                payload.y       =  coords.y;
+                payload.z       =  coords.z;
+            }
+
+            /* Display error messages and inform the configuration has not been
+            * saved. */
+            if(!ns.isEmpty(errors)) {
+
+            } else if(!ns.isEmpty(payload)) {
+
+                req     =  ns.createRequest();
+                req.open("PUT", "configuration.php");
+                req.onreadystatechange = handlePUT;
+                req.send(JSON.stringify(payload));
+            } else {
+
+                /* TODO: All fields were empty. Inform user no operation was
+                * performed. */
+                reload();
+            }
         };
 
         /**
@@ -137,6 +202,9 @@
             response    =  JSON.parse(this.responseText);
 
             if(this.status === 200) {
+                /* TODO: Inform configuration has been saved. Also, reload the
+                * configuration from the device response. */
+                loadFields(response);
 
             } else if(this.status === 400) {
 
@@ -155,7 +223,9 @@
                     this.onreadystatechange  =  handleGET;
                     this.send();
                 } else {
-
+                    /* TODO: Inform request has been dropped, probably due to
+                    * an erroneous value. Also inform what are the physical
+                    * limits. */
                 }
             }
 
