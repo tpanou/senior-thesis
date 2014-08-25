@@ -15,6 +15,10 @@
             fDate,
             fCoords;
 
+        var isInternal;         /* Denotes whether a request has been sent to
+                                * the device for the needs of the UI and not
+                                * explicitly by the user. */
+
         /**
         * @brief Initialise this instance.
         *
@@ -62,9 +66,16 @@
 
             reset();
 
-            req.open("GET", "configuration.php");
-            req.onreadystatechange  =  handleGET;
-            req.send();
+            /* Send an erroneous value for the operational range. This results
+            * in the device sending its physical limits. Those limits will be
+            * used as constraints to the input fields. @c isInternal designates
+            * this nature of the following response so that the back-end may act
+            * accordingly.  */
+            isInternal  =  true;
+
+            req.open("PUT", "configuration.php");
+            req.onreadystatechange  =  handlePUT;
+            req.send("{\"x\":\"\"}");
         };
 
         var submit = function () {
@@ -107,6 +118,48 @@
             if(this.readyState !== 4) return;
 
             if(this.status === 200) loadFields(JSON.parse(this.responseText));
+        };
+
+        /**
+        * @brief Called via onreadystatechange. Handles asynchronous PUT.
+        *
+        * This Page uses method PUT to update the device configuration. It also
+        * uses it, behind the scenes, to retrieve the physical limits of the
+        * device and set them as constraints on the Operational Range Field. To
+        * do so, it send an erroneous request (which is, of course dropped by
+        * the device) but results in the device advertising those limits.
+        */
+        var handlePUT = function () {
+            var response;
+
+            if(this.readyState !== 4) return;
+
+            response    =  JSON.parse(this.responseText);
+
+            if(this.status === 200) {
+
+            } else if(this.status === 400) {
+
+                /* If the request was sent to retrieve the absolute physical
+                * limits, set them as constraints to the corresponding input
+                * fields (@c fConfigX, @c fConfigY and @c fConfigZ). */
+                if(isInternal) {
+                    /* Set current constraints. */
+                    fCoords.fieldX.max  =  response.x;
+                    fCoords.fieldY.max  =  response.y;
+                    fCoords.fieldZ.max  =  response.z;
+
+                    /* Reuse this request instance, this time, to actually
+                    * retrieve the current configuration. */
+                    this.open("GET", "configuration.php");
+                    this.onreadystatechange  =  handleGET;
+                    this.send();
+                } else {
+
+                }
+            }
+
+            isInternal  =  false;
         };
 
         /**
