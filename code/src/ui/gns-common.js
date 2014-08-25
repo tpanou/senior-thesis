@@ -536,6 +536,7 @@
                 number,     // A single byte of the address
                 i;
 
+            value       =  value + "";
             segments    =  value.split(".");
             value       =  "";              // The value is reconstructed
             if(segments.length !== 4) {
@@ -829,9 +830,9 @@
         },
 
         reset : function() {
-            this.elX.value  =  "";
-            this.elY.value  =  "";
-            this.elZ.value  =  "";
+            this.fieldX && (this.fieldX.el.value  =  "");
+            this.fieldY && (this.fieldY.el.value  =  "");
+            this.fieldZ && (this.fieldZ.el.value  =  "");
         },
 
         /**
