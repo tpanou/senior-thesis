@@ -58,9 +58,14 @@
         * The default behaviour is to load the current configuration from the
         * device, replacing anything that may have been set on a previous visit.
         * This is done to ensure that the displayed configuration is up-to-date.
+        *
+        * @param[in] evt If instance of Event, .preventDefault() will be
+        *   invoked. Optional.
         */
-        var reload = function () {
+        var reload = function (evt) {
             var req =  ns.createRequest();
+
+            evt instanceof Event && evt.preventDefault();
 
             if(!req) return;
 
@@ -75,19 +80,24 @@
 
             req.open("PUT", "configuration.php");
             req.onreadystatechange  =  handlePUT;
-            req.send("{\"x\":\"\"}");
+            req.send("{\"x\":9999}");
         };
 
         /**
         * @brief Send new configuration to the device.
+        *
+        * @param[in] evt If instance of Event, .preventDefault() will be
+        *   invoked. Optional.
         */
-        var submit = function () {
+        var submit = function (evt) {
             var errors  =  {},
                 payload =  {},      // Request
                 value,              // Each parsed value
                 req,
                 date,               // Field value
                 coords;             // Field parameter value
+
+            evt instanceof Event && evt.preventDefault();
 
             /* Clear any previously set field messages. */
             resetMsg();
@@ -147,12 +157,17 @@
         };
 
         /**
-        * @brief Clear the value of Fields (including error messages).
+        * @brief Reset all Fields (including error messages).
         *
         * If it is desired to reset to the current configuration, reload should
         * be used, instead.
+        *
+        * @param[in] evt If instance of Event, .preventDefault() will be
+        *   invoked. Optional.
         */
-        var reset = function () {
+        var reset = function (evt) {
+            evt instanceof Event && evt.preventDefault();
+
             resetMsg();
             fIAddr.reset();
             fGateway.reset();

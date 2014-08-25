@@ -72,7 +72,13 @@
         };
 
         /**
-        * @brief Responsible for updating the view of the Page.
+        * @brief Update the view of the Page.
+        *
+        * The default behaviour is to maintain the state of the page and not
+        * clearing everything out to pre-set values.
+        *
+        * Note that, unlike other Page functions, this one accepts an object
+        * of search parameters and not an Event source.
         *
         * @brief[in] params Object containing the parameters specified within
         *   the URI fragment.
@@ -170,9 +176,14 @@
         };
 
         /**
-        * @brief Reset the value of Fields (including error messages).
+        * @brief Reset all input Fields (including error messages).
+        *
+        * @param[in] evt If instance of Event, .preventDefault() will be
+        *   invoked. Optional.
         */
-        var reset = function() {
+        var reset = function(evt) {
+            evt instanceof Event && evt.preventDefault();
+
             resetMsg();
             fSize.reset();
             fSince.reset();
