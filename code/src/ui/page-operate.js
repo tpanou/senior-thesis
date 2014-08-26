@@ -33,23 +33,32 @@
         /**
         * @brief Update the view of the Page.
         *
-        * The default behaviour is to load the current coordinates of the device
-        * while maintaining any previously set coordinates in the input fields.
+        * The default behaviour is to load the current state of the device
+        * (position, mostly), while maintaining any previously set coordinates
+        * in the input fields.
         *
         * @param[in] evt If instance of Event, .preventDefault() will be
         *   invoked. Optional.
         */
         var reload = function (evt) {
-            var req =  ns.createRequest();
+            var req1 =  ns.createRequest(),
+                req2 =  ns.createRequest();
 
             evt instanceof Event && evt.preventDefault();
 
-            if(!req) return;
+            if(!req1 || !req2) return;
 
             reset();
 
-            req.open("GET", "coordinates.php");
-            req.onreadystatechange  =  handleGET;
+            /* Request current device position. */
+            req1.open("GET", "coordinates.php");
+            req1.onreadystatechange  =  handleGETCoords;
+            req1.send();
+
+            /* Request operational range. */
+            req2.open("GET", "configuration.php");
+            req2.onreadystatechange  =  handleGETConfig;
+            req2.send();
         };
 
         /**
@@ -85,9 +94,51 @@
         };
 
         /**
-        * @brief Called via onreadystatechange. Handles asynchronous GET.
+        * @brief Called via onreadystatechange. Handles GETting configuration.
+        *
+        * The configuration is used to determine the operational range of the
+        * device, that is, the maximum allowable @c X, @c Y, @cZ values. @c Z
+        * cannot be set manually; it is either submerged or not.
         */
-        var handleGET = function () {
+        var handleGETConfig = function () {
+            var conf;
+
+            if(this.readyState !== 4) return;
+
+            /* Set field constraints and display operational range. */
+            if(this.status === 200) {
+                conf    =  JSON.parse(this.responseText);
+
+                fCoords.fieldX.max  =  conf.x;
+                fCoords.fieldY.max  =  conf.y;
+                elRange.innerHTML = conf.x + ", " + conf.y;
+            }
+        };
+
+        /**
+        * @brief Called via onreadystatechange. Handles GETting coordinates.
+        *
+        * The current device coordinates are displayed on the UI for reference.
+        * A @c Z value of @c 0 indicates the head is submerged.
+        */
+        var handleGETCoords = function () {
+            var conf;
+
+            if(this.readyState !== 4) return;
+
+            /* Load current coordinates. */
+            if(this.status === 200) {
+                conf    =  JSON.parse(this.responseText);
+                elStatus.innerHTML  = conf.x + ", " + conf.y;
+
+                if(conf.z === 0) {
+                    elStatus.innerHTML += " [δειγματοληψία]";
+                }
+
+            } else if(this.status === 503) {
+                elStatus.innerHTML  =  "[εν κινήσει]";
+                /* TODO: Display estimated time of completion. */
+            }
         };
 
         /**
