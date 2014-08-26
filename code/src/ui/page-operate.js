@@ -91,7 +91,26 @@
             }
         };
 
+        /**
+        * @brief Request the device takes a new measurement.
+        *
+        * @param[in] evt If instance of Event, .preventDefault() will be
+        *   invoked. Optional.
+        */
         var sample = function(evt) {
+            var req;
+
+            evt instanceof Event && evt.preventDefault();
+
+            /* Clear any previously set field messages. */
+            resetMsg();
+
+            req =  ns.createRequest();
+            if(!req) return;
+            req.open("POST", "measurement.php");
+            req.onreadystatechange  =  handlePOSTSample;
+            req.setRequestHeader("Content-Length", 0);
+            req.send();
         };
 
         /**
@@ -189,9 +208,22 @@
         };
 
         /**
-        * @brief Called via onreadystatechange. Handles asynchronous POST.
+        * @brief Called via onreadystatechange. Handles POSTing a measurement.
+        *
+        * This Page uses method POST to request taking a new sample.
         */
-        var handlePOST = function () {
+        var handlePOSTSample = function () {
+            if(this.readyState !== 4) return;
+
+            switch(this.status) {
+
+                /* Header Retry-After designates how long it should take to
+                * complete the request. */
+                case(202):
+
+                /* The device is busy. */
+                case(503):
+            }
         };
 
         return {"init"      : init,
