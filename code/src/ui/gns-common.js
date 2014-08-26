@@ -276,6 +276,45 @@
         return value;
     };
 
+    /**
+    * @brief A Logger Entry.
+    *
+    * A Logger Entry creates an actual DOM element to contain a message and also
+    * keeps a reference to that, along with a time-stamp of its creation. The
+    * message, including the specified time-stamp (or Now, if none was
+    * specified), is enclosed within a @c div element which is applied the
+    * class @c cls. The time-stamp may be used to determine the age of the
+    * entry.
+    *
+    * @param[in] msg The message of the entry (text or HTML).
+    * @param[in] cls The class of the entry (enclosing @c div). Optional.
+    * @param[in] stamp Date object. The time to link this entry with. Defaults
+    *   to Now. Optional.
+    * @param hideTime If supplied and it evaluates to true, the generated
+    *   element will not contain the time.
+    */
+    ns.LoggerEntry =
+    function (msg, cls, stamp, hideTime) {
+        var time;
+
+        this.elEntry    =  document.createElement("div");
+
+        !stamp && (stamp = new Date());
+        this.stamp  =  stamp;
+
+        cls && (this.elEntry.className = cls);
+        this.elEntry.innerHTML  =  msg;
+
+        if(!hideTime) {
+            time    =        ns.fixInt(stamp.getHours(),    2)
+                    +  ":" + ns.fixInt(stamp.getMinutes(),  2)
+                    +  ":" + ns.fixInt(stamp.getSeconds(),  2);
+            this.elEntry.innerHTML  =  time + " - ";
+        }
+        this.elEntry.innerHTML     +=  msg;
+
+    };
+
     ns.Logger = ns.Logger || (function () {
 
         var elLog,
