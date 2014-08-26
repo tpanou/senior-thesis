@@ -177,7 +177,12 @@
 
             } else if(this.status === 503) {
                 elStatus.innerHTML  =  "[εν κινήσει]";
-                /* TODO: Display estimated time of completion. */
+
+                /* Display estimated time of completion. */
+                ns.log("Η συσκευή δήλωσε απασχολημένη. Εκτιμώμενος χρόνος"
+                    + " ολοκλήρωσης τρέχουσας εργασίας: "
+                    + this.getResponseHeader("Retry-After") + "&rdquo;",
+                      "info");
             }
         };
 
@@ -187,23 +192,45 @@
         * This Page uses method PUT to update the device position.
         */
         var handlePUTCoords = function () {
+            var response;
 
             if(this.readyState !== 4) return;
 
             switch(this.status) {
                 /* The device already is at the requested position. */
                 case 200:
+                    response    =  JSON.parse(this.responseText);
+                    ns.log("Η συσκευή αποκρίθηκε ότι βρίσκεται ήδη στη θέση"
+                        + " [X, Y] : [" + response.x + ", " + response.y + "]",
+                            "info");
+                break;
 
                 /* Header Retry-After designates how long it should take to
                 * reach the specified position. */
                 case 202:
+                    ns.log("Η συσκευή αποδέχθηκε το αίτημα. Εκτιμώμενος χρόνος"
+                        + " ολοκλήρωσης: "
+                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                          "info");
+                break;
 
                 /* Bad request. Display operational range; maybe they have been
                 * modified in-between requests. */
                 case 400:
+                    response    =  JSON.parse(this.responseText);
+                    ns.log("Η συσκευή απέρριψε το αίτημα λόγω εσφαλμένης τιμής."
+                        + " Το τρέχον Λειτουργικό εύρος δηλώθηκε ότι είναι"
+                        + " [X, Y] : [" + response.x + ", " + response.y + "]",
+                          "fatal");
+                break;
 
                 /* Device is busy. */
                 case 503:
+                    ns.log("Η συσκευή δήλωσε απασχολημένη. Εκτιμώμενος χρόνος"
+                        + " ολοκλήρωσης τρέχουσας εργασίας: "
+                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                          "info");
+                break;
             }
         };
 
@@ -220,9 +247,19 @@
                 /* Header Retry-After designates how long it should take to
                 * complete the request. */
                 case(202):
+                    ns.log("Η συσκευή αποδέχθηκε το αίτημα. Εκτιμώμενος χρόνος"
+                        + " ολοκλήρωσης: "
+                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                          "info");
+                break;
 
                 /* The device is busy. */
                 case(503):
+                    ns.log("Η συσκευή δήλωσε απασχολημένη. Εκτιμώμενος χρόνος"
+                        + " ολοκλήρωσης τρέχουσας εργασίας: "
+                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                          "info");
+                break;
             }
         };
 

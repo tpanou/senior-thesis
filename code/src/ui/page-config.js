@@ -150,9 +150,10 @@
                 req.send(JSON.stringify(payload));
             } else {
 
-                /* TODO: All fields were empty. Inform user no operation was
+                /* All fields were empty. Inform user no operation was
                 * performed. */
-                reload();
+                ns.log("Συμπληρώστε πρώτα τα επιθυμητά πεδία και μετά πατήσετε "
+                     + "&laquo;Αποθήκευση&raquo;.", "critical");
             }
         };
 
@@ -217,8 +218,9 @@
             response    =  JSON.parse(this.responseText);
 
             if(this.status === 200) {
-                /* TODO: Inform configuration has been saved. Also, reload the
+                /* Inform configuration has been saved. Also, reload the
                 * configuration from the device response. */
+                ns.log("Η ρυθμίσεις αποθηκεύτηκαν.", "info");
                 loadFields(response);
 
             } else if(this.status === 400) {
@@ -238,9 +240,16 @@
                     this.onreadystatechange  =  handleGET;
                     this.send();
                 } else {
-                    /* TODO: Inform request has been dropped, probably due to
+                    console.log("request has been dropped: ", response);
+                    /* Inform request has been dropped, probably due to
                     * an erroneous value. Also inform what are the physical
                     * limits. */
+                    ns.log("Η συσκευή απέρριψε το αίτημα λόγω εσφαλμένης τιμής."
+                        + " Το Λειτουργικό εύρος δεν μπορεί να ξεπερνά τις"
+                        + " φυσικές διαστάσεις της συσκευής. Οι μέγιστες"
+                        + " αποδεκτές τιμές είναι [X, Y, Z] : ["
+                        + response.x + ", " + response.y + ", "
+                        + response.z + "].", "fatal");
                 }
             }
 
