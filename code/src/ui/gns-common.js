@@ -315,11 +315,29 @@
 
     };
 
+    /**
+    * @brief Manages a simple message board.
+    *
+    * The messages are added as entries within the specified DOM element and
+    * contain, on top of the message passed to log(), the time of its
+    * invocation.
+    * Each new message entry is appended on top of the others, whereas only a
+    * maximum number of entries are preserved, the oldest ones being removed
+    * (any pre-existent elements within the board, included).
+    *
+    * For each entry, a severity level may be specified to apply one of three
+    * user-defined classes. An additional class is always applied to each new
+    * entry, allowing CSS selectors to mark newly-added entries in a special
+    * way. This class is removed on a succeeding call to log(), provided the
+    * specified amount of seconds have elapsed.
+    */
     ns.Logger = ns.Logger || (function () {
 
         var elLog,
             entries     =  [],
+            children,
             entriesMax,
+            expires,
             clsNew,
             clsInfo,
             clsCritical,
@@ -328,6 +346,12 @@
         /**
         * @brief Initialise the Logger.
         *
+        * @c elLog is parsed and its current children elements are counted as
+        * entries (although, they won't be subjected to class removal on
+        * successive calls to log()). During this process, all excess children
+        * will be removed; at most, the *first* @c entries children are
+        * preserved.
+        *
         * All settings are required.
         *
         * @param[in] s Object with initialisation settings. It should contain
@@ -335,6 +359,8 @@
         * elId                  id of the message log element (should accept
         *                       Flow Content)
         * entries               Maximum number of entries to display
+        * expires               Each entry will retain clsNew for at least this
+        *                       many seconds.
         * clsInfo               Class to apply to all information messages
         * clsCritical           Class to apply to all critical messages
         * clsFatal              Class to apply to all fatal messages
@@ -348,10 +374,35 @@
             clsInfo     =  s.clsInfo;
             clsCritical =  s.clsCritical;
             clsFatal    =  s.clsFatal;
+            expires     =  s.expires * 1000;
+            children    =  0;
+
+            var child   =  elLog.firstChild,
+                next;
+
+            while(child) {
+                /* Get the next child before removing this one. */
+                next = child.nextSibling;
+
+                if(children === entriesMax) {
+                    elLog.removeChild(child);
+
+                } else {
+                    ++children;
+                }
+                child = next;
+            }
         };
 
         /**
         * @brief Add a new message to the message board.
+        *
+        * Every new message entry is applied @c clsNew to it class name. This
+        * class is temporary and is removed with the first invocation of log()
+        * *after* @c expires seconds have passed. If provided, @p severity
+        * specifies a base class that will be added to the entry. This class is
+        * permanent and the actual value applied in each case is specified
+        * during the initialisation of Logger (see init()).
         *
         * @param[in] msg The message to display. Optional.
         * @param[in] severity String specifying the class of the entry, as
@@ -376,9 +427,48 @@
             entry   =  new ns.LoggerEntry(msg, clsNew + " " + cls, now);
             elLog.insertBefore(entry.elEntry, elLog.firstChild);
 
+            unmarkOld(now);
             entries.push(entry);
 
             /* Ensure there are not too many entries. */
+            if(children === entriesMax) {
+                entries.shift();
+                elLog.removeChild(elLog.lastChild);
+            } else {
+                ++children;
+            }
+        };
+
+        /**
+        * @brief Un-mark old entries.
+        *
+        * All entries that are older than @c expires seconds will have @c clsNew
+        * removed from the class name of their element. Note that this only
+        * recognises elements add with log().
+        *
+        * @param[in] now Date object, typically, the current time. If not
+        *   specified, a new object will be created internally. Optional.
+        */
+        var unmarkOld = function (now) {
+            var i,
+                el;
+
+            now =  now ? now.getTime() : new Date().getTime();
+            for(i = entries.length - 1 ; i >= 0 ; --i) {
+
+                if(now - entries[i].stamp.getTime() > expires) {
+                    el  =  entries[i].elEntry;
+
+                    /* Stop, on the first non-new entry. */
+                    if(entries[i].elEntry.className
+                                         .indexOf(clsNew) === -1) break;
+
+                    /* Remove clsNew and, then, trim. */
+                    el.className = (" " + el.className + " ")
+                                   .replace(clsNew, "")
+                                   .replace(/^\s*|\s$/, "");
+                }
+            }
         };
 
         /**
