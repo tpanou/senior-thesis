@@ -276,6 +276,89 @@
         return value;
     };
 
+    ns.Logger = ns.Logger || (function () {
+
+        var elLog,
+            entries     =  [],
+            entriesMax,
+            clsNew,
+            clsInfo,
+            clsCritical,
+            clsFatal;
+
+        /**
+        * @brief Initialise the Logger.
+        *
+        * All settings are required.
+        *
+        * @param[in] s Object with initialisation settings. It should contain
+        *   the following keys, each with a value as follows:@verbatim {
+        * elId                  id of the message log element (should accept
+        *                       Flow Content)
+        * entries               Maximum number of entries to display
+        * clsInfo               Class to apply to all information messages
+        * clsCritical           Class to apply to all critical messages
+        * clsFatal              Class to apply to all fatal messages
+        * clsNew                Additional class to apply to new entries
+        *}@endverbatim
+        */
+        var init = function (s) {
+            elLog       =  document.getElementById(s.elId);
+            entriesMax  =  s.entries;
+            clsNew      =  s.clsNew;
+            clsInfo     =  s.clsInfo;
+            clsCritical =  s.clsCritical;
+            clsFatal    =  s.clsFatal;
+        };
+
+        /**
+        * @brief Add a new message to the message board.
+        *
+        * @param[in] msg The message to display. Optional.
+        * @param[in] severity String specifying the class of the entry, as
+        *   follows:
+        *   - "info" applies @c clsInfo
+        *   - "critical" applies @c clsCritical
+        *   - "fatal" applies @c clsFatal
+        */
+        var log = function (msg, severity) {
+            var entry,
+                now     =  new Date(),
+                cls     =  "";
+
+            if(severity === "info") {
+                cls =  clsInfo;
+            } else if(severity === "critical") {
+                cls =  clsCritical;
+            } else if(severity === "fatal") {
+                cls =  clsFatal;
+            }
+
+            entry   =  new ns.LoggerEntry(msg, clsNew + " " + cls, now);
+            elLog.insertBefore(entry.elEntry, elLog.firstChild);
+
+            entries.push(entry);
+
+            /* Ensure there are not too many entries. */
+        };
+
+        /**
+        * @brief Remove all entries from the message board.
+        *
+        * This removes every element within @c elLog.
+        */
+        var reset = function () {
+            entries         =  [];
+            elLog.innerHTML =  "";
+        };
+
+        return {"init"  : init,
+                "log"   : log,
+                "reset" : reset};
+    })();
+
+    ns.log = ns.Logger.log;
+
     /**
     * @brief Facilitate validation and access to input fields.
     *
