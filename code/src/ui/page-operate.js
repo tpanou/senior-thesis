@@ -68,6 +68,27 @@
         *   invoked. Optional.
         */
         var move = function (evt) {
+            var errors  =  {},
+                req,
+                coords;             // Field parameter value
+
+            evt instanceof Event && evt.preventDefault();
+            /* Clear any previously set field messages. */
+            resetMsg();
+
+            req =  ns.createRequest();
+            if(!req) return;
+
+            coords  =  fCoords.get(errors);
+
+            /* TODO: Display error messages. */
+            if(!ns.isEmpty(errors)) {
+
+            } else {
+                req.open("PUT", "coordinates.php");
+                req.onreadystatechange = handlePUTCoords;
+                req.send(JSON.stringify(coords));
+            }
         };
 
         var sample = function(evt) {
@@ -142,9 +163,29 @@
         };
 
         /**
-        * @brief Called via onreadystatechange. Handles asynchronous PUT.
+        * @brief Called via onreadystatechange. Handles PUTting coordinates.
+        *
+        * This Page uses method PUT to update the device position.
         */
-        var handlePUT = function () {
+        var handlePUTCoords = function () {
+
+            if(this.readyState !== 4) return;
+
+            switch(this.status) {
+                /* The device already is at the requested position. */
+                case 200:
+
+                /* Header Retry-After designates how long it should take to
+                * reach the specified position. */
+                case 202:
+
+                /* Bad request. Display operational range; maybe they have been
+                * modified in-between requests. */
+                case 400:
+
+                /* Device is busy. */
+                case 503:
+            }
         };
 
         /**
