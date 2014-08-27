@@ -22,9 +22,6 @@
         var objParams;      // An object with valid parameters extracted from
                             // the URI with parseParams().
 
-        request =  ns.createRequest();
-        if(!request) throw "PageLog: Could not instantiate XMLHTTPRequest.";
-
         /**
         * @brief Initialise this instance.
         *
@@ -49,6 +46,8 @@
         */
         var init = function(s) {
             var cls =  s.form.clsError;
+
+            request =  ns.createRequest();
 
             hash    =  s.hash;
             fSize   =  (new ns.FieldInt(s.form.idSize, 0, 255))
