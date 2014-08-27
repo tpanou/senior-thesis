@@ -390,7 +390,7 @@
         *
         * @param[in] s Object with initialisation settings. It should contain
         *   the following keys, each with a value as follows:@verbatim {
-        * elId                  id of the message log element (should accept
+        * idLog                 id of the message log element (should accept
         *                       Flow Content)
         * entries               Maximum number of entries to display
         * expires               Each entry will retain clsNew for at least this
@@ -402,7 +402,7 @@
         *}@endverbatim
         */
         var init = function (s) {
-            elLog       =  document.getElementById(s.elId);
+            elLog       =  document.getElementById(s.idLog);
             entriesMax  =  s.entries;
             clsNew      =  s.clsNew;
             clsInfo     =  s.clsInfo;
@@ -482,6 +482,13 @@
         };
 
         /**
+        * @brief Unmark older entries, if necessary`.
+        */
+        var update = function () {
+            unmarkOld();
+        };
+
+        /**
         * @brief Un-mark old entries.
         *
         * All entries that are older than @c expires seconds will have @c clsNew
@@ -505,10 +512,7 @@
                     if(entries[i].elEntry.className
                                          .indexOf(clsNew) === -1) break;
 
-                    /* Remove clsNew and, then, trim. */
-                    el.className = (" " + el.className + " ")
-                                   .replace(clsNew, "")
-                                   .replace(/^\s*|\s$/, "");
+                    el.className = ns.replaceWord(el.className, clsNew, "");
                 }
             }
         };
@@ -525,6 +529,7 @@
 
         return {"init"  : init,
                 "log"   : log,
+                "update": update,
                 "reset" : reset};
     })();
 
