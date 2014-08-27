@@ -351,6 +351,9 @@
     * entry, allowing CSS selectors to mark newly-added entries in a special
     * way. This class is removed on a succeeding call to log(), provided the
     * specified amount of seconds have elapsed.
+    *
+    * If log() is invoked without prior initialisation of Logger, the message
+    * will be displayed with alert().
     */
     ns.Logger = ns.Logger || (function () {
 
@@ -363,6 +366,9 @@
             clsInfo,
             clsCritical,
             clsFatal;
+
+        var isInit;         // Whether Logger has been initialised. If not, log
+                            // will fallback to alert().
 
         /**
         * @brief Initialise the Logger.
@@ -411,8 +417,10 @@
                 } else {
                     ++children;
                 }
-                child = next;
+                child   =  next;
             }
+
+            isInit      =  true;
         };
 
         /**
@@ -443,6 +451,12 @@
                 cls =  clsCritical;
             } else if(severity === "fatal") {
                 cls =  clsFatal;
+            }
+
+            /* Fallback mode. */
+            if(!isInit) {
+                alert(msg);
+                return;
             }
 
             entry   =  new ns.LoggerEntry(msg, clsNew + " " + cls, now);
