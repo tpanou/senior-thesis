@@ -104,11 +104,28 @@ th, td {
 }
 
 #infobox {
-    margin:             1em 2em;
-    padding:            0.3em;
-    border-radius:      0.2em;
-    color:              #333;
-    transition:         opacity 0.2s;
+    margin:             0;
+    padding:            5px;
+    color:              #777;
+    border-top:         1px solid #DDD;
+    overflow:           auto;
+    height:             4em;
+    transition:         height 1s 0.7s;
+    background:         #EEE;
+}
+#infobox:hover {
+    color:              #000;
+    height:             10em;
+}
+#infobox > div {
+    margin:             0.2em 0 0.2em 0;
+    padding:            0.1em 0.3em;
+    transition:         background 1s;
+    border-radius:      3px;
+}
+#infobox > h2 {
+    margin-top:             0.2em;
+    margin-bottom:          0.2em;
 }
 
 .inline {
@@ -257,4 +274,25 @@ ul.field-msg {
 }
 .field-msg.error {
     color:              #B00;
+}
+
+.new {
+    color:              #404040;
+}
+.fatal.new {
+    color:              #B00;
+    border:             1px solid #B00;
+    background:         #FDD;
+}
+
+.critical.new {
+    color:              #B08000;
+    border:             1px solid #b08000;
+    background:         #fff0CC;
+}
+
+.info.new {
+    color:              #00B;
+    border:             1px solid #00B;
+    background:         #e0e2e5;
 }
