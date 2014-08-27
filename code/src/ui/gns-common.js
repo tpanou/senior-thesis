@@ -197,7 +197,7 @@
     *
     * If instantiation of XMLHttpRequest is not possible, Msxml2.XMLHTTP and
     * Microsoft.XMLHTTP will be attempted in that order. If none of these
-    * works, @c null is returned.
+    * works, @c null is returned. Also, a message is displayed using Logger.
     *
     * @returns An XML HTTP object or @c null.
     */
@@ -220,6 +220,13 @@
             }
           }
         }
+
+        if(request === null) {
+            ns.log("Προέκυψε σοβαρό σφάλμα! Δεν ήταν δυνατή η δημιουργία"
+                + " αντικειμένου σύνδεσης (XMLHTTPRequest). Φορτώστε πάλι τη"
+                + " σελίδα ή προσπαθήστε με πιο σύγχρονο πρόγραμμα.", "fatal");
+        }
+
         return request;
     };
 
