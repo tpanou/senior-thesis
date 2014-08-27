@@ -277,6 +277,27 @@
     };
 
     /**
+    * @brief Replace a word within a string with another.
+    *
+    * The default behaviour is to replace only the first occurrence of @p
+    * substring with @p substitute.
+    *
+    * @param[in] source The initial string.
+    * @param[in] substring The string to search for in @p source or,
+    *   alternatively, a RegExp object.
+    * @param[in] substitute The string to replace @p substring with.
+    *
+    * @returns The string resulting from the substitution.
+    */
+    ns.replaceWord = ns.replaceWord ||
+    function (source, substring, substitute, first) {
+        /* Append spaces to search the word near boundaries, substitute and,
+        * then, trim. */
+        return (" " + source + " ").replace(substring, substitute)
+                                   .replace(/^\s*|\s$/, "");
+    };
+
+    /**
     * @brief A Logger Entry.
     *
     * A Logger Entry creates an actual DOM element to contain a message and also
