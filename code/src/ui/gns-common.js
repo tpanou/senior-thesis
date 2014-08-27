@@ -301,7 +301,7 @@
         /* Append spaces to search the word near boundaries, substitute and,
         * then, trim. */
         return (" " + source + " ").replace(substring, substitute)
-                                   .replace(/^\s*|\s$/, "");
+                                   .replace(/^\s*|\s*$/g, "");
     };
 
     /**
