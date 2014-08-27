@@ -806,7 +806,7 @@
                 for(i = 0 ; i < segments.length ; ++i)  {
 
                     number = parseInt(segments[i], 10);
-                    if(sfIsNaN(number) || number < 0 || number > 255) {
+                    if(ns.isNaN(number) || number < 0 || number > 255) {
                         value   =  null;
                         break;
                     }
@@ -893,11 +893,11 @@
             if(dt !== null) {
                 /* Make sure numbers are two digits long (except for year). */
                 this.elYear.value       =  dt.getUTCFullYear();
-                this.elMonth.value      =  sfFixInt(dt.getUTCMonth() + 1,   2);
-                this.elDate.value       =  sfFixInt(dt.getUTCDate(),        2);
-                this.elHours.value      =  sfFixInt(dt.getUTCHours(),       2);
-                this.elMinutes.value    =  sfFixInt(dt.getUTCMinutes(),     2);
-                this.elSeconds.value    =  sfFixInt(dt.getUTCSeconds(),     2);
+                this.elMonth.value      =  ns.fixInt(dt.getUTCMonth() + 1,  2);
+                this.elDate.value       =  ns.fixInt(dt.getUTCDate(),       2);
+                this.elHours.value      =  ns.fixInt(dt.getUTCHours(),      2);
+                this.elMinutes.value    =  ns.fixInt(dt.getUTCMinutes(),    2);
+                this.elSeconds.value    =  ns.fixInt(dt.getUTCSeconds(),    2);
             }
             return dt;
         },
@@ -948,7 +948,7 @@
             if(typeof blob === "string") {
 
                 /* Month is zero-based. */
-                if(!sfIsNaN(month) && month > 0) --month;
+                if(!ns.isNaN(month) && month > 0) --month;
 
                 /* Avoid date underflow to previous month. */
                 if(date == 0) date = 1;
@@ -968,7 +968,7 @@
 
             /* Check validity of date. For instance, if non-digits where
             * supplied, that would have caused an invalid date (NaN). */
-            if(sfIsNaN(dt.getTime())) return null;
+            if(ns.isNaN(dt.getTime())) return null;
             return dt;
         },
 
