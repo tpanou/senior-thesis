@@ -7,6 +7,7 @@
 
         /* These must *all* be supplied via init(). */
         var elStatus,
+            elRange,
             fCoords;
 
         /**
@@ -18,6 +19,7 @@
         *     .idNewY           id of field for the new Y coordinate of device
         *     .clsError         class of `ul's when displaying field errors
         * data.idStatus         id of element to display current device state
+        *     .idRange          id of element to display the operational range
         *}@endverbatim
         */
         var init = function (s) {
@@ -27,6 +29,7 @@
 
             elStatus
                     =  document.getElementById(s.data.idStatus);
+            elRange =  document.getElementById(s.data.idRange);
             fCoords =  (new ns.FieldPoint(x, y)).setErrorClass(cls);
         };
 
@@ -134,6 +137,17 @@
         };
 
         /**
+        * @brief Update operational range display and constraints.
+        *
+        * @param[in] conf Object containing @c X and @c Y maximum values.
+        */
+        var updateRange = function(conf) {
+            fCoords.fieldX.max  =  conf.x;
+            fCoords.fieldY.max  =  conf.y;
+            elRange.innerHTML = conf.x + ", " + conf.y;
+        };
+
+        /**
         * @brief Called via onreadystatechange. Handles GETting configuration.
         *
         * The configuration is used to determine the operational range of the
@@ -148,10 +162,7 @@
             /* Set field constraints and display operational range. */
             if(this.status === 200) {
                 conf    =  JSON.parse(this.responseText);
-
-                fCoords.fieldX.max  =  conf.x;
-                fCoords.fieldY.max  =  conf.y;
-                elRange.innerHTML = conf.x + ", " + conf.y;
+                updateRange(conf);
             }
         };
 
@@ -169,14 +180,17 @@
             /* Load current coordinates. */
             if(this.status === 200) {
                 conf    =  JSON.parse(this.responseText);
-                elStatus.innerHTML  = conf.x + ", " + conf.y;
 
-                if(conf.z === 0) {
-                    elStatus.innerHTML += " [δειγματοληψία]";
-                }
+                /* By-pass constraints; they may have been altered. */
+                fCoords.fieldX.el.value    =  conf.x;
+                fCoords.fieldY.el.value    =  conf.y;
+
+                elStatus.innerHTML  =  conf.z === 0
+                                    ? " δειγματοληψία"
+                                    : " σε ετοιμότητα";
 
             } else if(this.status === 503) {
-                elStatus.innerHTML  =  "[εν κινήσει]";
+                elStatus.innerHTML  =  "εν κινήσει";
 
                 /* Display estimated time of completion. */
                 ns.log("Η συσκευή δήλωσε απασχολημένη. Εκτιμώμενος χρόνος"
@@ -222,6 +236,7 @@
                         + " Το τρέχον Λειτουργικό εύρος δηλώθηκε ότι είναι"
                         + " [X, Y] : [" + response.x + ", " + response.y + "]",
                           "fatal");
+                    updateRange(response);
                 break;
 
                 /* Device is busy. */
