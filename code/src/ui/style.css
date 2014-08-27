@@ -3,6 +3,10 @@ body {
     font-family:        "MgOpen Cosmetica", "Arial Unicode MS";
 }
 
+select > option {
+    font-family:        "MgOpen Cosmetica", "Arial Unicode MS"
+}
+
 .button {
     font-family:        "MgOpen Cosmetica", "Arial Unicode MS";
 }
@@ -61,8 +65,8 @@ th, td {
 }
 
 #nav {
-    border-top:         3px solid #CCC;
-    border-bottom:      3px solid #CCC;
+    border-top:         3px solid #DDD;
+    border-bottom:      3px solid #DDD;
 
     margin:             0;
     padding:            0 0 0.5em 0;
@@ -74,28 +78,24 @@ th, td {
 
 #nav > li {
     display:            inline-block;
-    margin:             0 0.2em 0.1em 0.2em;
     margin:             0 0.2em;
     transition:         background 0.2s;
 }
 #nav > li.current {
-    background: #CCC;
+    background:         #DDD;
 }
 
 #nav > li:hover {
-    background: #DDD;
+    background:         #DDD;
 }
 
 #nav a {
+    border:             none;
     text-decoration:    none;
-    color:              inherit;
     outline:            none;
     display:            block;
-    padding:            0.2em 1em;
-}
-
-#content-wrapper {
-    padding:            0.1em;
+    padding:            0.2em 0.7em;
+    line-height:        110%;
 }
 
 #content {
@@ -208,15 +208,24 @@ label {
 }
 
 .pagination > a {
-    margin:             0 0.2em;
+    text-align:         center;
+    margin:             0.2em 0.2em;
+    width:              1.2em;
+    padding:            0.2em 0.1em;
 }
 
 .textfield {
     padding:            0;
 }
 
+.button.current {
+    background:         #DDD;
+    cursor:             auto;
+}
+
 .button {
     padding:            0.2em 1em;
+    margin:             0.1em 0.2em;
     display:            inline-block;
     background:         #EEE;
     border:             1px solid #CCC;
@@ -240,7 +249,7 @@ label {
 }
 ul.field-msg {
     padding:            0;
-    margin:             0 0 0.2em 0;
+    margin:             0 0 0.2em 0.4em;
     list-style-position:inside;
 }
 .field-msg.hidden {
