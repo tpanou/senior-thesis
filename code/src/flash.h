@@ -61,4 +61,26 @@
 */
 #define FLS_DPD         0xB9
 
+/**
+* @brief Prepare the SPI bus to communicate with the Flash.
+*
+* This function:
+*   - Disables SPI (in case it was running).
+*   - Sets up the appropriate clock rate (see #FLS_SPSR and #FLS_SPCR).
+*   - Enables the chip (see #FLS_ENABLE()).
+*   - Delays 1us for @c nCS setup time (T_{CSS}, *25LC1024 p.3*).
+*   - Does *not* enable the SPI clock!
+*/
+void fls_select();
+
+/**
+* @brief Terminate communication with the Flash.
+*
+* This function:
+*   - Delays 1us for @c nCS hold time (T_{CSH}, *25LC1024 p.3*).
+*   - Disables the chip (see #FLS_DISABLE()).
+*   - Delays 1us for MISO output disable time (T_{DIS}, *25LC1024 p.4*).
+*/
+void fls_deselect();
+
 #endif /* FLASH_H_INCL */
