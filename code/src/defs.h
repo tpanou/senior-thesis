@@ -115,6 +115,36 @@ down-scaled to 4MHz, and\n
 #define QUERY_PARAM_LEN     6
 
 /**
+* @brief Value of @c SPSR. This should only affect bit @c SPI2X.
+*
+* Currently, \f$ clk_{IO} \f$ is 4MHz. The 25LC1024 supports transfer rates up
+* to 20MHz. The closest that can be attained with the current configuration is
+* 2MHz. This requires setting bit @c SPI2X but none of the @c SPR1:0 of @c SPCR.
+*/
+#define FLS_SPSR        _BV(SPI2X)
+
+/**
+* @brief Value of @c SPCR. This should only affect bits @c SPCR1:0.
+*
+* Currently, \f$ clk_{IO} \f$ is 4MHz. The 25LC1024 supports transfer rates up
+* to 20MHz. The closest that can be attained with the current configuration is
+* 2MHz. This requires setting bit @c SPI2X but none of the @c SPR1:0 of @c SPCR.
+*/
+#define FLS_SPCR        0
+
+/**
+* @brief Pulls Flash @c nCS low.
+*/
+#define FLS_ENABLE()    MUX_S1_PORT |=  _BV(MUX_S1);\
+                        MUX_S0_PORT |=  _BV(MUX_S0);\
+                        MUX_ENABLE()
+
+/**
+* @brief Pulls Flash @c nCS high.
+*/
+#define FLS_DISABLE()   MUX_DISABLE()
+
+/**
 * Value of @c TOP (@c OC1A) that produces pulses at 50Hz taking #MTR_PRESCALER
 * into consideration.
 */
