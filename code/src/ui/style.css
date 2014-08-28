@@ -1,6 +1,9 @@
 body {
+    background:         #DDD;
     background:         repeating-linear-gradient(to right, #CCC, #FFF, #CCC);
     font-family:        "MgOpen Cosmetica", "Arial Unicode MS";
+    margin:             8px;
+    color:              #404040;
 }
 
 select > option {
