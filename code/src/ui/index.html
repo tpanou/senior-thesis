@@ -91,10 +91,25 @@
                             <input id="config-y" class="textfield tiny right" type="text"> ,
                             <input id="config-z" class="textfield tiny right" type="text">
                         </div>
-                        <button type="button" id="config-save" class="button small">Αποθήκευση</button>
+                        <div class="field-wrapper">
+                            <label for="config-wake">Αφύπνιση - Μετρήσεις</label>
+                            <input id="config-wake" class="textfield short right" type="text"> -
+                            <input id="config-samples" class="textfield short right" type="text">
+                        </div>
+                        <a id="config-save" class="button small" href="#">Αποθήκευση</a><a id="config-reset" class="button small" href="#">Καθαρισμός</a><a id="config-reload" class="button small" href="#" >Επαναφορά</a>
                     </div>
 
                     <div id="operate-page" class="page hidden">
+                        <h1>Χειροκίνητη λειτουργία</h1>
+                        <p>Η σελίδα αυτή επιτρέπει τη χειροκίνητη λειτουργία της συσκευής.</p>
+                        <div class="field-wrapper"><label>Κατάσταση κεφαλής</label><span id="operate-status">άγνωστη</span></div>
+                        <div class="field-wrapper"><label>Λειτουργικό εύρος </label>[<span id="operate-range"></span>]</div>
+                        <div class="field-wrapper">
+                            <label for="operate-x">Θέση κεφαλής <span class="small">[X, Y]</span></label>
+                            <input id="operate-x" class="textfield tiny right" type="text"> ,
+                            <input id="operate-y" class="textfield tiny right" type="text">
+                        </div>
+                        <a id="operate-move" class="button small" href="#">Μετακίνηση</a><a id="operate-sample" class="button small" href="#">Δειγματοληψία</a>
                     </div>
 
                     <div id="help-page" class="page hidden">
