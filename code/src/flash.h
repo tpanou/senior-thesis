@@ -65,6 +65,50 @@
 #define FLS_DPD         0xB9
 
 /**
+* @brief Status Register bit Write-In-Progress; @c 1 indicates @c true.
+*
+* Read-only.
+*/
+#define FLS_WIP     0
+
+/**
+* @brief Status Register bit Write-Enable Latch; @c 1 indicates @c enabled.
+*
+* Read-only.
+*/
+#define FLS_WEL     1
+
+/**
+* @brief Status Register Block Protection bits @c BP1:0.
+*
+* Read/Write.
+*
+* These bits determine which sectors are write-protected. The combinations of
+* @c BP1:0 are as follows:
+*   - @c 00: No sectors protected.
+*   - @c 01: Protected sector 3 (18000h--1FFFFh)
+*   - @c 10: Protected sector 2 and 3 (10000h--1FFFFh)
+*   - @c 11: All sectors protected  (00000h--1FFFFh)
+*
+* *25LC1024 p.11*
+*/
+#define FLS_BP0     2
+
+/**
+* @brief Status Register Block Protection bits @c BP1:0.
+*
+* Read/Write.
+*
+* These bits determine which sectors are write-protected. See #FLS_BP0.
+*/
+#define FLS_BP1     3
+
+/**
+* @brief Status Register bit to controls write-access to nonvolatile bits of SR.
+*/
+#define FLS_WPEN    7
+
+/**
 * @brief Prepare the SPI bus to communicate with the Flash.
 *
 * This function:
