@@ -33,6 +33,14 @@ void fls_deselect() {
     _delay_us(2);
 }
 
+void fls_wait_WIP() {
+    uint8_t status;
+
+    do {
+        fls_command(FLS_RDSR, &status);
+    } while(status | _BV(FLS_WIP));
+}
+
 void fls_command(uint8_t c, uint8_t* data) {
     fls_select();
     SPCR       |=  _BV(SPE);

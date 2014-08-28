@@ -131,6 +131,11 @@ void fls_select();
 void fls_deselect();
 
 /**
+* @brief Busy-wait until any pending write operations have completed.
+*/
+void fls_wait_WIP();
+
+/**
 * @brief Send the specified command, optionally receiving/sending data.
 *
 * This function, in terms of the 25LC1024 instruction set, may be used to send a
