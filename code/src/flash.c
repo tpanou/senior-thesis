@@ -28,3 +28,51 @@ void fls_deselect() {
     * deselecting it. (T_{DIS} - Output disable time, *25LC1024 p.4*). */
     _delay_us(1);
 }
+
+void fls_command(uint8_t c, uint8_t* data) {
+    fls_select();
+    SPCR       |=  _BV(SPE);
+
+    SPDR        =  c;
+    loop_until_bit_is_set(SPSR, SPIF);
+
+    if(data) {
+        SPDR    = *data;
+        loop_until_bit_is_set(SPSR, SPIF);
+        *data   =  SPDR;
+    }
+
+    fls_deselect();
+}
+
+void fls_exchange(uint8_t c, uint16_t page, uint8_t* buf, uint8_t len) {
+    uint8_t addr[3];
+    uint8_t i;
+
+    /* Calculate the starting address of @p page. */
+    addr[0]     =  page >> 8;
+    addr[1]     =  page & 0x0F;
+    addr[2]     =  0;
+
+    /* Send the command. */
+    fls_select();
+    SPCR       |=  _BV(SPE);
+    SPDR        =  c;
+    loop_until_bit_is_set(SPSR, SPIF);
+
+    /* Send the address. This part could be merged with the next (sending
+    * data).*/
+    for(i = 0 ; i < 3; ++i) {
+        SPDR    =  addr[i];
+        loop_until_bit_is_set(SPSR, SPIF);
+    }
+
+    /* Send data, if any. */
+    for(i = 0 ; i < len; ++i) {
+        SPDR    =  buf[i];
+        loop_until_bit_is_set(SPSR, SPIF);
+
+        buf[i]  =  SPDR;
+    }
+    fls_deselect();
+}
