@@ -1,5 +1,8 @@
 
 #include "flash.h"
+
+#include <avr/io.h>
+
 #include <util/delay.h>
 
 void fls_select() {
@@ -25,8 +28,9 @@ void fls_deselect() {
     FLS_DISABLE();
 
     /* Wait the appropriate amount of time for Flash to release MISO line after
-    * deselecting it. (T_{DIS} - Output disable time, *25LC1024 p.4*). */
-    _delay_us(1);
+    * deselecting it. (T_{DIS} - Output disable time, T_{REL} nCS high to
+    * Standby mode, *25LC1024 p.3--4*). */
+    _delay_us(2);
 }
 
 void fls_command(uint8_t c, uint8_t* data) {

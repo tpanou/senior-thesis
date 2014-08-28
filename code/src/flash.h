@@ -1,3 +1,6 @@
+/**
+* @file
+*/
 
 #ifndef FLASH_H_INCL
 #define FLASH_H_INCL
@@ -54,7 +57,7 @@
 /**
 * @brief Wake from Deep power-down mode and return device signature.
 */
-#define FLS_RDIP        0xAB
+#define FLS_RDID        0xAB
 
 /**
 * @brief Read flash, beginning at the specified address.
