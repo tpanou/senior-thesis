@@ -57,13 +57,13 @@ void fls_command(uint8_t c, uint8_t* data) {
     fls_deselect();
 }
 
-void fls_exchange(uint8_t c, uint16_t page, uint8_t* buf, uint8_t len) {
+void fls_exchange(uint8_t c, uint16_t page, uint8_t* buf, uint16_t len) {
+    uint16_t i;
     uint8_t addr[3];
-    uint8_t i;
 
     /* Calculate the starting address of @p page. */
     addr[0]     =  page >> 8;
-    addr[1]     =  page & 0x0F;
+    addr[1]     =  page & 0xFF;
     addr[2]     =  0;
 
     /* Send the command. */

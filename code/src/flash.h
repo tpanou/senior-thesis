@@ -181,6 +181,6 @@ void fls_command(uint8_t c, uint8_t* data);
 * @param[in] len Size of bytes to exchange (read/write); @c 0 is valid, in which
 *   case, @p buf could be @c NULL.
 */
-void fls_exchange(uint8_t c, uint16_t page, uint8_t* buf, uint8_t len);
+void fls_exchange(uint8_t c, uint16_t page, uint8_t* buf, uint16_t len);
 
 #endif /* FLASH_H_INCL */
