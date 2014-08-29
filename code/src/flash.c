@@ -38,7 +38,7 @@ void fls_wait_WIP() {
 
     do {
         fls_command(FLS_RDSR, &status);
-    } while(status | _BV(FLS_WIP));
+    } while(bit_is_set(status, FLS_WIP));
 }
 
 void fls_command(uint8_t c, uint8_t* data) {
