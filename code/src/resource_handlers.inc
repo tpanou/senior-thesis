@@ -253,9 +253,6 @@ static uint8_t prm_t[] PROGMEM = "t";
 void rsrc_handle_server(HTTPRequest* req) {
 }
 
-void rsrc_handle_root(HTTPRequest* req) {
-}
-
 /**
 * @brief Manage device files.
 *
@@ -659,9 +656,6 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
     }
 }
 
-void rsrc_handle_index(HTTPRequest* req) {
-}
-
 /**
 * @brief Serialise statistical information of records to be returned.
 *
@@ -1021,13 +1015,9 @@ void rsrc_handle_measurement(HTTPRequest* req) {
             srvr_send(TXF_STATUS_503, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_LENGTH_ZERO_ln,
-                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, 10,
+                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                       TXF_lnln);
         break;
         /* Case TXF_STATUS_200 is implemented in-line, above. */
     }
 }
-
-void rsrc_handle_style_css(HTTPRequest* req) {
-}
-
