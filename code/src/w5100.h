@@ -151,5 +151,233 @@
 */
 #define NET_SIZEn(n, x)    (x << (n*2))
 
+/**
+* @brief Base address offset of a socket.
+*
+* Each Socket is controlled by a set amount of registers. They span for @c 0x100
+* (@c 256) bytes starting at a *base* address. For instance, Socket 0 starts at
+* @c 0x400, Socket 1 starts at @c 0x500, and so on. This helps calculate the
+* base address for the specified Socket.
+*
+* @param[in] n Socket to calculate its base address (@c 0--@c 3).
+*/
+#define NET_Sn_OFFSET(n)   (n*0x100 + 0x400)
+
+/**
+* @brief Socket Mode Register.
+*
+* Controls the operation of this Socket.
+*
+* See: #NET_Sn_MR_CLOSED, #NET_Sn_MR_TCP.
+*/
+#define NET_Sn_MR(n)       (0x00 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Disable this Socket.
+*
+* Used with #NET_Sn_MR().
+*/
+#define NET_Sn_MR_CLOSED   (0x0)
+
+/**
+* @brief Use Socket in TCP mode.
+*
+* Used with #NET_Sn_MR().
+*/
+#define NET_Sn_MR_TCP      (0x1)
+
+/**
+* @brief Socket Command Register.
+*
+* Accepts operation command to perform.
+*
+* See: #NET_Sn_CR_OPEN, #NET_Sn_CR_LISTEN, #NET_Sn_CR_CONNECT,
+* #NET_Sn_CR_DISCON, #NET_Sn_CR_CLOSE, #NET_Sn_CR_SEND, #NET_Sn_CR_RECV.
+*/
+#define NET_Sn_CR(n)       (0x01 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Initialise Socket.
+*
+* Used with NET_Sn_MR().
+*/
+#define NET_Sn_CR_OPEN      0x01
+
+/**
+* @brief Listen for incoming connection requests (TCP mode).
+*
+* Used with NET_Sn_MR().
+*/
+#define NET_Sn_CR_LISTEN    0x02
+
+/**
+* @brief Connect to remote host (TCP mode).
+*
+* Used with NET_Sn_MR().
+*/
+#define NET_Sn_CR_CONNECT   0x03
+
+/**
+* @brief Send connection termination request (TCP mode).
+*
+* Used with NET_Sn_MR().
+*/
+#define NET_Sn_CR_DISCON    0x08
+
+/**
+* @brief Close Socket (change value of #NET_Sn_SR() to #NET_SN_SR_CLOSED).
+*
+* Used with NET_Sn_MR().
+*/
+#define NET_Sn_CR_CLOSE     0x10
+
+/**
+* @brief Notify to send data from the outgoing buffer of the Socket.
+*
+* Used with NET_Sn_MR().
+*/
+#define NET_Sn_CR_SEND      0x20
+
+/**
+* @brief Notify that data have been read from the incoming buffer of the Socket.
+*
+* Used with NET_Sn_MR().
+*/
+#define NET_Sn_CR_RECV      0x40
+
+/**
+* @brief Interrupt flags of this Socket.
+*
+* Each bit specifies a particular condition. See: #NET_Sn_IR_SEND_OK,
+* #NET_Sn_IR_TIMEOUT, #NET_Sn_IR_RECV, #NET_Sn_IR_DISCON, #NET_Sn_IR_CON.
+*/
+#define NET_Sn_IR(n)       (0x02 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Transmission is completed.
+*
+* Used with #NET_Sn_IR().
+*/
+#define NET_Sn_IR_SEND_OK   4
+
+/**
+* @brief Time-out (of connection or data transmission).
+*
+* Used with #NET_Sn_IR().
+*/
+#define NET_Sn_IR_TIMEOUT   3
+
+/**
+* @brief Available data.
+*
+* This bit remains set for as long as there data available for this Socket (even
+* after executing #NET_Sn_CR_RECV).
+*
+* Used with #NET_Sn_IR().
+*/
+#define NET_Sn_IR_RECV      2
+
+/**
+* @brief Connection termination is requested or completed.
+*
+* Used with #NET_Sn_IR().
+*/
+#define NET_Sn_IR_DISCON    1
+
+/**
+* @brief Connection established.
+*
+* Used with #NET_Sn_IR().
+*/
+#define NET_Sn_IR_CON       0
+
+/**
+* @brief Status flags of this Socket.
+*
+* Each bit specifies a particular state. See: #NET_Sn_SR_CLOSED,
+* #NET_Sn_SR_INIT, #NET_Sn_SR_LISTEN, #NET_Sn_SR_ESTAB, #NET_Sn_SR_CLOSEWAIT.
+*/
+#define NET_Sn_SR(n)       (0x03 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Connection is terminated.
+*
+* Used with NET_Sn_SR(). See *w5100 p.29*.
+*/
+#define NET_Sn_SR_CLOSED    0x00
+
+/**
+* @brief This occurs after #NET_Sn_CR_OPEN is given.
+*
+* Used with NET_Sn_SR(). See *w5100 p.30*.
+*/
+#define NET_Sn_SR_INIT      0x13
+
+/**
+* @brief Socket is listening for incoming connections.
+*
+* Used with NET_Sn_SR(). See *w5100 p.30*.
+*/
+#define NET_Sn_SR_LISTEN    0x14
+
+/**
+* @brief Connection established; data may now be received and sent.
+*
+* Used with NET_Sn_SR(). See *w5100 p.30*.
+*/
+#define NET_Sn_SR_ESTAB     0x17
+
+/**
+* @brief Termination request has been received.
+*
+* Used with NET_Sn_SR(). See *w5100 p.30*.
+*/
+#define NET_Sn_SR_CLOSEWAIT 0x1C
+
+/**
+* @brief Port number of this Socket.
+*
+* 2-Bytes long.
+*
+* Each bit specifies a particular state. See: #NET_Sn_SR_CLOSED,
+* #NET_Sn_SR_INIT, #NET_Sn_SR_LISTEN, #NET_Sn_SR_ESTAB, #NET_Sn_SR_CLOSEWAIT.
+*/
+#define NET_Sn_PORT(n)     (0x04 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Socket TX Free Size Register.
+*
+* 2-Bytes long.
+*/
+#define NET_Sn_TX_FSR(n)   (0x20 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Socket TX Read Pointer Register (read-only).
+*
+* 2-Bytes long.
+*/
+#define NET_Sn_TX_RR(n)    (0x22 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Socket TX Write Pointer Register.
+*
+* 2-Bytes long.
+*/
+#define NET_Sn_TX_WR(n)    (0x24 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Socket RX Received Size Register (read-only).
+*
+* 2-Bytes long.
+*/
+#define NET_Sn_RX_RSR(n)   (0x26 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Socket RX Read Pointer Register.
+*
+* 2-Bytes long.
+*/
+#define NET_Sn_RX_RR(n)    (0x28 + NET_Sn_OFFSET(n))
+
 #endif /* W5100_H_INCL */
 /** @} */
