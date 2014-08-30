@@ -10,6 +10,8 @@
 #ifndef W5100_H_INCL
 #define W5100_H_INCL
 
+#include <inttypes.h>
+
 /**
 * @brief Mode register.
 *
@@ -378,6 +380,60 @@
 * 2-Bytes long.
 */
 #define NET_Sn_RX_RR(n)    (0x28 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Prepare the SPI bus to communicate with the W5100.
+*
+* This function:
+*   - Disables SPI (in case it was running).
+*   - Sets up the appropriate clock rate (see #NET_SPSR and #NET_SPCR).
+*   - Enables the chip (see #NET_ENABLE()).
+*   - Delays 1us for @c nCS setup time (*W5100 p.67*).
+*   - Does *not* enable the SPI clock!
+*/
+void net_select();
+
+/**
+* @brief Wrapper around net_exchange() to send data to the W5100.
+*
+* It is safe to assume that, upon completion, the contents of @p buf will not
+* have been altered.
+*
+* Also, see net_exchange().
+*
+* @param[in] addr The address to start writing to. It is incremented for each
+*   byte sent.
+* @param[out] buf The data to send.
+* @param[in] len The amount of bytes to write.
+*/
+void net_write(uint16_t addr, uint8_t* buf, uint8_t len);
+
+/**
+* @brief Wrapper around net_exchange() to read data from the W5100.
+*
+* Also, see net_exchange().
+*
+* @param[in] addr The address to start reading from. It is incremented for each
+*   byte received.
+* @param[in] buf The data read.
+* @param[in] len The amount of bytes to read.
+*/
+void net_read(uint16_t addr, uint8_t* buf, uint8_t len);
+
+/**
+* @brief Exchange the specified amount of bytes starting at @p addr.
+*
+* It is safe to assume that, if a write command is specified (@c 0xF0), the
+* contents of @p buf will not have been altered.
+*
+* @param[in] c @c 0xF0 to @c write to, @c 0x0F to @c read data from the W5100.
+* @param[in] addr The address to start writing/reading to/from. It is
+*   incremented for each byte sent/received.
+* @param[in,out] buf The data to send. Upon completion, it contains the data
+*   received, if @p c was @c 0x0F.
+* @param[in] len The amount of bytes to write/read.
+*/
+void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint8_t len);
 
 #endif /* W5100_H_INCL */
 /** @} */
