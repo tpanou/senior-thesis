@@ -556,4 +556,53 @@ down-scaled to 4MHz, and\n
 */
 #define NET_BUF_LEN (100)
 
+/**
+* @brief Value of @c SPCR. This should only affect bits @c SPCR1:0.
+*
+* Currently, \f$ clk_{IO} \f$ is 4MHz. The W5100 supports transfer rates up
+* to 14MHz. The closest that can be attained with the current configuration is
+* 2MHz. This requires setting bit @c SPI2X but none of the @c SPR1:0 of @c SPCR.
+*/
+#define NET_SPCR        0
+
+/**
+* @brief Value of @c SPCR. This should only affect bits @c SPCR1:0.
+*
+* Currently, \f$ clk_{IO} \f$ is 4MHz. The W5100 supports transfer rates up
+* to 14MHz. The closest that can be attained with the current configuration is
+* 2MHz. This requires setting bit @c SPI2X but none of the @c SPR1:0 of @c SPCR.
+*/
+#define NET_SPSR        _BV(SPI2X)
+
+/**
+* @brief Data Direction Register the W5100 nCS pin connects to.
+*
+* Also, see #NET_nCS_PORT and #NET_nCS.
+*/
+#define NET_nCS_DDR     DDRD
+
+/**
+* @brief The pin port the W5100 nCS pin connects to.
+*
+* Also, see #NET_nCS_DDR and #NET_nCS.
+*/
+#define NET_nCS_PORT    PORTD
+
+/**
+* @brief Pin of #NET_nCS_PORT the W5100 nCS pin connects to.
+*
+* Also, see #NET_nCS_DDR and #NET_nCS_PORT.
+*/
+#define NET_nCS         PORTD7
+
+/**
+* @brief Chip-select the W5100.
+*/
+#define NET_ENABLE()   (NET_nCS_PORT  &= ~_BV(NET_nCS))
+
+/**
+* @brief Chip-deselect the W5100.
+*/
+#define NET_DISABLE()  (NET_nCS_PORT  |=  _BV(NET_nCS))
+
 #endif /* DEFS_H_INCL */
