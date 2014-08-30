@@ -256,7 +256,68 @@ void rsrc_handle_server(HTTPRequest* req) {
 void rsrc_handle_root(HTTPRequest* req) {
 }
 
-void rsrc_handle_client_js(HTTPRequest* req) {
+/**
+* @brief Manage device files.
+*
+* Currently, only method GET is supported to retrieve the 
+* Method GET:
+* Returns the file specified in the URI. The available files are:
+*   - index
+*   - style.css
+*   - client.js
+*   - logo.png
+* Typically, only @c index needs to be loaded explicitly; the others are
+* requested automatically by the browser. Note that both / and /index are
+* equivalent.
+*/
+void rsrc_handle_file(HTTPRequest* req) {
+    uint16_t page       =  0;
+    uint16_t size       =  0;
+    uint8_t  is_gzip    =  1;
+
+    /* TODO: The Flash and the optical encoders share some control lines; inform
+    * the requester entity if a file resource is not currently available. */
+
+    srvr_prep(TXF_STATUS_200, TXF_ln,
+              TXF_STANDARD_HEADERS_ln);
+
+    switch(req->uri) {
+        case RSRC_CLIENT_JS:
+            srvr_prep(TXF_CONTENT_TYPE_JS_ln);
+            page    =  FILE_PAGE_CLIENT_JS;
+            size    =  FILE_SIZE_CLIENT_JS;
+        break;
+
+        case RSRC_ROOT:
+        case RSRC_INDEX:
+            srvr_prep(TXF_CONTENT_TYPE, TXF_HS,
+                      TXFx_FROMRAM, MIME_MIN + MIME_TEXT_HTML, TXF_ln);
+            page    =  FILE_PAGE_INDEX;
+            size    =  FILE_SIZE_INDEX;
+        break;
+
+        case RSRC_STYLE_CSS:
+            srvr_prep(TXF_CONTENT_TYPE_CSS_ln);
+            page    =  FILE_PAGE_STYLE_CSS;
+            size    =  FILE_SIZE_STYLE_CSS;
+        break;
+
+        case RSRC_LOGO_PNG:
+            is_gzip     =  0;
+            srvr_prep(TXF_CONTENT_TYPE, TXF_HS,
+                      TXFx_FW_STRING, "image/png", TXF_ln);
+            page    =  FILE_PAGE_LOGO_PNG;
+            size    =  FILE_SIZE_LOGO_PNG;
+        break;
+    }
+
+    if(is_gzip) {
+        srvr_prep(TXF_GZIP_ln);
+    }
+    srvr_prep(TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size, TXF_lnln);
+
+    fls_to_wiz(HTTP_SOCKET, page, size);
+    send(HTTP_SOCKET, NULL, 0, 1);
 }
 
 /**
