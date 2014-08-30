@@ -15,11 +15,33 @@ void net_select() {
     SPCR        = (NET_SPCR & (_BV(SPR1) | _BV(SPR0))) | _BV(MSTR);
 }
 
-void net_write(uint16_t addr, uint8_t* buf, uint8_t len) {
+void inline net_write8(uint16_t addr, uint8_t data) {
+    net_exchange(0xF0, addr, &data, 1);
+}
+
+uint8_t net_read8(uint16_t addr) {
+    uint8_t data;
+    net_exchange(0x0F, addr, &data, 1);
+    return data;
+}
+
+uint16_t net_read16(uint16_t addr) {
+    uint16_t data;
+    data    =  ((uint16_t)net_read8(addr)) << 8;
+    data   |=  net_read8(addr + 1);
+    return data;
+}
+
+void net_write16(uint16_t addr, uint16_t data) {
+    net_write8(addr, data >> 8);
+    net_write8(addr + 1, data);
+}
+
+void inline net_write(uint16_t addr, uint8_t* buf, uint8_t len) {
     net_exchange(0xF0, addr, buf, len);
 }
 
-void net_read(uint16_t addr, uint8_t* buf, uint8_t len) {
+void inline net_read(uint16_t addr, uint8_t* buf, uint8_t len) {
     net_exchange(0x0F, addr, buf, len);
 }
 

@@ -394,6 +394,38 @@
 void net_select();
 
 /**
+* @brief Convenience function to send a byte over to the W5100.
+*
+* @param[in] addr The address to write to.
+* @param[in] data The data to send.
+*/
+void inline net_write8(uint16_t addr, uint8_t data);
+
+/**
+* @brief Convenience function to read a byte over from the W5100.
+*
+* @param[in] addr The address to read from.
+* @returns The data read.
+*/
+uint8_t net_read8(uint16_t addr);
+
+/**
+* @brief Convenience function to read a word over from the W5100.
+*
+* @param[in] addr The address to start reading from.
+* @retuns The data to read.
+*/
+uint16_t net_read16(uint16_t addr);
+
+/**
+* @brief Convenience function to send a word over to the W5100.
+*
+* @param[in] addr The address to start writing to.
+* @param[in] data The data to send.
+*/
+void net_write16(uint16_t addr, uint16_t data);
+
+/**
 * @brief Wrapper around net_exchange() to send data to the W5100.
 *
 * It is safe to assume that, upon completion, the contents of @p buf will not
@@ -403,10 +435,10 @@ void net_select();
 *
 * @param[in] addr The address to start writing to. It is incremented for each
 *   byte sent.
-* @param[out] buf The data to send.
+* @param[in] buf The data to send.
 * @param[in] len The amount of bytes to write.
 */
-void net_write(uint16_t addr, uint8_t* buf, uint8_t len);
+void inline net_write(uint16_t addr, uint8_t* buf, uint8_t len);
 
 /**
 * @brief Wrapper around net_exchange() to read data from the W5100.
@@ -415,10 +447,10 @@ void net_write(uint16_t addr, uint8_t* buf, uint8_t len);
 *
 * @param[in] addr The address to start reading from. It is incremented for each
 *   byte received.
-* @param[in] buf The data read.
+* @param[out] buf The data read.
 * @param[in] len The amount of bytes to read.
 */
-void net_read(uint16_t addr, uint8_t* buf, uint8_t len);
+void inline net_read(uint16_t addr, uint8_t* buf, uint8_t len);
 
 /**
 * @brief Exchange the specified amount of bytes starting at @p addr.
