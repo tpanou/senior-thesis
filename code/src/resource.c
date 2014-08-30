@@ -11,14 +11,7 @@
 * @ingroup resource
 * @brief The number of token-handler pairs in #rsrc_handlers.
 */
-#define RSRC_LEN    8
-
-/**
-* @brief Index of /measurement in #rsrc_handlers.
-*
-* Such macros are only defined for resources that accept query parameters.
-*/
-#define RSRC_MEASUREMENT    6
+#define RSRC_LEN    9
 
 /**
 * @ingroup resource
@@ -58,6 +51,7 @@ static uint8_t* rsrc_tokens[RSRC_LEN] = {
     "/configuration",
     "/coordinates",
     "/index",
+    "/logo.png",
     "/measurement",
     "/style.css"
 };
@@ -134,15 +128,25 @@ static inline void rsrc_get_qparam(struct HTTPRequest* req) {
 }
 
 static ResourceHandler rsrc_handlers[RSRC_LEN] = {
+    /* server * */
     {.methods = HTTP_OPTIONS,   .call = &rsrc_handle_server},
-    {.methods = HTTP_GET,       .call = &rsrc_handle_root},
-    {.methods = HTTP_GET,       .call = &rsrc_handle_client_js},
+    /* root / */
+    {.methods = HTTP_GET,       .call = &rsrc_handle_file},
+    /* client.js */
+    {.methods = HTTP_GET,       .call = &rsrc_handle_file},
+    /* configuration */
     {.methods = HTTP_GET
               | HTTP_PUT,       .call = &rsrc_handle_configuration},
+    /* coordinates */
     {.methods = HTTP_GET
               | HTTP_PUT,       .call = &rsrc_handle_coordinates},
-    {.methods = HTTP_GET,       .call = &rsrc_handle_index},
+    /* index */
+    {.methods = HTTP_GET,       .call = &rsrc_handle_file},
+    /* logo.png */
+    {.methods = HTTP_GET,       .call = &rsrc_handle_file},
+    /* /measurement */
     {.methods = HTTP_GET
               | HTTP_POST,      .call = &rsrc_handle_measurement},
-    {.methods = HTTP_GET,       .call = &rsrc_handle_style_css}
+    /* style.css */
+    {.methods = HTTP_GET,       .call = &rsrc_handle_file}
 };

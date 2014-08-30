@@ -148,7 +148,7 @@ typedef struct HTTPRequest {
 * @brief The total amount of text fragments that may be used with
 * srvr_compile().
 */
-#define TXF_MAX              22
+#define TXF_MAX              25
 #define TXF_SPACE             0 /**< @brief A single space. */
 #define TXF_COLON             1 /**< @brief A single colon. */
 #define TXF_CRLF              2 /**< @brief A CRLF sequence (0x0D, 0x0A). */
@@ -171,6 +171,9 @@ typedef struct HTTPRequest {
 #define TXF_CHUNKED          19 /**< @brief Chunked transfer encoding header. */
 #define TXF_CHAR_UTF8        20 /**< @brief The text: charset=utf-8 */
 #define TXF_JSON_LINE        21 /**< @brief A complete JSON type header line. */
+#define TXF_GZIP_LINE        22 /**< @brief A complete gzip encoding line. */
+#define TXF_JS_LINE          23 /**< @brief A complete JS type header line. */
+#define TXF_CSS_LINE         24 /**< @brief A complete CSS type header line. */
 
 /**
 * @brief Alias of #TXF_SPACE.
@@ -339,6 +342,23 @@ srvr_compile(0, __VA_ARGS__, SRVR_NOT_SET)
 * @brief Convenience macro to print: Content-Type:application/json;charset=utf-8
 */
 #define TXF_CONTENT_TYPE_JSON_ln    TXF_JSON_LINE, TXF_ln
+
+/**
+* @brief Convenience macro to print: Content-Encoding:gzip
+*/
+#define TXF_GZIP_ln                 TXF_GZIP_LINE, TXF_ln
+
+/**
+* @brief Convenience macro to print: Content-Type:type/javascript;charset=utf-8
+*/
+#define TXF_CONTENT_TYPE_JS_ln      TXF_CONTENT_TYPE,   TXF_HS, \
+                                    TXF_JS_LINE,        TXF_ln
+
+/**
+* @brief Convenience macro to print: Content-Type:text/css
+*/
+#define TXF_CONTENT_TYPE_CSS_ln     TXF_CONTENT_TYPE,   TXF_HS, \
+                                    TXF_CSS_LINE,       TXF_ln
 
 /**
 * @brief HTTP method flag-bits that may be OR-ed together.

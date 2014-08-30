@@ -6,6 +6,7 @@
 #include "defs.h"
 #include "net.h"
 #include "web_server.h"
+#include "flash.h"
 
 #include "w5100/w5100.h"
 #include "w5100/socket.h"
@@ -98,18 +99,30 @@ int usart_getchar(FILE* stream) {
 }
 
 ISR(USART_RX_vect) {
+    uint8_t     buf[256];
+    uint16_t    page;
+    uint16_t    len;
+    uint16_t    i;
 
-    char buf[100];
-    if(gets(buf)) {
-        /* For the time being, just echo back. */
-        /* NL is not appended after the string so that the host does not
-        flush before receiving the rest of the message. */
-        fputs("You sent: ", stdout);
-        puts(buf);
+    page    =  usart_getchar(stdin);
+    page    =  ((uint16_t)usart_getchar(stdin) << 8) | page;
 
-    } else {
-        puts("Error.");
+    len     =  usart_getchar(stdin);
+    len     =  ((uint16_t)usart_getchar(stdin) << 8) | len;
+
+    /* Load data into a local buffer. */
+    for(i = 0 ; i < len ; ++i) {
+        buf[i]  =  usart_getchar(stdin);
     }
+
+    /* Wait until the Flash has completed all previous write operations. */
+    fls_wait_WIP();
+
+    /* Enable Latch and send data to the Flash. */
+    fls_command(FLS_WREN, NULL);
+    fls_exchange(FLS_WRITE, page, buf, len);
+
+    printf(" [page:%d,len:%d]\n\n", page, len);
 }
 
 void init_clock() {

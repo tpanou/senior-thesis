@@ -15,6 +15,48 @@ struct HTTPRequest;
 #include <inttypes.h>
 
 /**
+* @brief Index of / in #rsrc_handlers.
+*
+* Relative path of a virtual file.
+*/
+#define RSRC_ROOT           1
+
+/**
+* @brief Index of /client.js in #rsrc_handlers.
+*
+* Relative path of a virtual file.
+*/
+#define RSRC_CLIENT_JS      2
+
+/**
+* @brief Index of /index in #rsrc_handlers.
+*
+* Relative path of a virtual file.
+*/
+#define RSRC_INDEX          5
+
+/**
+* @brief Index of /logo.png in #rsrc_handlers.
+*
+* Relative path of a virtual file.
+*/
+#define RSRC_LOGO_PNG       6
+
+/**
+* @brief Index of /measurement in #rsrc_handlers.
+*
+* Provides access to query string parameters.
+*/
+#define RSRC_MEASUREMENT    7
+
+/**
+* @brief Index of /style.css in #rsrc_handlers.
+*
+* Relative path of a virtual file.
+*/
+#define RSRC_STYLE_CSS      8
+
+/**
 * @brief Specification of methods that trigger a particular callback function.
 *
 * The callback function receives a pointer to the #HTTPRequest representation of

@@ -37,6 +37,9 @@ uint8_t txf_chunked[] PROGMEM       = "Transfer-Encoding:chunked";
 uint8_t txf_char_utf8[] PROGMEM     = "charset=utf-8";
 uint8_t txf_JSON_line[] PROGMEM
         = "Content-Type:application/json;charset=utf-8";
+uint8_t txf_gzip_line[] PROGMEM     = "Content-Encoding:gzip";
+uint8_t txf_JS_line[] PROGMEM       = "text/javascript;charset=utf-8";
+uint8_t txf_css_line[] PROGMEM      = "text/css";
 
 /* Doxygen does not handle attributes (like PROGMEM) very well. */
 /*
@@ -68,7 +71,10 @@ PGM_P srvr_txf[] PROGMEM = {
     txf_semicolon,
     txf_chunked,
     txf_char_utf8,
-    txf_JSON_line
+    txf_JSON_line,
+    txf_gzip_line,
+    txf_JS_line,
+    txf_css_line
 };
 
 /**
