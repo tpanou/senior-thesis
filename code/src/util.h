@@ -166,4 +166,16 @@ static inline void rtc_to_date(BCDDate* dt, RTCMap* rtc);
 */
 static inline void date_to_rtc(RTCMap* rtc, BCDDate* dt);
 
+/**
+* @brief Transfer data from Flash to the network module.
+*
+* The network module should have enough available buffer space to accommodate
+* the outgoing data. This function does not flush the output buffer.
+*
+* @param[in] Socket of the network module to write to.
+* @param[in] page The page to start reading from.
+* @param[in] len The number of bytes to send.
+*/
+void fls_to_wiz(uint8_t s, uint16_t page, uint16_t len);
+
 #endif /* UTIL_H_INCL */

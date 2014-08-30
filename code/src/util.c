@@ -1,5 +1,6 @@
 #include "util.h"
 #include "rtc.h"
+#include "flash.h"
 
 #include <avr/pgmspace.h>
 #include <stdarg.h>
@@ -227,4 +228,22 @@ static inline void date_to_rtc(RTCMap* rtc, BCDDate* dt) {
     rtc->hour   =  dt->hour;
     rtc->min    =  dt->min;
     rtc->sec    =  dt->sec;
+}
+
+void fls_to_wiz(uint8_t s, uint16_t page, uint16_t len) {
+    uint16_t size   =  256;
+    uint8_t  buf[256];
+
+    while(len) {
+        if(len < size) size =  len;
+
+        /* Read @c size bytes from the Flash. */
+        fls_exchange(FLS_READ, page, buf, size);
+        /* Send them to the W5100 HTTP server output buffer. */
+        send(s, buf, size, 0);
+
+        /* Prepare for the next iteration. */
+        ++page;
+        len    -=  size;
+    }
 }
