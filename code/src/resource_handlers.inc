@@ -545,7 +545,10 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 * Method PUT:
 * Moves the device head to the specified coordinates.
 * The message body should include any of the above specified keys, the order of
-* which is irrelevant. Only the last instance of each key is preserved. Returns:
+* which is irrelevant, and except for @c z. @c z may only be implicitly set when
+* a measurement is requested (see rsrc_handle_measurement()), and is
+* automatically retracted once the measurement is complete. For @c x and @c y,
+* only the last instance of each key is preserved. Returns:
 *   - 200 OK; the device is already at the specified position -- no action will
 *       be taken. The body contains the current coordinates. The format is the
 *       same as above.
@@ -591,10 +594,12 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
         * @c pos to update motor position. It could still fail if, for example,
         * an out-of-range value has been specified. */
         int8_t retval;
-        if(!(retval = json_parse(tokens, params, 3))) {
+
+        /* Accept a value only for the x and y coordinates. */
+        if(!(retval = json_parse(tokens, params, 2))) {
 
             /* Already there. */
-            if(pos.x == npos.x && pos.y == npos.y && pos.z == npos.z) {
+            if(pos.x == npos.x && pos.y == npos.y) {
                 status      =  TXF_STATUS_200;
 
             /* Invalid coordinate (out of bounds). */
