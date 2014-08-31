@@ -154,6 +154,16 @@
 #define NET_SIZEn(n, x)    (x << (n*2))
 
 /**
+* @brief The start address of the Tx buffer.
+*/
+#define NET_TX_BASE 0x4000
+
+/**
+* @brief The start address of the Rx buffer.
+*/
+#define NET_RX_BASE 0x6000
+
+/**
 * @brief Base address offset of a socket.
 *
 * Each Socket is controlled by a set amount of registers. They span for @c 0x100
@@ -380,6 +390,24 @@
 * 2-Bytes long.
 */
 #define NET_Sn_RX_RR(n)    (0x28 + NET_Sn_OFFSET(n))
+
+/**
+* @brief Initialise Socket buffer sizes.
+*
+* This should be called at least once before attempting to operate the Sockets.
+* Setting #NET_RMSR and #NET_TMSR separately is not required. Calling this
+* function should be preferred, instead, because it also initialises some
+* internal settings.
+*
+* Care should be when allocating more than 2KB to a Socket; the total available
+* memory for either Tx and Rx buffers is 8KB; *shared by all* sockets.
+*
+* Also, see #NET_SIZEn().
+*
+* @param[in] Value of #NET_TMSR.
+* @param[in] Value of #NET_RMSR.
+*/
+void net_socket_init(uint8_t tx, uint8_t rx);
 
 /**
 * @brief Prepare the SPI bus to communicate with the W5100.

@@ -5,6 +5,76 @@
 #include <util/delay.h>
 #include <avr/io.h>
 
+/**
+* @brief The absolute Tx address for each socket.
+*
+* Initialised by net_socket_init().
+*/
+static uint16_t tx_base[4];
+
+/**
+* @brief The address Tx mask for each socket.
+*
+* This value helps identify the relative offset within each buffer. Initialised
+* by net_socket_init().
+*/
+static uint16_t tx_mask[4];
+
+/**
+* @brief The absolute Rx address for each socket.
+*
+* Initialised by net_socket_init().
+*/
+static uint16_t rx_base[4];
+
+/**
+* @brief The address Rx mask for each socket.
+*
+* This value helps identify the relative offset within each buffer. Initialised
+* by net_socket_init().
+*/
+static uint16_t rx_mask[4];
+
+/**
+* @brief The amount of data stored in W5100 output buffer for each socket.
+*
+* Used by net_send() to facilitate sending data to W5100 without necessarily
+* flushing them.
+*/
+static uint16_t socket_contents[4];
+
+void net_socket_init(uint8_t tx, uint8_t rx) {
+    uint16_t tx_sum =  0;       /* Sum of previously allocated Tx buffers. */
+    uint16_t rx_sum =  0;       /* Sum of previously allocated Rx buffers. */
+    uint16_t size;              /* Size of current buffer (either Tx or Rx). */
+    uint8_t  i;
+
+    net_write(NET_TMSR, &tx, 1);
+    net_write(NET_RMSR, &rx, 1);
+
+    /* Calculate the absolute start address of each Socket (sub)buffer as well
+    * as the mask (Tx and Rx). */
+    for(i = 0 ; i < 4 ; ++i) {
+
+        /* The start address of this Socket's (sub)buffers depends on the size
+        * of all previously allocated (sub)buffers (Tx and Rx). */
+
+        size        =  1024 << (tx & 0x03);
+        tx_base[i]  =  NET_TX_BASE + tx_sum;
+        tx_mask[i]  =  size - 1;
+        tx_sum     +=  size;
+
+        size        =  1024 << (rx & 0x03);
+        rx_base[i]  =  NET_RX_BASE + rx_sum;
+        rx_mask[i]  =  size - 1;
+        rx_sum     +=  size;
+
+        /* Prepare the size bits for the next Socket. */
+        tx  >>= 2;
+        rx  >>= 2;
+    }
+}
+
 void net_select() {
     /* Disable SPI, if running. */
     SPCR        =  0;
