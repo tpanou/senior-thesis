@@ -8,10 +8,15 @@
 #include <inttypes.h>
 
 /**
-* @brief Responsible for dealing with interrupts at socket 0.
+* @brief Responsible for dealing with interrupts on #HTTP_SOCKET.
 *
-* Eventually, it will forward incoming data to the HTTP server.
+* It handles the various TCP states and calls srvr_call() when data are
+* available. It is also responsible to reopen the socket, once a connection has
+* been terminated.
+*
+* @param[in] s This Socket (@c 0--@c 3).
+* @param[in] status The #NET_Sn_IR value at the time of invocation.
 */
-void socket0_handler(uint8_t status);
+void handle_http_socket(uint8_t s, uint8_t status);
 
 #endif /* NET_H_INCL */
