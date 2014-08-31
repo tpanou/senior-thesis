@@ -118,7 +118,7 @@ void motor_reset() {
 
         cur_pos.x       =  0;
         cur_pos.y       =  0;
-        cur_pos.z       =  max_pos.z;
+        cur_pos.z       =  max_pos.z - 1;
         motor_stop();
 
         LOCK_ENABLE();
@@ -164,7 +164,9 @@ int8_t motor_set(Position target) {
     if(bit_is_set(motor_status, MTR_RESET) || PWM_IS_ON()) return -1;
 
     /* Fail, if target coordinates lay outside the available device space. */
-    if(target.x > max_pos.x || target.y > max_pos.y || target.z > max_pos.z) {
+    if(target.x >= max_pos.x
+    || target.y >= max_pos.y
+    || target.z >= max_pos.z) {
         return -1;
     }
 

@@ -338,7 +338,9 @@ void rsrc_handle_file(HTTPRequest* req) {
 *       parsed. Time-zone is UTC (@c Z).
 *   - `dot-notation' is: xxx.xxx.xxx.xxx
 *   - Custom maximum dimensions allow operating the device in a subset of the
-*       physical device-space (#GRID_X_LEN, #GRID_Y_LEN, #GRID_Z_LEN).
+*       physical device-space (#GRID_X_LEN, #GRID_Y_LEN, #GRID_Z_LEN). Note that
+*       the acceptable values span from @c 0 up to, but not including, each set
+*       value.
 *
 * Method PUT:
 * Updates the configuration.
