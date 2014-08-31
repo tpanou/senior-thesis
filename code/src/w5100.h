@@ -475,7 +475,7 @@ void net_write16(uint16_t addr, uint16_t data);
 * @param[in] buf The data to send.
 * @param[in] len The amount of bytes to write.
 */
-void inline net_write(uint16_t addr, uint8_t* buf, uint8_t len);
+void inline net_write(uint16_t addr, uint8_t* buf, uint16_t len);
 
 /**
 * @brief Wrapper around net_exchange() to read data from the W5100.
@@ -487,7 +487,7 @@ void inline net_write(uint16_t addr, uint8_t* buf, uint8_t len);
 * @param[out] buf The data read.
 * @param[in] len The amount of bytes to read.
 */
-void inline net_read(uint16_t addr, uint8_t* buf, uint8_t len);
+void inline net_read(uint16_t addr, uint8_t* buf, uint16_t len);
 
 /**
 * @brief Exchange the specified amount of bytes starting at @p addr.
@@ -502,7 +502,7 @@ void inline net_read(uint16_t addr, uint8_t* buf, uint8_t len);
 *   received, if @p c was @c 0x0F.
 * @param[in] len The amount of bytes to write/read.
 */
-void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint8_t len);
+void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint16_t len);
 
 /**
 * @brief Send data to a W5100 Socket output buffer.

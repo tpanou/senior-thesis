@@ -121,18 +121,18 @@ void net_write16(uint16_t addr, uint16_t data) {
     net_write8(addr + 1, data);
 }
 
-void inline net_write(uint16_t addr, uint8_t* buf, uint8_t len) {
+void inline net_write(uint16_t addr, uint8_t* buf, uint16_t len) {
     net_exchange(0xF0, addr, buf, len);
 }
 
-void inline net_read(uint16_t addr, uint8_t* buf, uint8_t len) {
+void inline net_read(uint16_t addr, uint8_t* buf, uint16_t len) {
     net_exchange(0x0F, addr, buf, len);
 }
 
-void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint8_t len) {
+void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint16_t len) {
     uint8_t update  = c == 0x0F;
     uint8_t byte;
-    uint8_t i;
+    uint16_t i;
 
     net_select();
     SPCR       |=  _BV(SPE);
