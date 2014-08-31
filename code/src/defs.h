@@ -133,6 +133,54 @@ down-scaled to 4MHz, and\n
 #define FLS_SPCR        0
 
 /**
+* @brief First flash page address of index.
+*
+* The file starts at this page and extends for #FILE_SIZE_INDEX bytes.
+*/
+#define FILE_PAGE_INDEX         32*0
+
+/**
+* @brief First flash page address of style.css.
+*
+* The file starts at this page and extends for #FILE_SIZE_STYLE_CSS bytes.
+*/
+#define FILE_PAGE_STYLE_CSS     32*1
+
+/**
+* @brief First flash page address of logo.png.
+*
+* The file starts at this page and extends for #FILE_SIZE_LOGO_PNG bytes.
+*/
+#define FILE_PAGE_LOGO_PNG     (32*1 + 16)
+
+/**
+* @brief First flash page address of client.js.
+*
+* The file starts at this page and extends for #FILE_SIZE_CLIENT_JS bytes.
+*/
+#define FILE_PAGE_CLIENT_JS     32*2
+
+/**
+* @brief Size of the index file.
+*/
+#define FILE_SIZE_INDEX         1818
+
+/**
+* @brief Size of the style.css file.
+*/
+#define FILE_SIZE_STYLE_CSS     1161
+
+/**
+* @brief Size of the logo.png file.
+*/
+#define FILE_SIZE_LOGO_PNG      4288
+
+/**
+* @brief Size of the client.js file.
+*/
+#define FILE_SIZE_CLIENT_JS     6306
+
+/**
 * @brief Pulls Flash @c nCS low.
 */
 #define FLS_ENABLE()    MUX_S1_PORT |=  _BV(MUX_S1);\
