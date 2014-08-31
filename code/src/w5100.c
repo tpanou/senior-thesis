@@ -138,3 +138,40 @@ uint16_t net_send(uint8_t s, uint8_t* buf, uint16_t len, uint8_t flush) {
     socket_contents[s]  =  s_content;
     return sock_size    -  s_content;
 }
+
+uint16_t net_recv(uint8_t s, uint8_t* buf, uint16_t len) {
+    uint16_t rx_size    =  net_read16(NET_Sn_RX_RSR(s));
+    uint16_t rx_RR      =  net_read16(NET_Sn_RX_RR(s));
+
+    /* Read at most @p len bytes. */
+    if(len < rx_size) rx_size = len;
+
+    /* Offset from (sub)buffer base. */
+    uint16_t rx_offset  =  rx_RR & rx_mask[s];
+
+    /* Physical address to start reading from. */
+    uint16_t start_addr =  rx_base[s] + rx_offset;
+    uint16_t sock_size  =  rx_mask[s] + 1;
+
+    /* If incoming (data size + current read offset) exceeds buffer limit, then
+     * overflow has occurred. Read data from the current offset up to limit, and
+     * then, the remainder of bytes from (sub)buffer base. */
+    if(rx_offset + rx_size > sock_size) {
+        /* Bytes until upper-bound. */
+        uint16_t bound  = sock_size - rx_offset;
+
+        /* Read bytes up to upper-bound. */
+        net_read(start_addr, buf, bound);
+
+        /* Read the rest of the bytes, starting off from the base. */
+        net_read(rx_base[s], buf + bound, rx_size - bound);
+    } else {
+        net_read(start_addr, buf, rx_size);
+    }
+
+    /* Update RR pointer for future reads. */
+    net_write16(NET_Sn_RX_RR(s), rx_RR + rx_size);
+    net_write8(NET_Sn_CR(s), NET_Sn_CR_RECV);
+
+    return rx_size - len;
+}

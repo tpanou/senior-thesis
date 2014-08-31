@@ -488,5 +488,17 @@ void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint8_t len);
 *   space.
 */
 uint16_t net_send(uint8_t s, uint8_t* buf, uint16_t len, uint8_t flush);
+
+/**
+* @brief Receive data from a W5100 Socket input buffer.
+*
+* @param[in] s The socket to read data from.
+* @param[in] buf Array of bytes read. This should be at least @p len bytes long.
+* @param[in] The number of bytes to read from the W5100 buffer.
+* @returns @c The available bytes in the input buffer (after reading @p len
+*   bytes).
+*/
+uint16_t net_recv(uint8_t s, uint8_t* buf, uint16_t len);
+
 #endif /* W5100_H_INCL */
 /** @} */
