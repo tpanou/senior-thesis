@@ -115,12 +115,12 @@ uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until) {
     c_since =  log_find(&i_since, since);
     c_until =  log_find(&i_until, until);
 
-    /* Avoid counting records for the empty set. An empty set occurs the upper
-    * limit is lower than the lower limit or when both
+    /* Avoid counting records for the empty set. An empty set occurs when the
+    * upper limit is lower than the lower limit or when both
     * upper and lower limits point at the same index and their respective
     * dates are both either greater or less than the date at that index. */
     if(i_since == i_until &&
-      (c_since & 0x80) == (c_until & 0x80) && c_until != 0) {
+      (c_since & 0x80) == (c_until & 0x80) && c_since != 0 && c_until != 0) {
 
     /* Determine whether the limits need to be adjusted. */
     } else {
@@ -141,7 +141,7 @@ uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until) {
 
 static int16_t log_find(uint8_t* index, BCDDate* q) {
     int16_t start   =  0;           /* Sub-array lower search limit. */
-    int16_t end     =  LOG_LEN - 1; /* Sub-array upper search limit. */
+    int16_t end     =  log.count - 1; /* Sub-array upper search limit. */
 
     BCDDate dt;                     /* Loaded record date. */
     int16_t cmp;                    /* Comparison result. */
