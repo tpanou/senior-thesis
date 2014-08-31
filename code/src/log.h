@@ -36,16 +36,6 @@
 #include <inttypes.h>
 
 /**
-* @brief The amount of total records to store in the EEPROM Log.
-*/
-#define LOG_LEN             90
-
-/**
-* @brief The EEPROM address to start storing log records.
-*/
-#define LOG_BASE_ADDR       34
-
-/**
 * @brief Shorthand to calculate the address of a physical offset.
 */
 #define LOG_ADDR(offset)   (LOG_BASE_ADDR + offset*sizeof(LogRecord))

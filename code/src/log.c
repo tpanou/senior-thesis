@@ -1,8 +1,16 @@
 #include "log.h"
-
+#include "defs.h"
 #include <avr/eeprom.h>
 
 #include "string.h"
+
+/**
+* @brief Avoid first byte.
+*
+* This is to ensure that no sensitive data will be stored on the first EEPROM
+* byte.
+*/
+uint8_t eeprom_dummy EEMEM;
 
 /**
 * @brief Offset of the first stored record.

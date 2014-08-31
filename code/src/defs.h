@@ -115,6 +115,24 @@ down-scaled to 4MHz, and\n
 #define QUERY_PARAM_LEN     6
 
 /**
+* @brief The amount of total records to store in the EEPROM Log.
+*
+* The available host EEPROM is 1KB, whereas each log record requires 11 bytes
+* (see #LogRecord). It is decided to keep tract of the last 90 measurements, so
+* the circular buffer requires a total of 990 bytes. From the remainder bytes,
+* two more are used; one for #log_index and one for #log_count.
+*/
+#define LOG_LEN             90
+
+/**
+* @brief The EEPROM address to start storing log records.
+*
+* The circular buffer is stored at the last 990 bytes of the EEPROM. Thus, its
+* lowest byte is at this address.
+*/
+#define LOG_BASE_ADDR       34
+
+/**
 * @brief Value of @c SPSR. This should only affect bit @c SPI2X.
 *
 * Currently, \f$ clk_{IO} \f$ is 4MHz. The 25LC1024 supports transfer rates up
