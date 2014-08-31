@@ -1,6 +1,6 @@
 
 #include "json_parser.h"
-#include "w5100/socket.h"
+#include "w5100.h"
 #include "util.h"
 #include "defs.h"
 
@@ -189,7 +189,7 @@ void json_serialise(uint8_t** tokens,
                 break;
         }
 
-        send(HTTP_SOCKET, str, k, flush);
+        net_send(HTTP_SOCKET, str, k, flush);
 
         k           =  0;
     }
