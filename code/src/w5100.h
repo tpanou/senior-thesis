@@ -410,6 +410,15 @@
 void net_socket_init(uint8_t tx, uint8_t rx);
 
 /**
+* @brief Initialises a Socket.
+*
+* @param[in] s The Socket to initialise (@c 0--@c 3).
+* @param[in] mode The mode of operation of @p s. See #NET_Sn_MR().
+* @param[in] port The port number Socket @p s should operate on.
+*/
+void net_socket_open(uint8_t s, uint8_t mode, uint16_t port);
+
+/**
 * @brief Prepare the SPI bus to communicate with the W5100.
 *
 * This function:

@@ -75,6 +75,20 @@ void net_socket_init(uint8_t tx, uint8_t rx) {
     }
 }
 
+void net_socket_open(uint8_t s, uint8_t mode, uint16_t port) {
+
+    /* Close Socket @p s. */
+    net_write8(NET_Sn_CR(s), NET_Sn_CR_CLOSE);
+    net_write8(NET_Sn_MR(s), mode);
+    net_write16(NET_Sn_PORT(s), port);
+    net_write8(NET_Sn_CR(s), NET_Sn_CR_OPEN);
+
+    /* Wait for the Socket to be opened. #NET_Sn_CR() clears automatically once
+    * the command is executed. *W5100 p.27* */
+    do {
+    } while(net_read8(NET_Sn_CR(s)));
+}
+
 void net_select() {
     /* Disable SPI, if running. */
     SPCR        =  0;
