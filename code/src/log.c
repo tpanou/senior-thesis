@@ -104,6 +104,8 @@ uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until) {
 
     set->count  = 0;
 
+    if(log.count == 0) return 0;
+
     /* Return the empty set, for improper date range. */
     if(memcmp(since, until, sizeof(BCDDate)) > 0) {
         return 0;
