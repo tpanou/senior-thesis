@@ -12,7 +12,7 @@
 #include "motor.h"
 #include "rtc.h"
 #include "log.h"
-#include "w5100/w5100.h"
+#include "w5100.h"
 
 #include <avr/pgmspace.h>
 #include <inttypes.h>
@@ -314,7 +314,7 @@ void rsrc_handle_file(HTTPRequest* req) {
     srvr_prep(TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size, TXF_lnln);
 
     fls_to_wiz(HTTP_SOCKET, page, size);
-    send(HTTP_SOCKET, NULL, 0, 1);
+    net_send(HTTP_SOCKET, NULL, 0, 1);
 }
 
 /**
@@ -406,9 +406,9 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     * for PRM_SRVR_*. */
 
     /* Load current server configuration. */
-    getGAR(gateway);
-    getSIPR(iaddr);
-    getSUBR(subnet);
+    net_read(NET_GAR,   gateway, 4);
+    net_read(NET_SIPR,  iaddr,   4);
+    net_read(NET_SUBR,  subnet,  4);
     status = TXF_STATUS_200;
 
     if(req->method == METHOD_PUT) {
@@ -498,15 +498,14 @@ void rsrc_handle_configuration(HTTPRequest* req) {
             /* Apply changes to the address after the response has been sent. */
             if(set_params) {
                 if(set_params & BV(PRM_SRVR_GATEWAY)) {
-                    setGAR(gateway);
+                    net_write(NET_GAR,  gateway, 4);
                 }
                 if(set_params & BV(PRM_SRVR_IADDR)) {
-                    setSIPR(iaddr);
+                    net_write(NET_SIPR, iaddr,   4);
                     srvr_set_host_name_ip(iaddr);
                 }
                 if(set_params & BV(PRM_SRVR_SUBNET)) {
-                    setSUBR(subnet);
-                    applySUBR();
+                    net_write(NET_SUBR, subnet,  4);
                 }
             }
 

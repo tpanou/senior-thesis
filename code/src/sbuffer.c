@@ -1,5 +1,6 @@
 
 #include "sbuffer.h"
+#include "w5100.h"
 #include <stdio.h>
 
 /**
@@ -122,7 +123,7 @@ int8_t s_drop(uint16_t count) {
 }
 
 static int8_t s_update() {
-    uint16_t rx_size = getSn_RX_RSR(buf_Sn); /* Amount of available data. */
+    uint16_t rx_size = net_read16(NET_Sn_RX_RSR(buf_Sn)); /* Available data. */
     uint16_t fragment; /* Actual amount of bytes to be read. */
 
     /* Read a chunk from the available data up to a maximum of @c NET_BUF_SIZE
@@ -144,13 +145,13 @@ static int8_t s_update() {
         if(buf_WR + fragment > NET_BUF_LEN) {
             uint16_t bound = NET_BUF_LEN - buf_WR;
 
-            recv(buf_Sn, &(buf[buf_WR]), bound); /* Read up to buffer limit. */
+            net_recv(buf_Sn, &(buf[buf_WR]), bound); /* Read up to buffer limit. */
 
             /* Read the remainder of bytes. */
-            recv(buf_Sn, buf, fragment - bound);
+            net_recv(buf_Sn, buf, fragment - bound);
             buf_WR  = fragment - bound;     /* Update WR offset. */
         } else {
-            recv(buf_Sn, &(buf[buf_WR]), fragment);
+            net_recv(buf_Sn, &(buf[buf_WR]), fragment);
             buf_WR += fragment; /* Update WR offset. */
         }
 

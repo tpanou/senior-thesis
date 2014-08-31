@@ -2,10 +2,9 @@
 #include "http_parser.h"
 #include "json_parser.h"
 #include "resource.h"
+#include "w5100.h"
 #include "sbuffer.h"
 #include "util.h"
-
-#include "w5100/socket.h"
 
 #include <avr/pgmspace.h>
 #include <stdarg.h>
@@ -194,17 +193,17 @@ int16_t srvr_prep_chunk_head(uint16_t num) {
         --i;
     }
 
-    return send(HTTP_SOCKET, size, 6, 0);
+    return net_send(HTTP_SOCKET, size, 6, 0);
 }
 
 int16_t srvr_compile(uint8_t flush, ...) {
-    int16_t outcome = 0;        /* As returned from send(). */
+    int16_t outcome = 0;        /* As returned from net_send(). */
     uint8_t buf[TXF_BUF_LEN];   /* Stores a fragment until it is sent. */
     uint8_t* str;               /* Pointer to the string to actually send. */
     unsigned int txf_id;        /* Value of any optional argument; txf index. */
     va_list ap;                 /* Optional argument reference. */
     uint8_t do_allcap = 0;      /* Flag to make next fragment all upper-case. */
-    uint8_t do_send;            /* Flag to call send() in current iteration. */
+    uint8_t do_send;            /* Flush flag of the current iteration. */
 
     va_start(ap, flush);
     txf_id = va_arg(ap, unsigned int);
@@ -251,7 +250,7 @@ int16_t srvr_compile(uint8_t flush, ...) {
                 do_allcap   =  0;
             }
 
-            outcome = send(HTTP_SOCKET, str, strlen(str), 0);
+            outcome = net_send(HTTP_SOCKET, str, strlen(str), 0);
         }
 
         txf_id = (unsigned int)va_arg(ap, unsigned int);
@@ -260,7 +259,7 @@ int16_t srvr_compile(uint8_t flush, ...) {
     /* Flush all buffered data, if so specified. This should be avoided in case
     * any of the mentioned text fragments could not be written, because, then,
     * the text would not be complete / correct. */
-    if(flush && outcome >= 0) outcome = send(0, buf, 0, 1);
+    if(flush && outcome >= 0) outcome = net_send(0, buf, 0, 1);
 
     va_end(ap);
     return outcome;
