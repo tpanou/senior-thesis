@@ -35,6 +35,18 @@ void task_log_samples(uint8_t count);
 uint8_t task_log_sample(Position* pos);
 
 /**
+* @brief Create an acceptable random coordinate.
+*
+* The coordinates returned by this function respect the current operating range
+* (see, motor_get_max()). The initial values of @p x and @p y are used as part
+* of the seeding.
+*
+* @param[in, out] x The generated @c x position.
+* @param[in, out] y The generated @c y position.
+*/
+static void make_target(uint8_t* x, uint8_t* y);
+
+/**
 * @brief Motor event handler.
 *
 * It is responsible for performing the requested amount of measurements and

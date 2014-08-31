@@ -36,6 +36,19 @@ uint8_t task_log_sample(Position* pos) {
     return 0;
 }
 
+static void make_target(uint8_t* x, uint8_t* y) {
+    BCDDate dt;
+    uint8_t day;
+    Position max;
+    uint8_t seed;
+
+    get_date(&dt, &day);
+    motor_get_max(&max);
+    seed    =  dt.sec + dt.min + *x + *y;
+    *x      =  seed        % max.x;
+    *y      = (seed + day) % max.y;
+}
+
 static void task_handle_motor(Position pos, uint8_t evt) {
     printf("Motor handler: %d @ [%d,%d,%d]\n", evt, pos.x, pos.y, pos.z);
 
