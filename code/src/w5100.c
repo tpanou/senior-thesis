@@ -83,3 +83,58 @@ void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint8_t len) {
     _delay_us(1);
     SPCR       &= ~_BV(SPE);
 }
+
+uint16_t net_send(uint8_t s, uint8_t* buf, uint16_t len, uint8_t flush) {
+    uint16_t free_size  =  net_read16(NET_Sn_TX_FSR(s));
+    uint16_t s_content  =  socket_contents[s];
+
+    /* Is there enough available space? */
+    if(free_size < s_content + len) return free_size - s_content - len;
+
+    /* Send data from local buffer to W5100 buffer. */
+
+    uint16_t tx_WR      =  net_read16(NET_Sn_TX_WR(s));
+
+    /* Offset from the (sub)buffer base. */
+    uint16_t tx_offset  =  (tx_WR + s_content) & tx_mask[s];
+
+    /* Physical address to start writing to. */
+    uint16_t start_addr =  tx_base[s] + tx_offset;
+    uint16_t sock_size  =  tx_mask[s] + 1;
+
+    /* If the requested bytes (len) exceed the buffer limit, then overflow will
+    * occur. Write data from current offset up to limit (upper-bound), and
+    * then, the remainder of bytes starting from the (sub)buffer base. */
+    if((tx_offset + len) > sock_size ) {
+        /* Bytes until upper-bound. */
+        uint16_t bound  = sock_size - tx_offset;
+
+        /* Write bytes up to upper-bound. */
+        net_write(start_addr, buf, bound);
+
+        /* Write the rest of the bytes starting off from the base. */
+        net_write(tx_base[s], buf + bound, len - bound);
+
+    } else {
+        net_write(start_addr, buf, len);
+    }
+
+    /* Update WR pointer for future operations. */
+
+    s_content  +=  len;
+    if(flush) {
+        uint8_t status;
+        tx_WR  +=  s_content;
+
+        net_write16(NET_Sn_TX_WR(s), tx_WR);
+        net_write8(NET_Sn_CR(s), NET_Sn_CR_SEND);
+
+        do {
+            status = net_read8(NET_Sn_IR(s));
+        } while((status & NET_Sn_IR_SEND_OK) != NET_Sn_IR_SEND_OK);
+
+        s_content = 0;
+    }
+    socket_contents[s]  =  s_content;
+    return sock_size    -  s_content;
+}

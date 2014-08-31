@@ -467,5 +467,26 @@ void inline net_read(uint16_t addr, uint8_t* buf, uint8_t len);
 */
 void net_exchange(uint8_t c, uint16_t addr, uint8_t* buf, uint8_t len);
 
+/**
+* @brief Send data to a W5100 Socket output buffer.
+*
+* It is safe to call this function with a @p len of @c 0 and @p flush of
+* non-zero to sent any previously set W5100 buffer data on socket @p s. In this
+* case, @p buf could be @c NULL.
+*
+* @param[in] s The socket to send data to.
+* @param[in] buf Array containing bytes to send. This should be at least @p len
+*   bytes long.
+* @param[in] The number of bytes to copy from @p buf into the W5100 output
+*   buffer.
+* @param[in] flush Designates whether data in @buf along with all previously
+*   unsent data of socket @p s should be sent out with this call.
+* @returns @c The available space in the output buffer of W5100 for socket @c s
+*   (after appending @p len bytes from @p buf), if @p flush was @c 0; the socket
+*   size (in bytes), if the buffer was just flushed (ie, @p flush was non-zero);
+*   a negative number for the amount of bytes that cannot fit into the available
+*   space.
+*/
+uint16_t net_send(uint8_t s, uint8_t* buf, uint16_t len, uint8_t flush);
 #endif /* W5100_H_INCL */
 /** @} */
