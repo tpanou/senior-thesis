@@ -132,8 +132,10 @@ typedef struct {
 /**
 * @brief Set the RTC time.
 *
+* It is a convenience wrapper around rtc_write().
+*
 * @param[in] rtc The bytes to send to the RTC. If @c -1 is returned, not all
-* bytes may have been sent to the RTC.
+*   bytes may have been sent to the RTC.
 * @returns @c 0 on success; @c -1, otherwise.
 */
 int8_t rtc_set(RTCMap* rtc);
@@ -141,27 +143,50 @@ int8_t rtc_set(RTCMap* rtc);
 /**
 * @brief Get the RTC time.
 *
-* Updates the member of @p rtc to reflect the RTC values.
+* Updates the members of @p rtc to reflect the RTC values (first 8 Bytes). It is
+* a convenience wrapper around rtc_read().
 *
 * @param[out] rtc The bytes received from the RTC. If @c -1 is returned, the
-* contents of @p rtc may be partially updated.
+*   contents of @p rtc may be partially updated.
 * @returns @c 0 on success; @c -1, otherwise.
 */
 int8_t rtc_get(RTCMap* rtc);
 
 /**
-* @brief Reset the DS1307 register pointer back to the first address.
+* @brief Write a number of bytes to the RTC memory.
+*
+* @param[in] addr The RTC word address to start writing to (@c 0--@c 3F).
+* @param[out] buf An array of bytes to send to the RTC.
+* @param[in] len The number of bytes to send.
+* @returns @c 0 on success; @c -1, otherwise.
+*/
+int8_t rtc_write(uint8_t addr, uint8_t* buf, uint8_t len);
+
+/**
+* @brief Read a number of bytes from the RTC memory.
+*
+* @param[in] addr The RTC word address to start reading from (@c 0--@c 3F).
+* @param[out] buf A pre-allocated array to write the bytes read from the RTC
+*   memory into.
+* @param[in] len The number of bytes to read. @p buf should be at least this
+*   large.
+* @returns @c 0 on success; @c -1, otherwise.
+*/
+int8_t rtc_read(uint8_t addr, uint8_t* buf, uint8_t len);
+
+/**
+* @brief Set the DS1307 register pointer to the specified address.
 *
 * The DS1307 utilizes an internal register pointer for all read and write
 * operations so that each time a byte is sent or received, the pointer is
-* automatically incremented to point to the memory address (*DS1307 p.12*). This
-* function helps to reset this register pointer back to @c 0.
+* automatically incremented to point to the next memory address (*DS1307 p.12*).
+* This function helps to set the initial value of that register pointer.
 *
 * Note, this function does not release the TWI bus upon successful pointer
 * initialization but only in the event of a failure.
 *
 * @returns @c 0 on success; @c -1, otherwise.
 */
-static int8_t rtc_reset_pointer();
+static int8_t rtc_set_pointer(uint8_t addr);
 
 #endif /* RTC_H_INCL */
