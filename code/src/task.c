@@ -8,6 +8,7 @@
 #include <util/delay.h>
 
 static uint8_t pending_samples;
+static uint8_t pending_task;
 
 void task_init() {
 
@@ -23,6 +24,7 @@ void task_log_samples(uint8_t count) {
 
         motor_set(pos);
         pending_samples     =  count;
+        pending_task    =  1;
     }
 }
 
@@ -35,7 +37,12 @@ uint8_t task_log_sample(Position* pos) {
     if(motor_set(*pos)) return -1;
 
     pending_samples =  1;       /* Schedule a single sampling. */
+    pending_task    =  1;
     return 0;
+}
+
+uint8_t task_pending() {
+    return pending_task;
 }
 
 static void make_target(uint8_t* x, uint8_t* y) {
@@ -53,9 +60,13 @@ static void make_target(uint8_t* x, uint8_t* y) {
 
 static void task_handle_motor(Position pos, uint8_t evt) {
 
-    if(pending_samples) {
-        switch(evt) {
-            case MTR_EVT_OK:
+    switch(evt) {
+        case MTR_EVT_BUSY:
+            pending_task   =  1;
+
+        break;
+        case MTR_EVT_OK:
+            if(pending_samples) {
                 /* Take a sample, if the sensor head is submerged. */
                 if(pos.z == 0) {
                     LogRecord rec;
@@ -104,7 +115,9 @@ static void task_handle_motor(Position pos, uint8_t evt) {
                 }
 
                 motor_set(pos);
-            break;
-        }
+            } else {
+                pending_task   =  0;
+            }
+        break;
     }
 }

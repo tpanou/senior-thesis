@@ -35,6 +35,13 @@ void task_log_samples(uint8_t count);
 uint8_t task_log_sample(Position* pos);
 
 /**
+* @brief Returns whether there are registered tasks still in progress.
+*
+* @returns @c 0, if there are not; non-zero, otherwise.
+*/
+uint8_t task_pending();
+
+/**
 * @brief Create an acceptable random coordinate.
 *
 * The coordinates returned by this function respect the current operating range
