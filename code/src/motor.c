@@ -127,9 +127,13 @@ void motor_reset() {
         * engaged while under normal motor operation, retry reaching #new_pos
         * anew. */
         if(bit_is_set(motor_status, MTR_LIMIT)) {
-            if(motor_update()) motor_stop();
+            if(motor_update()) {
+                motor_stop();
+                MTR_CALL(cur_pos, MTR_EVT_OK);
+            }
         } else {
             new_pos     =  cur_pos;
+            MTR_CALL(cur_pos, MTR_EVT_OK);
         }
 
         motor_status   &= ~(_BV(MTR_RESET) | _BV(MTR_LIMIT)
@@ -315,6 +319,7 @@ static void motor_start() {
     /* This is what actually enables PWM generation and should be called after
     * preparing the Timer/Counters (velocity settings). */
     MTR_PWM_START();
+    MTR_CALL(cur_pos, MTR_EVT_BUSY);
 }
 
 static void motor_stop() {
