@@ -14,6 +14,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/sfr_defs.h>   /* e.g. loop_until_bit_is_set() */
+#include <avr/sleep.h>
 
 #include <util/delay.h>
 
@@ -79,10 +80,17 @@ int main() {
         puts("HTTP socket has been opened and is waiting for connections.");
     }
 
+    set_sleep_mode(_BV(SM1));
+
     sei();
 
-    while(1)
-        ;
+    while(1) {
+        if(!task_pending()) {
+            sleep_enable();
+            sleep_cpu();
+            sleep_disable();
+        }
+    }
 
     return 0;
 }
