@@ -7,6 +7,9 @@
 #include <inttypes.h>
 
 static int8_t rtc_reset_pointer() {
+    /* Make sure to re-initialise the internal TWI state machine after a
+    * possible power-down. */
+    TWI_INIT();
 
     /* Send start condition. */
     TWI_ATTEMPT(TWI_START(), TWI_SSTART);
