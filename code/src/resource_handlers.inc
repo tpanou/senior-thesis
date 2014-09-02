@@ -374,7 +374,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 
    /* Load current maximum position. */
     Position  max;
-    motor_get_max(&max);
+    sys_get(SYS_MTR_MAX, &max);
 
     /* Set-up acceptable parser parameters. */
     ParamValue params[]     =  {PARAM_STRING(s_date, PRM_DATE_LEN),
@@ -408,9 +408,9 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     * for PRM_SRVR_*. */
 
     /* Load current server configuration. */
-    net_read(NET_GAR,   gateway, 4);
-    net_read(NET_SIPR,  iaddr,   4);
-    net_read(NET_SUBR,  subnet,  4);
+    sys_get(SYS_GATEWAY, gateway);
+    sys_get(SYS_IADDR, iaddr);
+    sys_get(SYS_SUBNET, subnet);
     status = TXF_STATUS_200;
 
     if(req->method == METHOD_PUT) {
@@ -465,13 +465,17 @@ void rsrc_handle_configuration(HTTPRequest* req) {
             || PARAM_IS_SET(params, PRM_SRVR_Y)
             || PARAM_IS_SET(params, PRM_SRVR_Z)) {
 
-                /* If the exceed the physical limits of the device, return the
+                /* If the physical limits of the device are exceeded, return the
                 * absolute maximum values. */
-                if(motor_set_max(&max)) {
+                if(max.x > GRID_X_LEN
+                || max.y > GRID_Y_LEN
+                || max.z > GRID_Z_LEN) {
                     status      =  TXF_STATUS_400;
                     max.x       =  GRID_X_LEN;
                     max.y       =  GRID_Y_LEN;
                     max.z       =  GRID_Z_LEN;
+                } else {
+                    sys_set(SYS_MTR_MAX, (uint8_t*)&max);
                 }
             }
 
@@ -500,14 +504,13 @@ void rsrc_handle_configuration(HTTPRequest* req) {
             /* Apply changes to the address after the response has been sent. */
             if(set_params) {
                 if(set_params & BV(PRM_SRVR_GATEWAY)) {
-                    net_write(NET_GAR,  gateway, 4);
+                    sys_set(SYS_GATEWAY,  gateway);
                 }
                 if(set_params & BV(PRM_SRVR_IADDR)) {
-                    net_write(NET_SIPR, iaddr,   4);
-                    srvr_set_host_name_ip(iaddr);
+                    sys_set(SYS_IADDR,  iaddr);
                 }
                 if(set_params & BV(PRM_SRVR_SUBNET)) {
-                    net_write(NET_SUBR, subnet,  4);
+                    sys_set(SYS_SUBNET,  subnet);
                 }
             }
 
@@ -651,7 +654,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
                       TXF_lnln);
 
             /* Return maximum values. */
-            motor_get_max(&npos);
+            sys_get(SYS_MTR_MAX, &npos);
 
             (*serialiser)(tokens, params, 3, SERIAL_DEFAULT);
         break;
