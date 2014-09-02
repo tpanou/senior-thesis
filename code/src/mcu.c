@@ -10,7 +10,9 @@
 #include "resource.h"
 #include "w5100.h"
 
+#ifdef ENABLE_SERIAL_IO
 #include "flash.h"
+#endif /* ENABLE_SERIAL_IO */
 
 #include "motor.h"
 #include "twi.h"
@@ -23,9 +25,25 @@
 #include <util/delay.h>
 #include <inttypes.h>
 
+#ifdef ENABLE_SERIAL_IO
+/**
+* @brief Output stream over the USART.
+*
+* This stream is configured as the default output and error streams (stdout,
+* stderr).
+*/
+FILE usart_output = FDEV_SETUP_STREAM(usart_putchar, NULL, _FDEV_SETUP_WRITE);
 
 /**
-* @brief Initializes MCU and resets all hardware.
+* @brief Input stream over the USART.
+*
+* This stream is configured as the default input stream (stdin).
+*/
+FILE usart_input  = FDEV_SETUP_STREAM(NULL, usart_getchar, _FDEV_SETUP_READ);
+#endif /* ENABLE_SERIAL_IO */
+
+/**
+* @brief Initialise MCU and resets all hardware.
 */
 int main() {
 
@@ -42,12 +60,14 @@ int main() {
     /** - Setup CPU clock. */
     init_clock();
 
+#ifdef ENABLE_SERIAL_IO
     /** - Setup USART prescaler and enable receiver and transmitter. */
     init_usart();
 
     /** - Setup I/O streams. */
     stdout      = &usart_output;
     stdin       = &usart_input;
+#endif /* ENABLE_SERIAL_IO */
 
     _delay_ms(1000);
 
@@ -220,17 +240,18 @@ static void init() {
     motor_set_max(&max);
 }
 
-int usart_putchar(char c, FILE* stream) {
-    loop_until_bit_is_set(UCSR0A, UDRE0);
-    UDR0        = c;
-    return 0;
+void init_clock() {
+    /* Clock Prescaler Change Enable bit (CLKPCE) of CLKPR must first be set
+    while all other bits are cleared. */
+    CLKPR       = _BV(CLKPCE);
+
+    /* Then, within four clock cycles, the appropriate prescaler bits of the
+    same register are set while the CLKPCE bit is cleared. For a clock
+    frequency of 4MHz, only CLKPS1 needs to be set. Atmel pp.34--37. */
+    CLKPR       = _BV(CLKPS1);
 }
 
-int usart_getchar(FILE* stream) {
-    loop_until_bit_is_set(UCSR0A, RXC0);
-    return UDR0;
-}
-
+#ifdef ENABLE_SERIAL_IO
 ISR(USART_RX_vect) {
     uint8_t     buf[256];
     uint16_t    page;
@@ -255,18 +276,18 @@ ISR(USART_RX_vect) {
     fls_command(FLS_WREN, NULL);
     fls_exchange(FLS_WRITE, page, buf, len);
 
-    printf(" [page:%d,len:%d]\n\n", page, len);
+    fls_wait_WIP();
 }
 
-void init_clock() {
-    /* Clock Prescaler Change Enable bit (CLKPCE) of CLKPR must first be set
-    while all other bits are cleared. */
-    CLKPR       = _BV(CLKPCE);
+int usart_putchar(char c, FILE* stream) {
+    loop_until_bit_is_set(UCSR0A, UDRE0);
+    UDR0        = c;
+    return 0;
+}
 
-    /* Then, within four clock cycles, the appropriate prescaler bits of the
-    same register are set while the CLKPCE bit is cleared. For a clock
-    frequency of 4MHz, only CLKPS1 needs to be set. Atmel pp.34--37. */
-    CLKPR       = _BV(CLKPS1);
+int usart_getchar(FILE* stream) {
+    loop_until_bit_is_set(UCSR0A, RXC0);
+    return UDR0;
 }
 
 void init_usart() {
@@ -280,3 +301,4 @@ void init_usart() {
     /* Enable Rx-complete interrupts, Receiver and Transmitter. */
     UCSR0B      = _BV(RXCIE0) | _BV(RXEN0) | _BV(TXEN0);
 }
+#endif /* ENABLE_SERIAL_IO */
