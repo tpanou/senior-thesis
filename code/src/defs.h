@@ -55,6 +55,26 @@ typedef struct {
 } BCDDate;
 
 /**
+* @brief Default device IP address.
+*/
+#define FACTORY_IADDR       192, 168, 1, 73
+
+/**
+* @brief Default device gateway address.
+*/
+#define FACTORY_GATEWAY     192, 168, 1, 1
+
+/**
+* @brief Default device subnet mask.
+*/
+#define FACTORY_SUBNET      255, 255, 255, 0
+
+/**
+* @brief Default device hardware address.
+*/
+#define FACTORY_HADDR       0xBE, 0xEB, 0xEE, 0xBE, 0xEB, 0xEE
+
+/**
 * @brief User-data RTC memory address.
 *
 * The RTC (DS1307) provides 56 Bytes of user-defined battery-backed RAM. This is
