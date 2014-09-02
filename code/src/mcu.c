@@ -34,6 +34,11 @@ int main() {
     /* Disable all interrupts during this procedure. */
     cli();
 
+    /* Always disable the Watchdog Timer, even if it is not used. *Atmel
+    * p.52* */
+    MCUSR      &= ~_BV(WDRF);
+    WDTCSR     &= ~_BV(WDE);
+
     /** - Setup CPU clock. */
     init_clock();
 
