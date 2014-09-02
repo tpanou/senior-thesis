@@ -95,6 +95,31 @@ int main() {
     return 0;
 }
 
+void sys_get(uint8_t setting, void* value) {
+    switch(setting) {
+        case SYS_IADDR:
+            net_read(NET_SIPR, value, 4);
+
+        break;
+        case SYS_GATEWAY:
+            net_read(NET_GAR, value, 4);
+
+        break;
+        case SYS_SUBNET:
+            net_read(NET_SUBR, value, 4);
+
+        break;
+        case SYS_HADDR:
+            net_read(NET_SHAR, value, 6);
+
+        break;
+        case SYS_MTR_MAX:
+            motor_get_max(value);
+
+        break;
+    }
+}
+
 int8_t sys_set(uint8_t setting, void* value) {
     int8_t ret;
 

@@ -125,6 +125,19 @@ typedef struct {
 #define SYS_MTR_MAX_Z  (SYS_MTR_MAX_Y   + 0x01)
 
 /**
+* @brief Get device configuration settings.
+*
+* For a list of available settings, see SYS_* macros. This is provided only for
+* convenience and as a match to sys_set(); it is not necessary to prefer this
+* function over API-specific ones. Also, this function does not access the
+* backup memory.
+*
+* @param[in] setting The system setting to read.
+* @param[out] value The value of @p setting.
+*/
+void sys_get(uint8_t setting, void* value);
+
+/**
 * @brief Set device configuration settings.
 *
 * The purpose of this function is two-fold; it provides an easy way to pass
