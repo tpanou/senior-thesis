@@ -55,6 +55,33 @@ typedef struct {
 } BCDDate;
 
 /**
+* @brief Set device configuration settings.
+*
+* The purpose of this function is two-fold; it provides an easy way to pass
+* settings to various modules without the need to use their respective API
+* (which may be too verbose at times); it stores a copy of those settings to a
+* backup memory.
+*
+* For a list of available settings, see SYS_* macros. It should be noted that
+* this is the *preferred* way of updating the settings for which such a macro is
+* provided.
+*
+* The backup memory allows settings persistence even if the device is completely
+* disconnected from the mains. Currently, the backup memory is assigned to the
+* battery-backed RTC RAM which allows resetting to factory default settings, if
+* the battery is temporarily removed.
+*
+* @param[in] setting The system setting to update.
+* @param[in] value The new value of @p setting.
+* @returns @c 0 on success; @c -1, otherwise. Failure designates the setting
+*   could not be written due to a communication error with the backup memory
+*   and *not* due to an erroneous value; if the underlying module rejects the
+*   supplied value, no indication is given by this function. The callee should
+*   only supply valid values.
+*/
+int8_t sys_set(uint8_t setting, void* value);
+
+/**
 @brief The frequency of CPU clock, required by <avr/delay.h> convenience
 functions.
 */

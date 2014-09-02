@@ -95,6 +95,41 @@ int main() {
     return 0;
 }
 
+int8_t sys_set(uint8_t setting, void* value) {
+    int8_t ret;
+
+    switch(setting) {
+        case SYS_IADDR:
+            net_write(NET_SIPR, value, 4);
+            ret =  rtc_write(SYS_IADDR, value, 4);
+            srvr_set_host_name_ip(value);
+
+        break;
+        case SYS_GATEWAY:
+            net_write(NET_GAR, value, 4);
+            ret =  rtc_write(SYS_GATEWAY, value, 4);
+
+        break;
+        case SYS_SUBNET:
+            net_write(NET_SUBR, value, 4);
+            ret =  rtc_write(SYS_SUBNET, value, 4);
+
+        break;
+        case SYS_HADDR:
+            net_write(NET_SHAR, value, 6);
+            ret =  rtc_write(SYS_HADDR, value, 6);
+
+        break;
+        case SYS_MTR_MAX:
+            motor_set_max(value);
+            ret =  rtc_write(SYS_MTR_MAX, value, 3);
+        break;
+
+    }
+
+    return ret;
+}
+
 /**
 * @brief Initialise the various modules.
 *
