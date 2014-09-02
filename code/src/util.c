@@ -239,8 +239,9 @@ void fls_to_wiz(uint8_t s, uint16_t page, uint16_t len) {
 
         /* Read @c size bytes from the Flash. */
         fls_exchange(FLS_READ, page, buf, size);
+
         /* Send them to the W5100 HTTP server output buffer. */
-        send(s, buf, size, 0);
+        net_send(s, buf, size, 0);
 
         /* Prepare for the next iteration. */
         ++page;
