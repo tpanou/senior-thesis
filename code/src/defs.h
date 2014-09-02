@@ -55,6 +55,56 @@ typedef struct {
 } BCDDate;
 
 /**
+* @brief User-data RTC memory address.
+*
+* The RTC (DS1307) provides 56 Bytes of user-defined battery-backed RAM. This is
+* the address of the first available byte.
+*
+* Also, see sys_set().
+*/
+#define RTC_BASE        0x08
+
+/**
+* @brief Backup memory address of IP address.
+*/
+#define SYS_IADDR      (RTC_BASE        + 0x00)
+
+/**
+* @brief Backup memory address of Gateway address.
+*/
+#define SYS_GATEWAY    (SYS_IADDR       + 0x04)
+
+/**
+* @brief Backup memory address of Subnet mask.
+*/
+#define SYS_SUBNET     (SYS_GATEWAY     + 0x04)
+
+/**
+* @brief Backup memory address of Hardware address.
+*/
+#define SYS_HADDR      (SYS_SUBNET      + 0x04)
+
+/**
+* @brief Backup memory address of operating range.
+*/
+#define SYS_MTR_MAX    (SYS_HADDR       + 0x06)
+
+/**
+* @brief Backup memory address of axis X maximum value.
+*/
+#define SYS_MTR_MAX_X  (SYS_HADDR       + 0x06)
+
+/**
+* @brief Backup memory address of axis Y maximum value.
+*/
+#define SYS_MTR_MAX_Y  (SYS_MTR_MAX_X   + 0x01)
+
+/**
+* @brief Backup memory address of axis Z maximum value.
+*/
+#define SYS_MTR_MAX_Z  (SYS_MTR_MAX_Y   + 0x01)
+
+/**
 * @brief Set device configuration settings.
 *
 * The purpose of this function is two-fold; it provides an easy way to pass
