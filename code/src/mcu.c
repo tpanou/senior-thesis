@@ -95,6 +95,74 @@ int main() {
     return 0;
 }
 
+/**
+* @brief Initialise the various modules.
+*
+* It should be noted that this function sets the motor operating range
+* (motor_set_max()). As a result, upon completion, the motors will be resetting.
+*/
+static void init() {
+    uint8_t settings[]  =  {FACTORY_IADDR,
+                            FACTORY_GATEWAY,
+                            FACTORY_SUBNET,
+                            FACTORY_HADDR,
+                            GRID_X_LEN, GRID_Y_LEN, GRID_Z_LEN};
+    Position max;
+
+    uint8_t rtc_sec;
+    rtc_read(0, &rtc_sec, 1);
+
+    /* If bit #RTC_CH is set, then the clock is not running. The implementation
+    * never stops the RTC from running, so it may just be the battery supply was
+    * removed to reset to factory (default) settings. */
+    if(bit_is_set(rtc_sec, RTC_CH)) {
+
+        /* Write factory settings into the RTC memory. */
+        rtc_write(RTC_BASE, settings, 21);
+
+    /* Load battery-backed (RTC) settings. */
+    } else {
+
+        rtc_read(RTC_BASE, settings, 21);
+    }
+
+    max.x = settings[SYS_MTR_MAX_X - RTC_BASE];
+    max.y = settings[SYS_MTR_MAX_Y - RTC_BASE];
+    max.z = settings[SYS_MTR_MAX_Z - RTC_BASE];
+
+    /* Network module */
+    /* Setup buffer size. #HTTP_SOCKET is configured to 8KB on Tx and Rx). */
+    net_socket_init(NET_SIZEn(HTTP_SOCKET, NET_SIZE_8),
+                    NET_SIZEn(HTTP_SOCKET, NET_SIZE_8));
+
+    /* Pass server settings to the W5100 and the HTTP server module. */
+    srvr_set_host_name_ip(  &settings[SYS_IADDR -   RTC_BASE]);
+    net_write(NET_SIPR,     &settings[SYS_IADDR -   RTC_BASE], 4);
+    net_write(NET_GAR,      &settings[SYS_GATEWAY - RTC_BASE], 4);
+    net_write(NET_SUBR,     &settings[SYS_SUBNET -  RTC_BASE], 4);
+    net_write(NET_SHAR,     &settings[SYS_HADDR -   RTC_BASE], 6);
+
+    /* Mode register (MR) defaults look OK. The same applies for RTR (200ms
+    * intervals) and RCR (8 retries). */
+
+    /* Enable interrupts on HTTP_SOCKET. */
+    net_write8(NET_IMR, NET_IR_Sn(HTTP_SOCKET));
+
+    /* Setup #HTTP_SOCKET for HTTP (TCP on port 80). */
+    net_socket_open(HTTP_SOCKET, NET_Sn_MR_TCP, 80);
+    net_write8(NET_Sn_CR(HTTP_SOCKET), NET_Sn_CR_LISTEN);
+
+    /* Other modules */
+    task_init();
+    srvr_init();
+    rsrc_init();
+    log_init();
+    motor_init();
+
+    /* Set operating range *after* the motors have been initialised. */
+    motor_set_max(&max);
+}
+
 int usart_putchar(char c, FILE* stream) {
     loop_until_bit_is_set(UCSR0A, UDRE0);
     UDR0        = c;
