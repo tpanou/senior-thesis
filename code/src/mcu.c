@@ -4,22 +4,28 @@
 
 #include "mcu.h"
 #include "defs.h"
+
 #include "net.h"
-#include "web_server.h"
+#include "http_server.h"
+#include "resource.h"
+#include "w5100.h"
+
 #include "flash.h"
 
-#include "w5100/w5100.h"
-#include "w5100/socket.h"
+#include "motor.h"
+#include "twi.h"
+#include "rtc.h"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/sfr_defs.h>   /* e.g. loop_until_bit_is_set() */
 #include <avr/sleep.h>
 
 #include <util/delay.h>
+#include <inttypes.h>
+
 
 /**
-@brief Initializes MCU and resets all hardware.
+* @brief Initializes MCU and resets all hardware.
 */
 int main() {
 
@@ -38,50 +44,36 @@ int main() {
     stdout      = &usart_output;
     stdin       = &usart_input;
 
-    DDRD        |= _BV(NET_RST);
-    /* Assert W5100 RST pin low for at least 2us when power is first applied.
-    * *WIZnet p.9.* */
-    _delay_us(5);
-    PORTD       |= _BV(NET_RST);
+    _delay_ms(1000);
 
-    /** - Enable external interrupts on INT0 (on low level, by default). *Atmel
-    * p.72.* */
-    EIMSK       |= _BV(INT0);
+    /* When in Master SPI mode, if SS is input low, MSTR bit will be cleared. */
+    DDRB       |= _BV(DDB2);
 
-    /* Setup buffer size for each socket (for now, 2kBytes each, both on Rx and
-    * Tx). */
-    sysinit(0x55, 0x55);
+    /** - Enable external interrupts on INT1 (on low level, by default). *Atmel
+    * p.72* */
+    EIMSK      |= _BV(INT1);
 
-    uint8 gateway[]     = {192, 168,   1, 1};
-    uint8 subnet[]      = {255, 255, 255, 0};
-    uint8 inet[]        = {192, 168,   1, 73};
-    uint8 mac[]         = {0xBE, 0xEF, 0xBE, 0xEF, 0xBE, 0xEF};
+    /* Pins connected to @c nCS, @c S0 and @c S1 of @c MUX are used as output,
+    * while the pin connected to @c 2Z is used as input. Pins for the optical
+    * encoder enable are also set. XZ-motor enable pins need not be set as
+    * output as well because they are physically connected to @c S0 and @c S1 of
+    * @c MUX. */
+    MUX_nCS_DDR    |=  _BV(MUX_nCS);
+    MUX_S0_DDR     |=  _BV(MUX_S0);
+    MUX_S1_DDR     |=  _BV(MUX_S1);
+    MUX_2Z_DDR     &= ~_BV(MUX_2Z);
 
-    setGAR(gateway);
-    setSIPR(inet);
-    setSUBR(subnet);    /* This merely sets a global variable. */
-    applySUBR(subnet);  /* This actually passes the address into W5100. */
-    setSHAR(mac);
+    /* Have MUX disabled, by default. */
+    MUX_DISABLE();
 
-    set_host_name_ip(inet); /* Set the HTTP server host name. */
+    /* SCLK, MOSI */
+    DDRB   |= _BV(DDB5) | _BV(DDB3);
+    DDRD   |= _BV(DDD7);
 
-    /* Mode register (MR) defaults look OK. The same applies for RTR (200ms
-    * intervals) and RCR (8 retries). */
-
-    IINCHIP_WRITE(IMR, IR_SOCK(0)); /* Enable interrupts for socket 0. */
-
-    socket0_handler_ptr = &socket0_handler;
-
-    /* Setup socket `s' for HTTP (TCP on port 80). */
-    if(socket(0, Sn_MR_TCP, 80, 0)) {
-        /* Set port to listen for requests. */
-        listen(0);
-
-        puts("HTTP socket has been opened and is waiting for connections.");
-    }
+    /* Initialise the remaining modules. */
+    init();
 
     set_sleep_mode(_BV(SM1));
-
     sei();
 
     while(1) {
