@@ -17,7 +17,7 @@
 #define BCD8_TO_INTERVAL(h, m)     (FROM_BCD8(h) * (60/6) + FROM_BCD8(m) / 6)
 
 static uint8_t pending_samples;
-static uint8_t pending_task;
+static uint8_t task_is_pending;
 
 /**
 * @brief Time-stamp of the most recent measurement.
@@ -86,7 +86,7 @@ void task_log_samples(uint8_t count) {
 
         motor_set(pos);
         pending_samples     =  count;
-        pending_task    =  1;
+        task_is_pending     =  1;
     }
 }
 
@@ -99,12 +99,12 @@ uint8_t task_log_sample(Position* pos) {
     if(motor_set(*pos)) return -1;
 
     pending_samples =  1;       /* Schedule a single sampling. */
-    pending_task    =  1;
+    task_is_pending =  1;
     return 0;
 }
 
 uint8_t task_pending() {
-    return pending_task;
+    return task_is_pending;
 }
 
 static void make_target(uint8_t* x, uint8_t* y) {
@@ -124,7 +124,7 @@ static void task_handle_motor(Position pos, uint8_t evt) {
 
     switch(evt) {
         case MTR_EVT_BUSY:
-            pending_task   =  1;
+            task_is_pending =  1;
 
         break;
         case MTR_EVT_OK:
@@ -149,8 +149,6 @@ static void task_handle_motor(Position pos, uint8_t evt) {
 
                     /* Log the result. */
                     log_append(&rec);
-
-                    printf("Sample: %d.%cC\n", t>>4, '0' + 5*((t&0xF)>>3));
 
                     /* Since the measurement is complete, the head should be
                     * retracted. */
@@ -183,7 +181,7 @@ static void task_handle_motor(Position pos, uint8_t evt) {
 
                 motor_set(pos);
             } else {
-                pending_task   =  0;
+                task_is_pending =  0;
             }
         break;
     }
