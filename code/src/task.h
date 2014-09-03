@@ -11,9 +11,41 @@
 #include <inttypes.h>
 
 /**
+* @brief Settings of automated tasks.
+*/
+typedef struct {
+    /**
+    * The time elapsed between successive automated samplings. The range is @c
+    * 0--@c 240, with @c 0 being none. Each unit describes 6 minutes. So, a
+    * value of @c 60 implies @c load samplings per hour.
+    */
+    uint8_t interval;
+
+    /** @brief The amount of samples to take after each @c interval. */
+    uint8_t load;
+} Task;
+
+/**
 * @brief Initialise task module dependencies.
 */
 void task_init();
+
+/**
+* @brief Set the automatic sampling rate.
+*
+* @param[in,out] t The new settings; on error, the maximum allowable value of
+*   each member is set.
+* @returns @c 0, if the settings were acceptable (and, thus, stored); @c -1,
+*   otherwise, in which case @p task is altered to contain the maximum values.
+*/
+int8_t task_set(Task* t);
+
+/**
+* @brief Get the current configuration for automated sampling.
+*
+* @param[out] t See corresponding parameter of task_set().
+*/
+void task_get(Task* t);
 
 /**
 * @brief Initiate a chain of samplings.

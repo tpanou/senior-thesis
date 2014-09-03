@@ -14,6 +14,7 @@
 #include "flash.h"
 #endif /* ENABLE_SERIAL_IO */
 
+#include "task.h"
 #include "motor.h"
 #include "twi.h"
 #include "rtc.h"
@@ -157,6 +158,9 @@ void sys_get(uint8_t setting, void* value) {
             motor_get_max(value);
 
         break;
+        case SYS_TASK:
+            task_get(value);
+        break;
     }
 }
 
@@ -189,25 +193,25 @@ int8_t sys_set(uint8_t setting, void* value) {
             motor_set_max(value);
             ret =  rtc_write(SYS_MTR_MAX, value, 3);
         break;
+        case SYS_TASK:
+            task_set(value);
+            ret =  rtc_write(SYS_TASK, value, 2);
+        break;
 
     }
 
     return ret;
 }
 
-/**
-* @brief Initialise the various modules.
-*
-* It should be noted that this function sets the motor operating range
-* (motor_set_max()). As a result, upon completion, the motors will be resetting.
-*/
 static void init() {
     uint8_t settings[]  =  {FACTORY_IADDR,
                             FACTORY_GATEWAY,
                             FACTORY_SUBNET,
                             FACTORY_HADDR,
-                            GRID_X_LEN, GRID_Y_LEN, GRID_Z_LEN};
+                            GRID_X_LEN, GRID_Y_LEN, GRID_Z_LEN,
+                            0, 0};      /* Task defaults are to disable it. */
     Position max;
+    Task    task;
 
     uint8_t rtc_sec;
     rtc_read(0, &rtc_sec, 1);
@@ -229,6 +233,9 @@ static void init() {
     max.x = settings[SYS_MTR_MAX_X - RTC_BASE];
     max.y = settings[SYS_MTR_MAX_Y - RTC_BASE];
     max.z = settings[SYS_MTR_MAX_Z - RTC_BASE];
+
+    task.interval   =  settings[SYS_TASK_INT    - RTC_BASE];
+    task.load       =  settings[SYS_TASK_LOAD   - RTC_BASE];
 
     /* Network module */
     /* Setup buffer size. #HTTP_SOCKET is configured to 8KB on Tx and Rx). */
@@ -254,6 +261,7 @@ static void init() {
 
     /* Other modules */
     task_init();
+    task_set(&task);
     srvr_init();
     rsrc_init();
     log_init();

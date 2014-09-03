@@ -141,6 +141,21 @@ typedef struct {
 #define SYS_MTR_MAX_Z  (SYS_MTR_MAX_Y   + 0x01)
 
 /**
+* @brief Backup memory address of automated task settings.
+*/
+#define SYS_TASK       (SYS_MTR_MAX     + 0x03)
+
+/**
+* @brief Backup memory address of task intervals.
+*/
+#define SYS_TASK_INT   (SYS_TASK        + 0x00)
+
+/**
+* @brief Backup memory address of samples taken at every interval.
+*/
+#define SYS_TASK_LOAD  (SYS_TASK_INT    + 0x01)
+
+/**
 * @brief Get device configuration settings.
 *
 * For a list of available settings, see SYS_* macros. This is provided only for

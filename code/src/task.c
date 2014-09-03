@@ -12,9 +12,31 @@
 static uint8_t pending_samples;
 static uint8_t pending_task;
 
+/**
+* @brief Current settings of automated samplings.
+*/
+static Task task;
+
 void task_init() {
 
     motor_set_callback(&task_handle_motor);
+}
+
+int8_t task_set(Task* t) {
+    if(t->interval > 240) {
+        t->interval =  240;
+        t->load     =  255;
+        return -1;
+    }
+
+    task.interval   =  t->interval;
+    task.load       =  t->load;
+    return 0;
+}
+
+void task_get(Task* t) {
+    t->interval = task.interval;
+    t->load     = task.load;
 }
 
 void task_log_samples(uint8_t count) {
