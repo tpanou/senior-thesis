@@ -189,5 +189,47 @@ static void task_handle_motor(Position pos, uint8_t evt) {
     }
 }
 
+/**
+* @brief Periodic automated sampling ISR.
+*
+* This is the Watchdog Timer ISR, responsible for waking the CPU every 8s (the
+* maximum interval for this MCU) to check whether there are tasks that should be
+* initiated automatically. They are only initiated granted the following:
+*   - No other task is currently in progress.
+*   - Task interval and load have been specified (each, other than @c 0). See
+*       task_set().
+*   - The RTC is running.
+*   - The elapsed quanta since the most recently performed task are equal or
+*       greater the the specified interval (via task_set()).
+*/
 ISR(WDT_vect) {
+    BCDDate now;
+    uint8_t day;
+    uint16_t now_stamp;
+    uint16_t elapsed;   /* Allow for a two-day interval. */
+
+    /* Do not proceed, if a task is in progress or there are no automation
+    * settings. */
+    if(task_is_pending || !task.interval || !task.load) return;
+
+    /* Also, do not proceed if the (RTC) clock is not running. */
+    get_date(&now, &day);
+
+    if(bit_is_set(now.sec, RTC_CH)) return;
+
+    /* Calculate the interval between the most recent sampling and the current
+    * time-stamp. */
+    now_stamp   =  BCD8_TO_INTERVAL(now.hour, now.min);
+    if(now_stamp >= task_recent) {
+        elapsed =  now_stamp - task_recent;
+
+    /* This is for when #task_recent is before midnight and @c now_stamp is
+    * after. */
+    } else {
+        elapsed =  240 - task_recent + now_stamp;
+    }
+
+    if(elapsed >= task.interval) {
+        task_log_samples(task.load);
+    }
 }
