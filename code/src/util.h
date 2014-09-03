@@ -19,6 +19,22 @@
 #endif
 
 /**
+* @brief Convert tens @p t and units @p u into BCD notation.
+*
+* @param[in] t Tens. Ranges in @c 0--@c 9.
+* @param[in] u Units. Ranges in @c 0--@c 9.
+*/
+#define TO_BCD8(t, u)  ((t << 4) | u)
+
+/**
+* @brief Convert BCD @p hex into a decimal.
+*
+* @param[in] hex A number in BCD notation. It should contain no digits above @c
+*   9.
+*/
+#define FROM_BCD8(hex)  ((hex >> 4)*10 + (hex & 0x0F))
+
+/**
 * @brief Convert an unsigned integer to string.
 *
 * Note that @p buf is the *last* address to write to; the actual array should

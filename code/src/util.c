@@ -102,8 +102,6 @@ void set_date(BCDDate* dt, uint8_t day) {
     rtc_set(&rtc);
 }
 
-#define TO_BCD8(d, u)  ((d << 4) | u)
-
 int8_t str_to_date(BCDDate* dt, uint8_t* buf) {
     uint8_t num     =  0;
     uint8_t error   =  0;

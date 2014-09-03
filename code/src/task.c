@@ -9,8 +9,26 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
+/**
+* @brief Convert BCD hours @p h and minutes @m to an interval since midnight.
+*
+* Note that each interval unit equals 6 minutes.
+*/
+#define BCD8_TO_INTERVAL(h, m)     (FROM_BCD8(h) * (60/6) + FROM_BCD8(m) / 6)
+
 static uint8_t pending_samples;
 static uint8_t pending_task;
+
+/**
+* @brief Time-stamp of the most recent measurement.
+*
+* This value is calculated at start-up (when task_init() is invoked) and updated
+* after each new log record appended (in task_handle_motor()).
+*
+* Each unit equals minutes. Values range in @c 0--@c 240 (just like
+* Task#interval).
+*/
+static uint8_t task_recent;
 
 /**
 * @brief Current settings of automated samplings.
@@ -18,6 +36,26 @@ static uint8_t pending_task;
 static Task task;
 
 void task_init() {
+    /* Default date limits. */
+    BCDDate since   = {.year = 0x00, .mon = 0x01, .date = 0x01,
+                       .hour = 0x00, .min = 0x00, .sec  = 0x00};
+    BCDDate until   = {.year = 0x99, .mon = 0x12, .date = 0x31,
+                       .hour = 0x23, .min = 0x59, .sec  = 0x59};
+    LogRecordSet    set;
+    LogRecord       rec;
+    uint8_t         count;
+
+    /* Identify the time-stamp of the most recent sampling. */
+    count   =  log_get_set(&set, &since, &until);
+    if(count) {
+        /* Fetch the last record. */
+        log_skip(&set, count - 1);
+        log_get_next(&rec, &set);
+
+        task_recent =  BCD8_TO_INTERVAL(rec.date.hour, rec.date.min);
+    } else {
+        task_recent =  0;
+    }
 
     motor_set_callback(&task_handle_motor);
 }
@@ -129,6 +167,11 @@ static void task_handle_motor(Position pos, uint8_t evt) {
 
                         /* Request a new random X-Y position for the head. */
                         make_target(&pos.x, &pos.y);
+
+                    /* Since this was the last sample, update #task_recent. */
+                    } else {
+                        task_recent =  BCD8_TO_INTERVAL(rec.date.hour,
+                                                        rec.date.min);
                     }
 
                 /* The head has reached a new position and there are pending
