@@ -1,10 +1,12 @@
 #include "task.h"
+#include "defs.h"
 #include "log.h"
 #include "util.h"
 #include "motor.h"
 #include "sensor.h"
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 
 static uint8_t pending_samples;
@@ -120,4 +122,7 @@ static void task_handle_motor(Position pos, uint8_t evt) {
             }
         break;
     }
+}
+
+ISR(WDT_vect) {
 }

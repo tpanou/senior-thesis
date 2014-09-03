@@ -55,6 +55,22 @@ typedef struct {
 } BCDDate;
 
 /**
+* @brief Watchdog Time-out.
+*
+* The time-out is set to 8s.
+*
+* At #WDT_TIMEOUT intervals, the CPU will be woken from power-down mode. The WDT
+* ISR checks whether sampling should be initiated. Once execution returns to the
+* main loop, the CPU goes to power-down, again. The CPU maybe woken at any time
+* by other sources, as well, such as a limit switch and/or an incoming HTTP
+* request. Those requests could delay the CPU for as long they require with no
+* fear of resetting the WDT; since the System Reset Mode is not activated, the
+* WDT Interrupt will simply be queued, if it occurs before any previously
+* activated ISR returns.
+*/
+#define WDT_TIMEOUT     _BV(WDP3) | _BV(WDP0)
+
+/**
 * @brief Default device IP address.
 */
 #define FACTORY_IADDR       192, 168, 1, 73

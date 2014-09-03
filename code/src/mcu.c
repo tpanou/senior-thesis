@@ -52,10 +52,16 @@ int main() {
     /* Disable all interrupts during this procedure. */
     cli();
 
-    /* Always disable the Watchdog Timer, even if it is not used. *Atmel
-    * p.52* */
+    /* Always disable the Watchdog Timer, even if it is not used (*Atmel p.52*).
+    * If set, bit @c WRDF of @c MCUSR overrides bit @c WDE of @c WDTCR, so it
+    * needs to be cleared first (*Atmel p.55*). */
     MCUSR      &= ~_BV(WDRF);
-    WDTCSR     &= ~_BV(WDE);
+    /* To change @c WDE (and/or the prescaler bits), bit @c WDCE of WDTCSR must
+    * be set first and the change must occur within four cycles, after which,
+    * @c WDCE resets (*Atmel p.55*). What is not mentioned, though, is that bit
+    * @c WDE must also be set. */
+    WDTCSR      =  _BV(WDCE) | _BV(WDE);
+    WDTCSR      =  _BV(WDCE);
 
     /** - Setup CPU clock. */
     init_clock();
@@ -99,6 +105,23 @@ int main() {
     init();
 
     set_sleep_mode(_BV(SM1));
+
+    /* Set both Change Enable *and* System Reset Mode bits to enable setting the
+    * timeout. Then, the WDT is set to Interrupt (only) mode. This way, at
+    * #WDT_TIMEOUT intervals, the CPU will be woken from power-down mode. The
+    * WDT ISR checks whether sampling should be initiated. Once execution
+    * returns to the main loop, the CPU goes to power-down, again. The CPU maybe
+    * woken at any time by other sources, as well, such as a limit switch and/or
+    * an incoming HTTP request. Those requests could delay the CPU for as long
+    * they require with no fear of the WDT timeout; since the System Reset Mode
+    * is not activated, the WDT Interrupt will simply be queued, if it occurs
+    * before any previously activated ISR returns. */
+    WDTCSR  =  _BV(WDCE) | _BV(WDE);
+    WDTCSR  =  _BV(WDCE) | _BV(WDIE) | (WDT_TIMEOUT & (_BV(WDP3)
+                                                     | _BV(WDP2)
+                                                     | _BV(WDP1)
+                                                     | _BV(WDP0)));
+
     sei();
 
     while(1) {
