@@ -316,14 +316,13 @@ ISR(WDT_vect) {
     /* Calculate the interval between the most recent sampling and the current
     * time-stamp. */
     now_stamp   =  BCD8_TO_INTERVAL(now.hour, now.min);
-    if(now_stamp >= task_recent) {
-        elapsed =  now_stamp - task_recent;
 
     /* This is for when #task_recent is before midnight and @c now_stamp is
     * after. */
-    } else {
-        elapsed =  240 - task_recent + now_stamp;
-    }
+    if(now_stamp < task_recent) now_stamp  +=  240;
+
+    elapsed =  now_stamp - task_recent;
+
 
     if(elapsed >= task.interval) {
         task_log_samples(task.samples);
