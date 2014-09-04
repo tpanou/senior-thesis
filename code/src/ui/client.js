@@ -39,7 +39,7 @@
         days    = ["Κυρ", "Δευ", "Τρι", "Τετ", "Πεμ", "Παρ", "Σαβ"];
 
         el      =  document.getElementById("device-time");
-        el.innerHTML = days[day] + ", " + date;
+        el.innerHTML = days[day - 1] + ", " + date;
 
         /* Also, reveal the element's parent which is, by default, hidden (so as
         * not to be displayed empty, in case Javascript is disabled). */
