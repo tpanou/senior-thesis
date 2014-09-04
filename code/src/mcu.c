@@ -259,12 +259,13 @@ static void init() {
     net_socket_open(HTTP_SOCKET, NET_Sn_MR_TCP, 80);
     net_write8(NET_Sn_CR(HTTP_SOCKET), NET_Sn_CR_LISTEN);
 
-    /* Other modules */
+    /* Other modules; complementary ones, first. */
+    rsrc_init();
+    srvr_init();
+    log_init();
     task_init();
     task_set(&task);
-    srvr_init();
-    rsrc_init();
-    log_init();
+
     motor_init();
 
     /* Set operating range *after* the motors have been initialised. */
