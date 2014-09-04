@@ -284,6 +284,7 @@ static void setup_axis(MotorAxis axis, MotorDir dir) {
     uint16_t speed;
     uint8_t  is_inc     =  dir >= MTR_INC;
 
+    MUX_DISABLE();
     switch(axis) {
         case AXIS_Y:
             speed       =  is_inc ? MTR_Y_INC : MTR_Y_DEC;
