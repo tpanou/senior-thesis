@@ -184,7 +184,7 @@ static void task_handle_motor(Position pos, uint8_t evt) {
                     uint8_t day;
                     uint16_t t;
 
-                    _delay_ms(5000);
+                    _delay_ms(TASK_SAMPLE_TIME * 1000);
                     t  =  sens_read_t();
 
                     get_date(&rec.date, &day);

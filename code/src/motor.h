@@ -36,6 +36,13 @@ typedef enum {
 #define GRID_Z_LEN (4)
 
 /**
+* @brief The time it takes to move one unit on any axis.
+*
+* In seconds.
+*/
+#define MTR_UNIT_TIME       1
+
+/**
 * @brief Activates the PWM lock, disabling signal propagation when @c OC0A is
 * disconnected from pin #MTR_nLOCK.
 *
