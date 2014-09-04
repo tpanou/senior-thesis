@@ -84,9 +84,10 @@ void task_log_samples(uint8_t count) {
         /* Request the first random position and begin sampling. */
         make_target(&pos.x, &pos.y);
 
-        motor_set(pos);
         pending_samples     =  count;
         task_is_pending     =  1;
+
+        motor_set(pos);
     }
 }
 
@@ -95,11 +96,19 @@ uint8_t task_log_sample(Position* pos) {
     /* Request the sensor head be submerged. */
     pos->z  =  0;
 
-    /* Stop, if the position is not valid. */
-    if(motor_set(*pos)) return -1;
+    /* Schedule a single sampling. It is important this be done before calling
+    * motor_set() because, this way, a correct estimate can be calculated by
+    * update_motor_eta(). */
+    pending_samples =  1;
 
-    pending_samples =  1;       /* Schedule a single sampling. */
+    /* Stop, if the position is not valid. */
+    if(motor_set(*pos)) {
+        pending_samples =  0;
+        return -1;
+    }
+
     task_is_pending =  1;
+
     return 0;
 }
 
