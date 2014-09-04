@@ -623,6 +623,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 *   - 503 Service Unavailable; same as with GET.
 */
 void rsrc_handle_coordinates(HTTPRequest* req) {
+    uint16_t eta;           /* Time until pending tasks complete. */
     Position pos;
 
     /* Position reading and updating may only be performed if the motors are
@@ -630,10 +631,12 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
     * either returned (in case of GET), or updated with a new value (in case of
     * PUT). Return 503 Service Unavailable, otherwise. */
     if(motor_get(&pos)) {
+        eta     =  task_get_estimate();
+
         srvr_send(TXF_STATUS_503, TXF_ln,
                   TXF_STANDARD_HEADERS_ln,
                   TXF_CONTENT_LENGTH_ZERO_ln,
-                  TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, 10,
+                  TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                   TXF_lnln);
         return;
     }
@@ -672,6 +675,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
             * completion time. */
             } else {
                 status      =  TXF_STATUS_202;
+                eta         =  task_get_estimate();     /* Update estimate. */
             }
 
         /* Wrong argument. */
@@ -696,11 +700,10 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
 
         break;
         case TXF_STATUS_202:
-            /* TODO: Return an *actual* estimate with `Retry-After'. */
             srvr_send(TXF_STATUS_202, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_LENGTH_ZERO_ln,
-                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, 10,
+                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                       TXF_lnln);
 
         break;
@@ -968,17 +971,19 @@ static inline void rsrc_measurement_chunk_log(LogRecordSet* set,
 */
 void rsrc_handle_measurement(HTTPRequest* req) {
     uint8_t  status;                /* Status of response. */
+    uint16_t eta;                   /* Estimated time until motors complete. */
 
     if(req->method == METHOD_POST) {
 
         Position pos;
         if(motor_get(&pos)) {
             status      =  TXF_STATUS_503;
+            eta         =  task_get_estimate();
 
         } else {
             task_log_sample(&pos);
-
             status      =  TXF_STATUS_202;
+            eta         =  task_get_estimate();
         }
 
     } else if(req->method == METHOD_GET) {
@@ -1031,7 +1036,10 @@ void rsrc_handle_measurement(HTTPRequest* req) {
                 /* Return the lesser amount of records between @c page_size and
                 * @c count. */
                 if(page_size < count)   count   =  page_size;
+
             } else {
+                /* All the records are returned in a single page which contains
+                * @c total records. */
                 count   =  total;
             }
 
@@ -1063,11 +1071,10 @@ void rsrc_handle_measurement(HTTPRequest* req) {
 
     switch(status) {
         case TXF_STATUS_202:
-            /* TODO: Return an *actual* estimate with `Retry-After'. */
             srvr_send(TXF_STATUS_202, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_LENGTH_ZERO_ln,
-                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, 10,
+                      TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                       TXF_lnln);
 
         break;
