@@ -12,6 +12,7 @@
 #include "motor.h"
 #include "rtc.h"
 #include "log.h"
+#include "task.h"
 #include "w5100.h"
 
 #include <avr/pgmspace.h>
@@ -43,27 +44,39 @@
 
 /**
 * @ingroup resource
+* @brief Index of parameter "interval" (in resource /configuration).
+*/
+#define PRM_TASK_INTERVAL   4
+
+/**
+* @ingroup resource
+* @brief Index of parameter "samples" (in resource /configuration).
+*/
+#define PRM_TASK_SAMPLES    5
+
+/**
+* @ingroup resource
 * @brief Index of parameter "subnet" (in resource /configuration).
 */
-#define PRM_SRVR_SUBNET     4
+#define PRM_SRVR_SUBNET     6
 
 /**
 * @ingroup resource
 * @brief Index of parameter "x" (in resource /configuration).
 */
-#define PRM_SRVR_X          5
+#define PRM_SRVR_X          7
 
 /**
 * @ingroup resource
 * @brief Index of parameter "y" (in resource /configuration).
 */
-#define PRM_SRVR_Y          6
+#define PRM_SRVR_Y          8
 
 /**
 * @ingroup resource
 * @brief Index of parameter "z" (in resource /configuration).
 */
-#define PRM_SRVR_Z          7
+#define PRM_SRVR_Z          9
 
 /**
 * @ingroup resource
@@ -172,6 +185,22 @@ static uint8_t prm_gateway[] PROGMEM = "gateway";
 * current server IP address.
 */
 static uint8_t prm_iaddr[] PROGMEM = "iaddr";
+
+/*
+* @brief Token: interval
+*
+* This is used by rsrc_handle_configuration() to parse a new or return the
+* current sampling interval.
+*/
+static uint8_t prm_interval[] PROGMEM = "interval";
+
+/*
+* @brief Token: samples
+*
+* This is used by rsrc_handle_configuration() to parse a new or return the
+* current amount of samples after each interval.
+*/
+static uint8_t prm_samples[] PROGMEM = "samples";
 
 /*
 * @brief Token: subnet
@@ -351,19 +380,20 @@ void rsrc_handle_file(HTTPRequest* req) {
 *       be reset.
 *   - 400 Bad request; an invalid parameter and/or value has been specified.
 *       Currently, no details are given for the exact reasons; the absolute
-*       physical limits (for @c x, @c y and @c z) are always returned,
+*       physical limits (for @c x, @c y and @c z) and the maximum allowable
+*       value for @c interval are always returned,
 *       regardless.
 * Additional notes:
-*   - If any supplied parameter fails validation, the whole request is dropped
-*       (400 - Bad Request).
-*   - Setting @c date requires setting @c day as well, and vice versa.
-*       Otherwise, the parameter is ignored.
-*   - Only full dates are acceptable (with or without fraction which is
-*       ignored).
+*       - If any supplied parameter fails validation, the whole request is
+*           dropped (400 - Bad Request).
+*       - Setting @c date requires setting @c day as well, and vice versa.
+*           Otherwise, the parameter is ignored.
+*       - Only full dates are acceptable (with or without fraction which is
+*           ignored).
 */
 void rsrc_handle_configuration(HTTPRequest* req) {
-    uint8_t  token_buf[38];     /* Key tokens. */
-    uint8_t* tokens[8];         /* Pointers to each token in @c token_buf. */
+    uint8_t  token_buf[55];     /* Key tokens. */
+    uint8_t* tokens[10];        /* Pointers to each token in @c token_buf. */
 
     /* Parameter value buffers. */
     uint8_t  day;
@@ -371,16 +401,16 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     uint8_t  s_gateway  [PRM_INET_LEN];
     uint8_t  s_iaddr    [PRM_INET_LEN];
     uint8_t  s_subnet   [PRM_INET_LEN];
-
-   /* Load current maximum position. */
     Position  max;
-    sys_get(SYS_MTR_MAX, &max);
+    Task task;
 
     /* Set-up acceptable parser parameters. */
     ParamValue params[]     =  {PARAM_STRING(s_date, PRM_DATE_LEN),
                                 PARAM_UINT8(day),
                                 PARAM_STRING(s_gateway, PRM_INET_LEN),
                                 PARAM_STRING(s_iaddr, PRM_INET_LEN),
+                                PARAM_UINT8(task.interval),
+                                PARAM_UINT8(task.load),
                                 PARAM_STRING(s_subnet, PRM_INET_LEN),
                                 PARAM_UINT8(max.x),
                                 PARAM_UINT8(max.y),
@@ -391,6 +421,8 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                                           prm_day,
                                           prm_gateway,
                                           prm_iaddr,
+                                          prm_interval,
+                                          prm_samples,
                                           prm_subnet,
                                           prm_x,
                                           prm_y,
@@ -399,13 +431,19 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     /* --- INITIALISATION end -- */
 
     uint8_t  status;        /* Status of response. */
-    uint16_t size = 130;    /* Response size without Inet address values. */
+    uint16_t size = 167;    /* Response size without Inet address values. */
     uint8_t iaddr[4];       /* Numerical IP address. */
     uint8_t subnet[4];      /* Numerical subnet mask. */
     uint8_t gateway[4];     /* Numerical default gateway address. */
     BCDDate  dt;             /* Date and time. */
     uint8_t set_params = 0; /* Flags of parameters that have been set (mostly
     * for PRM_SRVR_*. */
+
+   /* Load current maximum position. */
+    sys_get(SYS_MTR_MAX, &max);
+
+   /* Load current task settings. */
+    sys_get(SYS_TASK, &task);
 
     /* Load current server configuration. */
     sys_get(SYS_GATEWAY, gateway);
@@ -414,7 +452,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
     status = TXF_STATUS_200;
 
     if(req->method == METHOD_PUT) {
-        if(!(*parser)(tokens, params, 8)) {
+        if(!(*parser)(tokens, params, 10)) {
 
             /* Date and day must both be set, if any one of them is present. */
             if(PARAM_IS_SET(params, PRM_SRVR_DATE)
@@ -471,11 +509,17 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                 || max.y > GRID_Y_LEN
                 || max.z > GRID_Z_LEN) {
                     status      =  TXF_STATUS_400;
-                    max.x       =  GRID_X_LEN;
-                    max.y       =  GRID_Y_LEN;
-                    max.z       =  GRID_Z_LEN;
                 } else {
-                    sys_set(SYS_MTR_MAX, (uint8_t*)&max);
+                    sys_set(SYS_MTR_MAX, &max);
+                }
+            }
+
+            if(PARAM_IS_SET(params, PRM_TASK_INTERVAL)
+            || PARAM_IS_SET(params, PRM_TASK_SAMPLES)) {
+                if(task.interval > TASK_INTERVAL_MAX) {
+                    status      =  TXF_STATUS_400;
+                } else {
+                    sys_set(SYS_TASK, &task);
                 }
             }
 
@@ -499,7 +543,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
                       TXF_lnln);
 
-            (*serialiser)(tokens, params, 8, SERIAL_DEFAULT);
+            (*serialiser)(tokens, params, 10, SERIAL_DEFAULT);
 
             /* Apply changes to the address after the response has been sent. */
             if(set_params) {
@@ -517,13 +561,25 @@ void rsrc_handle_configuration(HTTPRequest* req) {
         break;
         case TXF_STATUS_400:
 
+            /* On any error, return maximum allowable values, by default. */
+            max.x       =  GRID_X_LEN;
+            max.y       =  GRID_Y_LEN;
+            max.z       =  GRID_Z_LEN;
+            task.interval
+                        =  TASK_INTERVAL_MAX;
+
             srvr_send(TXF_STATUS_400, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_TYPE_JSON_ln,
-                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
+                      TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 57,
                       TXF_lnln);
 
-            (*serialiser)(&tokens[5], &params[5], 3, SERIAL_DEFAULT);
+            (*serialiser)(&tokens[PRM_TASK_INTERVAL],
+                          &params[PRM_TASK_INTERVAL], 1, SERIAL_ATOMIC_S);
+            (*serialiser)(&tokens[PRM_SRVR_X],
+                          &params[PRM_SRVR_X], 3, SERIAL_PRECEDED
+                                                | SERIAL_ATOMIC_E
+                                                | SERIAL_FLUSH);
         break;
     }
 }
