@@ -6,7 +6,6 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-
 /**
 * @brief Propagates interrupts from the W5100 to the appropriate handlers.
 *
@@ -51,11 +50,8 @@ void handle_http_socket(uint8_t s, uint8_t status) {
             srvr_call();
 
             /* Discard the remainder of the request. */
-            fputs("Req.drop[", stdout);
-            while((c_type = s_next(&c)) != EOF) {
-                putchar(c);
+            while((c_type = s_next(&c)) != -1) {
             }
-            puts("]");
         }
     }
 
