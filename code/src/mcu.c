@@ -102,6 +102,10 @@ int main() {
     DDRB   |= _BV(DDB5) | _BV(DDB3);
     DDRD   |= _BV(DDD7);
 
+    /* Output to control nCS of Flash. */
+    DDRD       |=  _BV(DDD1);
+    PORTD      |=  _BV(PORTD1);
+
     /* Initialise the remaining modules. */
     init();
 

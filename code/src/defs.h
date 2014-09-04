@@ -378,15 +378,17 @@ int8_t sys_set(uint8_t setting, void* value);
 
 /**
 * @brief Pulls Flash @c nCS low.
+*
+* Note that Flash @c nCS is connected to the USART Tx pin.
 */
-#define FLS_ENABLE()    MUX_S1_PORT |=  _BV(MUX_S1);\
-                        MUX_S0_PORT |=  _BV(MUX_S0);\
-                        MUX_ENABLE()
+#define FLS_ENABLE()    PORTD          &= ~_BV(PORTD1)
 
 /**
 * @brief Pulls Flash @c nCS high.
+*
+* Note that Flash @c nCS is connected to the USART Tx pin.
 */
-#define FLS_DISABLE()   MUX_DISABLE()
+#define FLS_DISABLE()   PORTD          |=  _BV(PORTD1)
 
 /**
 * Value of @c TOP (@c OC1A) that produces pulses at 50Hz taking #MTR_PRESCALER
