@@ -370,8 +370,9 @@ MUX_S1_PORT    &= ~_BV(MUX_S1)
 /**
 * @brief A request to reposition the motors has been successfully completed.
 *
-* The position supplied on this event contains the current motor position. Upon
-* invocation, the motors are quiescent and a new position may be requested.
+* The position supplied on this event contains the new position that will be
+* attempted. Upon invocation, the motors are quiescent and the current position
+* may be requested.
 */
 #define MTR_EVT_BUSY        2
 
