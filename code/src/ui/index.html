@@ -1,0 +1,123 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script src="client.js" type="text/javascript" defer="defer"></script>
+
+        <title></title>
+    </head>
+    <body>
+
+        <div id="container">
+
+            <div id="header">
+                <div id="logo"></div><div id="logo-text">
+                    <p>ΤΕΙ Αθήνας</p>
+                    <p>Σχολή Τεχνολογικών Εφαρμογών</p>
+                    <p>Τμήμα Μηχανικών Πληροφορικής ΤΕ</p>
+                    <p>Ακαδημαϊκό έτος 2013</p>
+                </div>
+            </div>
+
+            <ul id="nav"><li class="nav-menu current"><a href="#home">Γενικά</a></li><li class="nav-menu"><a href="#log">Μετρήσεις</a></li><li class="nav-menu"><a href="#config">Ρυθμίσεις</a></li><li class="nav-menu"><a href="#operate">Χειρισμός</a></li><li class="nav-menu"><a href="#help">Βοήθεια</a></li></ul>
+            <div id="content">
+                    <div id="home-page" class="page">
+                    </div>
+
+                    <div id="log-page" class="page hidden">
+                        <h1>Ιστορικό μετρήσεων</h1>
+                        <div class="field-wrapper">
+                            <label for="log-since-date">Από</label>
+                            <input id="log-since-date" class="textfield tiny right" type="text"> /
+                            <input id="log-since-month" class="textfield tiny right" type="text"> /
+                            <input id="log-since-year" class="textfield medium right" type="text">
+                            <input id="log-since-hours" class="textfield tiny right" type="text"> :
+                            <input id="log-since-minutes" class="textfield tiny right" type="text"> :
+                            <input id="log-since-seconds" class="textfield tiny right" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="log-until-date">Μέχρι</label>
+                            <input id="log-until-date" class="textfield tiny right" type="text"> /
+                            <input id="log-until-month" class="textfield tiny right" type="text"> /
+                            <input id="log-until-year" class="textfield medium right" type="text">
+                            <input id="log-until-hours" class="textfield tiny right" type="text"> :
+                            <input id="log-until-minutes" class="textfield tiny right" type="text"> :
+                            <input id="log-until-seconds" class="textfield tiny right" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="log-page-size" class="inline">Αποτελέσματα ανά σελίδα</label>
+                            <input id="log-page-size" class="textfield short right" type="text" value="5">
+                        </div>
+                        <a id="log-submit" href="#log,page:1" class="button small">Αναζήτηση</a><a id="log-reset" class="button small" href="#">Καθαρισμός</a>
+
+                        <div id="log-section-result">
+                            <div class="pagination-wrapper">Πλήθος εγγραφών: <span class="total-count total-results"></span>. Σελίδες:<span class="pagination"><a class="button">0</a></span></div>
+                            <table class="stripe log">
+                                <thead>
+                                    <tr><th>α/α</th><th>Ημερομηνία</th><th colspan="2">Θέση</th><th>&deg;C</th><th>RH</th><th>pH</th></tr>
+                                </thead>
+                                <tbody id="log-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="config-page" class="page hidden">
+                        <h1>Ρυθμίσεις συσκευής</h1>
+                        <div class="field-wrapper">
+                            <label for="config-iaddr">Διεύθυνση IP</label>
+                            <input id="config-iaddr" class="textfield big" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="config-gateway">Προεπιλεγμένη πύλη</label>
+                            <input id="config-gateway" class="textfield big" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="config-subnet">Μάσκα δικτύου</label>
+                            <input id="config-subnet" class="textfield big" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="config-date-date">Ημερομηνία - Ώρα</label>
+                            <input id="config-date-date" class="textfield tiny right" type="text"> /
+                            <input id="config-date-month" class="textfield tiny right" type="text"> /
+                            <input id="config-date-year" class="textfield medium right" type="text">
+                            <input id="config-date-hours" class="textfield tiny right" type="text"> :
+                            <input id="config-date-minutes" class="textfield tiny right" type="text"> :
+                            <input id="config-date-seconds" class="textfield tiny right" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="config-x">Λειτουργικό εύρος<span class="small">[X, Y, Z]</span></label>
+                            <input id="config-x" class="textfield tiny right" type="text"> ,
+                            <input id="config-y" class="textfield tiny right" type="text"> ,
+                            <input id="config-z" class="textfield tiny right" type="text">
+                        </div>
+                        <div class="field-wrapper">
+                            <label for="config-wake">Αφύπνιση - Μετρήσεις</label>
+                            <input id="config-wake" class="textfield short right" type="text"> -
+                            <input id="config-samples" class="textfield short right" type="text">
+                        </div>
+                        <a id="config-save" class="button small" href="#">Αποθήκευση</a><a id="config-reset" class="button small" href="#">Καθαρισμός</a><a id="config-reload" class="button small" href="#" >Επαναφορά</a>
+                    </div>
+
+                    <div id="operate-page" class="page hidden">
+                        <h1>Χειροκίνητη λειτουργία</h1>
+                        <p>Η σελίδα αυτή επιτρέπει τη χειροκίνητη λειτουργία της συσκευής.</p>
+                        <div class="field-wrapper"><label>Κατάσταση κεφαλής</label><span id="operate-status">άγνωστη</span></div>
+                        <div class="field-wrapper"><label>Λειτουργικό εύρος </label>[<span id="operate-range"></span>]</div>
+                        <div class="field-wrapper">
+                            <label for="operate-x">Θέση κεφαλής <span class="small">[X, Y]</span></label>
+                            <input id="operate-x" class="textfield tiny right" type="text"> ,
+                            <input id="operate-y" class="textfield tiny right" type="text">
+                        </div>
+                        <a id="operate-move" class="button small" href="#">Μετακίνηση</a><a id="operate-sample" class="button small" href="#">Δειγματοληψία</a>
+                    </div>
+
+                    <div id="help-page" class="page hidden">
+                    </div>
+            </div>
+            <div id="infobox" class="small" title="Εδώ εμφανίζονται τα πιο πρόσφατα συμβάντα."><h2 class="new">Καλή διαμονή</h2><div class="hidden right">Ημερομηνία συσκευής: <span id="device-time">Δευ, 15-05-2014 15:20:31</span></div></div>
+            </div>
+
+        </div>
+    </body>
+</html>
