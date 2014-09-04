@@ -829,7 +829,8 @@
         *   address.
         */
         _getErrors : function() {
-            return [MSG.error.iaddr4];
+            return ["Απαιτούνται 4 ακέραιοι από 0 μέχρι 255, διαχωρισμένοι με"
+                  + " τελεία."];
         }
     };
     ns.augment(ns.FieldIAddr, ns.Field);
