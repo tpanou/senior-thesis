@@ -247,6 +247,11 @@ static void task_handle_motor(Position pos, uint8_t evt) {
                     /* Log the result. */
                     log_append(&rec);
 
+                    /* Update #task_recent now because a reset may be issued
+                    * before any of the remaining tasks are completed. */
+                    task_recent =  BCD8_TO_INTERVAL(rec.date.hour,
+                                                    rec.date.min);
+
                     /* Since the measurement is complete, the head should be
                     * retracted. */
                     motor_get_max(&max);
@@ -262,11 +267,6 @@ static void task_handle_motor(Position pos, uint8_t evt) {
 
                         /* Request a new random X-Y position for the head. */
                         make_target(&pos.x, &pos.y);
-
-                    /* Since this was the last sample, update #task_recent. */
-                    } else {
-                        task_recent =  BCD8_TO_INTERVAL(rec.date.hour,
-                                                        rec.date.min);
                     }
 
                 /* The head has reached a new position and there are pending
