@@ -31,6 +31,19 @@ static uint8_t task_is_pending;
 static uint8_t task_recent;
 
 /**
+* @brief Time-stamp of the current task operation.
+*
+* Note that this refers to the *seconds* elapsed since the beginning of this (or
+* the previous) hour at which time #task_estimate was set.
+*/
+static uint16_t task_start;
+
+/**
+* @brief The estimated time to complete the current task (in seconds).
+*/
+static uint16_t task_estimate;
+
+/**
 * @brief Current settings of automated samplings.
 */
 static Task task;
@@ -170,11 +183,16 @@ static uint16_t update_motor_eta(Position* new) {
 static void task_handle_motor(Position pos, uint8_t evt) {
 
     switch(evt) {
-        case MTR_EVT_BUSY:
-            update_motor_eta(&pos);
-            task_is_pending =  1;
+        case MTR_EVT_BUSY: {
+            BCDDate now;
+            uint8_t day;
+            get_date(&now, &day);
 
-        break;
+            task_is_pending =  1;
+            task_estimate   =  task_estimate_time(&pos);
+            task_start      =  FROM_BCD8(now.min) * 60 + FROM_BCD8(now.sec);
+
+        } break;
         case MTR_EVT_OK:
             if(pending_samples) {
                 /* Take a sample, if the sensor head is submerged. */
@@ -230,6 +248,7 @@ static void task_handle_motor(Position pos, uint8_t evt) {
                 motor_set(pos);
             } else {
                 task_is_pending =  0;
+                task_estimate   =  0;
             }
         break;
     }
