@@ -13,7 +13,10 @@
             fGateway,
             fSubnet,
             fDate,
-            fCoords;
+            fCoords,
+            elIntervalHrs,
+            elIntervalMins,
+            fSamples;
 
         var isInternal;         /* Denotes whether a request has been sent to
                                 * the device for the needs of the UI and not
@@ -31,6 +34,9 @@
         *     .idConfigX        id of maximum X input field
         *     .idConfigY        id of maximum Y input field
         *     .idConfigY        id of maximum Z input field
+        *     .idIntervalHrs    id of interval hours field
+        *     .idIntervalMins   id of interval minutes field
+        *     .idSamples        id of automated samplings field
         *     .clsError         class of `ul's when displaying field errors
         *}@endverbatim
         */
@@ -38,7 +44,10 @@
             var cls     =  s.form.clsError,
                 x       =  s.form.idConfigX,
                 y       =  s.form.idConfigY,
-                z       =  s.form.idConfigZ;
+                z       =  s.form.idConfigZ,
+                hours   =  s.form.idIntervalHrs,
+                mins    =  s.form.idIntervalMins,
+                samples =  s.form.idSamples;
 
             fIAddr      =  (new ns.FieldIAddr(s.form.idIAddr))
                                   .setErrorClass(cls);
@@ -50,6 +59,12 @@
                                   .setErrorClass(cls);
             fCoords     =  (new ns.FieldPoint(x, y, z))
                                   .setErrorClass(cls);
+            fSamples    =  (new ns.FieldInt(samples, 0, 10)
+                                  .setErrorClass(cls));
+            elIntervalHrs
+                        =  document.getElementById(hours);
+            elIntervalMins
+                        =  document.getElementById(mins);
         };
 
         /**
@@ -138,6 +153,14 @@
                 payload.z       =  coords.z;
             }
 
+            /* Each hours contains 10 quanta; each quantum equals 6 minutes. */
+            payload.interval    =  elIntervalHrs.selectedIndex * 10
+                                +  elIntervalMins.selectedIndex;
+
+            if(fSamples.el.value && (value = fSamples.get(errors) !== null)) {
+                payload.samples =  value;
+            }
+
             /* Display error messages and inform the configuration has not been
             * saved. */
             if(!ns.isEmpty(errors)) {
@@ -175,6 +198,9 @@
             fSubnet.reset();
             fDate.reset();
             fCoords.reset();
+            fSamples.reset();
+            elIntervalHrs.selectedIndex     =  0;
+            elIntervalMins.selectedIndex    =  0;
         };
 
         /**
@@ -186,6 +212,7 @@
             fSubnet.resetMsg();
             fDate.resetMsg();
             fCoords.resetMsg();
+            fSamples.resetMsg();
         };
 
         /**
@@ -263,7 +290,8 @@
         *   returned by the corresponding endpoint.
         */
         var loadFields = function (conf) {
-            var errors  =  0;
+            var errors  =  0,
+                interval;
 
             reset();        // Clear all fields
 
@@ -272,6 +300,11 @@
             fSubnet.set(conf.subnet)            || ++errors;
             fDate.set(new Date(conf.date))      || ++errors;
             fCoords.set(conf.x, conf.y, conf.z) || ++errors;
+            fSamples.set(conf.samples)          || ++errors;
+
+            interval    =  conf.interval;
+            elIntervalHrs.selectedIndex     =  Math.floor(interval / 10);
+            elIntervalMins.selectedIndex    =  Math.floor(interval % 10);
 
             /* TODO: Show message on the unlikely event of an erroneous value */
         };

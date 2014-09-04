@@ -104,6 +104,9 @@
                                 "idConfigX" : "config-x",
                                 "idConfigY" : "config-y",
                                 "idConfigZ" : "config-z",
+                                "idIntervalHrs"     : "config-interval-hours",
+                                "idIntervalMins"    : "config-interval-minutes",
+                                "idSamples" : "config-samples",
                                 "clsError"  : "field-msg error"
                             }});
 
