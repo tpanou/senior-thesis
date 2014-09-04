@@ -124,7 +124,7 @@ static void make_target(uint8_t* x, uint8_t* y);
 *  @c 0, if no estimate can be given (in case the motors are moving or
 *   already there); @c 0xFF 
 */
-static uint16_t update_motor_eta(Position* new);
+static uint16_t task_estimate_time(Position* new);
 
 /**
 * @brief Motor event handler.

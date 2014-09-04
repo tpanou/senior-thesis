@@ -16,16 +16,26 @@
 */
 #define BCD8_TO_INTERVAL(h, m)     (FROM_BCD8(h) * (60/6) + FROM_BCD8(m) / 6)
 
+/**
+* @brief Pending samples.
+*
+* This is set by task_log_sample() and task_log_samples() and managed by
+* task_handle_motor().
+*/
 static uint8_t pending_samples;
+
+/**
+* @brief Return value of task_pending().
+*/
 static uint8_t task_is_pending;
 
 /**
 * @brief Time-stamp of the most recent measurement.
 *
 * This value is calculated at start-up (when task_init() is invoked) and updated
-* after each new log record appended (in task_handle_motor()).
+* after each new log record is appended (in task_handle_motor()).
 *
-* Each unit equals minutes. Values range in @c 0--@c 240 (just like
+* Each unit equals 6 minutes. Values range in @c 0--@c 240 (just like
 * Task#interval).
 */
 static uint8_t task_recent;
