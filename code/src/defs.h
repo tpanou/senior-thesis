@@ -230,6 +230,36 @@ down-scaled to 4MHz, and\n
 #define UBRR_VALUE (int)(F_CPU/16/USART_BAUD - 1)
 
 /**
+* @brief Value of @c TWPS0 and @c TWPS1 bits of @c TWSR register.
+*/
+#define TWI_RATE        0
+
+/**
+* @brief The prescaler value of the bits specified by #TWI_RATE.
+*
+* This value is easily determined either by checking the corresponding table
+* (*Atmel p.236*) or, simply, raising @c 4 to the decimal value of #TWI_RATE.
+*
+* Used in calculating #TWBR_VALUE.
+*/
+#define TWI_RATE_VAL    1
+
+/**
+* @brief Frequency of the TWI bus.
+*
+* Currently, the only device on the TWI bus is the RTC DS1307 which operates on
+* the lower TWI scale (up to 100kHz).
+*/
+#define F_TWI           (50000UL)
+
+/**
+* @brief Calculates the value for the TWI rate register.
+*
+* *Atmel p.215*
+*/
+#define TWBR_VALUE (int)((F_CPU/F_TWI-16)/2/TWI_RATE_VAL)
+
+/**
 * @brief Socket of W5100 that corresponds to the HTTP server.
 */
 #define HTTP_SOCKET     0

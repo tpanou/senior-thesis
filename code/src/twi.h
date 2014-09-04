@@ -203,14 +203,15 @@
 * @brief Initializes the TWI registers.
 *
 * This macro disables TWI and clears the @c STOP condition bit. It then sets the
-* TWI bit-rate value and the prescaler bits (see #TWBR_VALUE and
-* #TWI_PRESCALER). The reason behind first disabling TWI is to make sure the
+* TWI bit-rate value and the prescaler bits (see #TWBR_VALUE and #TWI_RATE).
+* The reason behind first disabling TWI is to make sure the
 * MCU may operate upon it even after entering Power-down mode (as noted in
 * *Atmel p.210*, all devices connected to the TWI bus must be powered to allow
 * any bus operation).
 */
 #define TWI_INIT()              TWCR   &= ~(_BV(TWSTO) | _BV(TWEN));\
                                 TWBR    =  TWBR_VALUE;\
-                                TWSR   |=  TWI_PRESCALER;
+                                TWSR   |= (TWI_RATE & (_BV(TWPS1)   \
+                                                     | _BV(TWPS0)));
 
 #endif /* TWI_H_INCL */
