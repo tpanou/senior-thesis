@@ -356,7 +356,9 @@ void rsrc_handle_file(HTTPRequest* req) {
     "date"      : string,       // Format ISO8601: YYYY-MM-DDTHH:mm:ss[.sss][Z]
     "day"       : number,       // Day-of-the-week; 1 denotes Sunday
     "gateway"   : string,       // Server default gateway (dot-notation)
-    "ip"        : string,       // Server IP address
+    "iaddr"     : string,       // Server IP address
+    "interval"  : number,       // Time between successive samplings; up to 240
+    "samples"   : number        // Amount of samplings to perform each time
     "subnet"    : string,       // Server subnet mask (xxx.xxx.xxx.xxx)
     "x"         : number,       // Custom maximum X dimension
     "y"         : number,       // Custom maximum Y dimension
@@ -365,7 +367,8 @@ void rsrc_handle_file(HTTPRequest* req) {
 * Additional notes:
 *   - Fraction of second (in @c date) is always returned as @c 000 and never
 *       parsed. Time-zone is UTC (@c Z).
-*   - `dot-notation' is: xxx.xxx.xxx.xxx
+*   - `interval' is quanta of 6 minutes each. For instance, a value of 10 equals
+*       60 minutes.
 *   - Custom maximum dimensions allow operating the device in a subset of the
 *       physical device-space (#GRID_X_LEN, #GRID_Y_LEN, #GRID_Z_LEN). Note that
 *       the acceptable values span from @c 0 up to, but not including, each set
@@ -598,8 +601,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 } @endverbatim
 *   - 503 Service Unavailable; the device is currently positioning itself. The
 *       request should be reattempted later, as specified in the `Retry-After'
-*       header. Currently, the estimated time is hard-coded but could change in
-*       the future.
+*       header.
 *
 * Method PUT:
 * Moves the device head to the specified coordinates.
@@ -962,8 +964,7 @@ static inline void rsrc_measurement_chunk_log(LogRecordSet* set,
 *       the estimated time until completion.
 *   - 503 Service Unavailable; the device is currently busy (repositioning
 *       itself or taking a measurement). The request should be reattempted
-*       later, as specified in the `Retry-After' header. Currently, the
-*       estimated time is hard-coded but could change in the future.
+*       later, as specified in the `Retry-After' header.
 */
 void rsrc_handle_measurement(HTTPRequest* req) {
     uint8_t  status;                /* Status of response. */
