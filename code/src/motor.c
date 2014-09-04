@@ -412,8 +412,6 @@ static MotorAxis motor_backtrack() {
         MTR_PWM_START();
 
     } else {
-        /*  */
-        puts("@");
         axis            =  0;
     }
 
@@ -525,7 +523,7 @@ ISR(PCINT1_vect) {
                 motor_status       |=  _BV(MTR_RESET_Z_DONE);
                 break;
             default:
-                puts("\n >> BACKTRACK ERROR : no axis <<\n");
+                /* Backtrack error / no axis. N/A; could be omitted. */
                 return;
         }
 
@@ -542,14 +540,15 @@ ISR(PCINT1_vect) {
         * action should be taken, other than *not* setting #MTR_LIMIT (which
         * indicates that getting to #new_pos should be attempted again after a
         * motor reset. */
-        puts("Destination unreachable");
+
+        /* Destination unreachable. */
         motor_stop();
 
     /* Limit engaged while under normal motor operation. */
     } else {
+        /* Unexpected limit. */
         motor_status       |=  _BV(MTR_LIMIT);
         motor_stop();
-        puts("Unexpected limit");
     }
     motor_reset();
 }
