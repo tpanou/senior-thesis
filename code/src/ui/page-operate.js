@@ -142,8 +142,8 @@
         * @param[in] conf Object containing @c X and @c Y maximum values.
         */
         var updateRange = function(conf) {
-            fCoords.fieldX.max  =  conf.x;
-            fCoords.fieldY.max  =  conf.y;
+            fCoords.fieldX.max  =  conf.x - 1;  // Zero-based
+            fCoords.fieldY.max  =  conf.y - 1;  // Zero-based
             elRange.innerHTML = conf.x + ", " + conf.y;
         };
 
