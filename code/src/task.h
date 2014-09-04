@@ -91,6 +91,16 @@ uint8_t task_pending();
 static void make_target(uint8_t* x, uint8_t* y);
 
 /**
+* @brief Calculate the time it should take to get the motors to @p new position.
+*
+* @param[in] new The intended motor position.
+* @returns The estimated time in seconds. This includes any pending tasks to
+*  @c 0, if no estimate can be given (in case the motors are moving or
+*   already there); @c 0xFF 
+*/
+static uint16_t update_motor_eta(Position* new);
+
+/**
 * @brief Motor event handler.
 *
 * It is responsible for performing the requested amount of measurements and
