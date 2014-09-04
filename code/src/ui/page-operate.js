@@ -195,7 +195,7 @@
                 /* Display estimated time of completion. */
                 ns.log("Η συσκευή δήλωσε απασχολημένη. Εκτιμώμενος χρόνος"
                     + " ολοκλήρωσης τρέχουσας εργασίας: "
-                    + this.getResponseHeader("Retry-After") + "&rdquo;",
+                    + ns.minsec(this.getResponseHeader("Retry-After")),
                       "info");
             }
         };
@@ -224,7 +224,7 @@
                 case 202:
                     ns.log("Η συσκευή αποδέχθηκε το αίτημα. Εκτιμώμενος χρόνος"
                         + " ολοκλήρωσης: "
-                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                        + ns.minsec(this.getResponseHeader("Retry-After")),
                           "info");
                 break;
 
@@ -243,7 +243,7 @@
                 case 503:
                     ns.log("Η συσκευή δήλωσε απασχολημένη. Εκτιμώμενος χρόνος"
                         + " ολοκλήρωσης τρέχουσας εργασίας: "
-                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                        + ns.minsec(this.getResponseHeader("Retry-After")),
                           "info");
                 break;
             }
@@ -264,7 +264,7 @@
                 case(202):
                     ns.log("Η συσκευή αποδέχθηκε το αίτημα. Εκτιμώμενος χρόνος"
                         + " ολοκλήρωσης: "
-                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                        + ns.minsec(this.getResponseHeader("Retry-After")),
                           "info");
                 break;
 
@@ -272,7 +272,7 @@
                 case(503):
                     ns.log("Η συσκευή δήλωσε απασχολημένη. Εκτιμώμενος χρόνος"
                         + " ολοκλήρωσης τρέχουσας εργασίας: "
-                        + this.getResponseHeader("Retry-After") + "&rdquo;",
+                        + ns.minsec(this.getResponseHeader("Retry-After")),
                           "info");
                 break;
             }

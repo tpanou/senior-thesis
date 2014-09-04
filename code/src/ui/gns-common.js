@@ -284,6 +284,21 @@
     };
 
     /**
+    * @brief Convert @p seconds into a string of format MM′SS″.
+    *
+    * Note that minutes and seconds are separated by the prime symbol (&#8242;)
+    * and the seconds are followed by the double prime symbol (&#8243;).
+    *
+    * @param[in] seconds The number of seconds to convert into string.
+    * @returns @p seconds as a string with format: MM′SS″
+    */
+    ns.minsec = ns.minsec ||
+    function (seconds) {
+        return ns.fixInt(Math.floor(seconds / 60), 2) + "&#8242;"
+                        + ns.fixInt(seconds % 60,  2) + "&#8243";
+    };
+
+    /**
     * @brief Replace a word within a string with another.
     *
     * The default behaviour is to replace only the first occurrence of @p
