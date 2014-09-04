@@ -97,6 +97,14 @@ uint8_t task_log_sample(Position* pos);
 uint8_t task_pending();
 
 /**
+* @brief Return the estimate time for the completion of pending tasks.
+*
+* @returns The estimate in seconds. @c 0 denotes no estimate or no pending
+*   tasks (to disambiguate, use task_pending()).
+*/
+uint16_t task_get_estimate();
+
+/**
 * @brief Create an acceptable random coordinate.
 *
 * The coordinates returned by this function respect the current operating range

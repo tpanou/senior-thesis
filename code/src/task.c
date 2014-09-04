@@ -129,6 +129,27 @@ uint8_t task_pending() {
     return task_is_pending;
 }
 
+uint16_t task_get_estimate() {
+    BCDDate now;
+    uint8_t day;
+    uint16_t now_stamp;
+
+    if(!task_estimate) return 0;
+
+    get_date(&now, &day);
+    now_stamp      =  FROM_BCD8(now.min) * 60 + FROM_BCD8(now.sec);
+
+    /* If the task was initiated in the previous hour, add an hour (in seconds)
+    * to @c now_stamp. Then, subtract then to get the interval. */
+    if(now_stamp < task_start) now_stamp += 3600;
+
+    now_stamp  -=  task_start;
+
+    /* Subtract the interval from the estimate. */
+    if(now_stamp > task_estimate) return 0;
+    return task_estimate - now_stamp;
+}
+
 static void make_target(uint8_t* x, uint8_t* y) {
     BCDDate dt;
     uint8_t day;
