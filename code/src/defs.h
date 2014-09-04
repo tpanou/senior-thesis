@@ -153,7 +153,7 @@ typedef struct {
 /**
 * @brief Backup memory address of samples taken at every interval.
 */
-#define SYS_TASK_LOAD  (SYS_TASK_INT    + 0x01)
+#define SYS_TASK_SAMPL (SYS_TASK_INT    + 0x01)
 
 /**
 * @brief Get device configuration settings.

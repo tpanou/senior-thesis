@@ -17,13 +17,18 @@ typedef struct {
     /**
     * The time elapsed between successive automated samplings. The range is @c
     * 0--@c 240, with @c 0 being none. Each unit describes 6 minutes. So, a
-    * value of @c 60 implies @c load samplings per hour.
+    * value of @c 60 implies 10 @c samples per hour.
     */
     uint8_t interval;
 
     /** @brief The amount of samples to take after each @c interval. */
-    uint8_t load;
+    uint8_t samples;
 } Task;
+
+/**
+* @brief Maximum value for Task#interval.
+*/
+#define TASK_INTERVAL_MAX       240
 
 /**
 * @brief Initialise task module dependencies.

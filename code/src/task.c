@@ -63,18 +63,18 @@ void task_init() {
 int8_t task_set(Task* t) {
     if(t->interval > 240) {
         t->interval =  240;
-        t->load     =  255;
+        t->samples  =  255;
         return -1;
     }
 
     task.interval   =  t->interval;
-    task.load       =  t->load;
+    task.samples    =  t->samples;
     return 0;
 }
 
 void task_get(Task* t) {
     t->interval = task.interval;
-    t->load     = task.load;
+    t->samples  = task.samples;
 }
 
 void task_log_samples(uint8_t count) {
@@ -194,11 +194,11 @@ static void task_handle_motor(Position pos, uint8_t evt) {
 * maximum interval for this MCU) to check whether there are tasks that should be
 * initiated automatically. They are only initiated granted the following:
 *   - No other task is currently in progress.
-*   - Task interval and load have been specified (each, other than @c 0). See
+*   - Task interval and samples have been specified (each, other than @c 0). See
 *       task_set().
 *   - The RTC is running.
 *   - The elapsed quanta since the most recently performed task are equal or
-*       greater the the specified interval (via task_set()).
+*       greater the the specified interval (as set with task_set()).
 */
 ISR(WDT_vect) {
     BCDDate now;
@@ -208,7 +208,7 @@ ISR(WDT_vect) {
 
     /* Do not proceed, if a task is in progress or there are no automation
     * settings. */
-    if(task_is_pending || !task.interval || !task.load) return;
+    if(task_is_pending || !task.interval || !task.samples) return;
 
     /* Also, do not proceed if the (RTC) clock is not running. */
     get_date(&now, &day);
@@ -228,6 +228,6 @@ ISR(WDT_vect) {
     }
 
     if(elapsed >= task.interval) {
-        task_log_samples(task.load);
+        task_log_samples(task.samples);
     }
 }

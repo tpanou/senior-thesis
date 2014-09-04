@@ -235,7 +235,7 @@ static void init() {
     max.z = settings[SYS_MTR_MAX_Z - RTC_BASE];
 
     task.interval   =  settings[SYS_TASK_INT    - RTC_BASE];
-    task.load       =  settings[SYS_TASK_LOAD   - RTC_BASE];
+    task.samples    =  settings[SYS_TASK_SAMPL  - RTC_BASE];
 
     /* Network module */
     /* Setup buffer size. #HTTP_SOCKET is configured to 8KB on Tx and Rx). */

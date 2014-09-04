@@ -413,7 +413,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                                 PARAM_STRING(s_gateway, PRM_INET_LEN),
                                 PARAM_STRING(s_iaddr, PRM_INET_LEN),
                                 PARAM_UINT8(task.interval),
-                                PARAM_UINT8(task.load),
+                                PARAM_UINT8(task.samples),
                                 PARAM_STRING(s_subnet, PRM_INET_LEN),
                                 PARAM_UINT8(max.x),
                                 PARAM_UINT8(max.y),
