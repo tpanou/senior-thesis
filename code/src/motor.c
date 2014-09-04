@@ -317,10 +317,11 @@ static void setup_axis(MotorAxis axis, MotorDir dir) {
 }
 
 static void motor_start() {
+    MTR_CALL(new_pos, MTR_EVT_BUSY);
+
     /* This is what actually enables PWM generation and should be called after
     * preparing the Timer/Counters (velocity settings). */
     MTR_PWM_START();
-    MTR_CALL(cur_pos, MTR_EVT_BUSY);
 }
 
 static void motor_stop() {
