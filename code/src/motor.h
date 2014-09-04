@@ -28,7 +28,7 @@ typedef enum {
 /**
 * @brief The available device space over axis Y.
 */
-#define GRID_Y_LEN (12)
+#define GRID_Y_LEN (11)
 
 /**
 * @brief The available device space over axis Z.
