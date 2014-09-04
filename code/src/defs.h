@@ -91,6 +91,14 @@ typedef struct {
 #define FACTORY_HADDR       0xBE, 0xEB, 0xEE, 0xBE, 0xEB, 0xEE
 
 /**
+* @brief The size of all backup memory settings.
+*
+* As these settings are stored in the DS1307 user-memory, no more than 56 Bytes
+* may be stored.
+*/
+#define SYS_SIZE        23
+
+/**
 * @brief User-data RTC memory address.
 *
 * The RTC (DS1307) provides 56 Bytes of user-defined battery-backed RAM. This is
@@ -128,7 +136,7 @@ typedef struct {
 /**
 * @brief Backup memory address of axis X maximum value.
 */
-#define SYS_MTR_MAX_X  (SYS_HADDR       + 0x06)
+#define SYS_MTR_MAX_X  (SYS_MTR_MAX     + 0x00)
 
 /**
 * @brief Backup memory address of axis Y maximum value.

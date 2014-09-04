@@ -222,12 +222,12 @@ static void init() {
     if(bit_is_set(rtc_sec, RTC_CH)) {
 
         /* Write factory settings into the RTC memory. */
-        rtc_write(RTC_BASE, settings, 21);
+        rtc_write(RTC_BASE, settings, SYS_SIZE);
 
     /* Load battery-backed (RTC) settings. */
     } else {
 
-        rtc_read(RTC_BASE, settings, 21);
+        rtc_read(RTC_BASE, settings, SYS_SIZE);
     }
 
     max.x = settings[SYS_MTR_MAX_X - RTC_BASE];
