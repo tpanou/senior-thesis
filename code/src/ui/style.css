@@ -287,7 +287,6 @@ label {
 }
 
 .field-msg {
-    display:            inline-block;
     font-size:          small;
     margin-left:        0.2em;
     vertical-align:     top;
