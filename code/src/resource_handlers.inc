@@ -371,8 +371,11 @@ void rsrc_handle_file(HTTPRequest* req) {
 *       60 minutes.
 *   - Custom maximum dimensions allow operating the device in a subset of the
 *       physical device-space (#GRID_X_LEN, #GRID_Y_LEN, #GRID_Z_LEN). Note that
-*       the acceptable values span from @c 0 up to, but not including, each set
-*       value.
+*       @c x and @c y must be, at least, equal to @c 1, whereas @c z, at least
+*       @c 2.
+*       Also, note that, when driving the motors,
+*       the acceptable values span from @c 0 up to, but not including, each
+*       respective value.
 *
 * Method PUT:
 * Updates the configuration.
@@ -508,9 +511,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
 
                 /* If the physical limits of the device are exceeded, return the
                 * absolute maximum values. */
-                if(max.x > GRID_X_LEN
-                || max.y > GRID_Y_LEN
-                || max.z > GRID_Z_LEN) {
+                if(motor_set_max(&max)) {
                     status      =  TXF_STATUS_400;
                 } else {
                     sys_set(SYS_MTR_MAX, &max);
