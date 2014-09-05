@@ -46,6 +46,7 @@
         var reload = function (evt) {
             var req1 =  ns.createRequest(),
                 req2 =  ns.createRequest();
+            window.document.title   =  "ΓΑΙΟΛικνο - Χειρισμός";
 
             evt instanceof Event && evt.preventDefault();
 

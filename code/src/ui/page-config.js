@@ -84,6 +84,7 @@
         */
         var reload = function (evt) {
             var req =  ns.createRequest();
+            window.document.title   =  "ΓΑΙΟΛικνο - Ρυθμίσεις";
 
             evt instanceof Event && evt.preventDefault();
 

@@ -50,6 +50,20 @@
     };
     req.send();
 
+    /**
+    * @brief Update the document's title for PageHome.
+    */
+    function pageStaticHome() {
+        window.document.title   =  "ΓΑΙΟΛικνο - Γενικά";
+    };
+
+    /**
+    * @brief Update the document's title for PageHelp.
+    */
+    function pageStaticHelp() {
+        window.document.title   =  "ΓΑΙΟΛικνο - Βοήθεια";
+    };
+
     /* The area of search results (in page Log). Contains @c .total-count and
     * @c .pagination elements. */
     var lrs = document.getElementById("log-section-result");
@@ -58,11 +72,11 @@
     var pageNames   =  ["home", "log", "config", "operate", "help"];
 
     /* Handlers for each page. @c null is for simple-text (static) pages. */
-    var handlers    =  [null,
+    var handlers    =  [pageStaticHome,
                         ns.PageLog.reload,
                         ns.PageConfig.reload,
                         ns.PageOperate.reload,
-                        null];
+                        pageStaticHelp];
 
     var pages   =  new ns.OneOfMany(pageNames,
                                     document.getElementById("content")

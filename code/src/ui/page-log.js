@@ -83,6 +83,7 @@
         *   the URI fragment.
         */
         var reload = function(params) {
+            window.document.title   =  "ΓΑΙΟΛικνο - Μετρήσεις";
 
             var p,              // URI parameters parsed and validated
                 query;          // Query string to submit
