@@ -64,11 +64,17 @@
 
                     <div id="config-page" class="page hidden">
                         <h1>Ρυθμίσεις συσκευής</h1>
+                        <p>Χρησιμοποιείτε αυτή τη σελίδα για την εποπτεία και τροποποίηση των ρυθμίσεων λειτουργίας της συσκευής. Η συμπλήρωση των περισσότερων πεδίων είναι προαιρετική· ρυθμίσεις, τα πεδία των οποίων είναι κενά κατά την «Αποθήκευση», παραμένουν (στη συσκευή) ως έχουν.</p>
+                        <p>Έχετε υπόψη ότι οι αποθηκευμένες ρυθμίσεις διατηρούνται ακόμα και αν η συσκευή αποκοπεί από την παροχή ενέργειας. Για την επαναφορά της στις εργοστασιακές ρυθμίσεις, απαιτείται φυσική πρόσβαση στο χώρο της συσκευής για την απομάκρυνση και επανατοποθέτηση της μπαταρίας της. Κατόπιν, θα πρέπει να ρυθμιστεί εκ νέου και κατ' ελάχιστον η &laquo;Ημερομηνία &ndash; Ώρα&raquo;.</p>
                         <div class="field-wrapper">
                             <label for="config-iaddr">Διεύθυνση IP</label>
-                            <input id="config-iaddr" class="textfield big" type="text">
+                            <input id="config-iaddr" class="textfield big more" type="text">
+                            <div class="more-text">
+                                <p>Η διεύθυνση για την επικοινωνία με τη συσκευή μέσω δικτύου.</p>
+                                <p>Έχετε υπόψη ότι η εφαρμογή νέας Διεύθυνσης IP γίνεται αμέσως μετά την επιβεβαίωση επιτυχούς ολοκλήρωσης. Συνεπώς, ίσως απαιτηθεί η αλλαγή της και στο URL της σελίδας (στο πλαίσιο διεύθυνσης).</p>
+                            </div>
                         </div>
-                        <div class="field-wrapper">
+                        <div class="field-wrapper more">
                             <label for="config-gateway">Προεπιλεγμένη πύλη</label>
                             <input id="config-gateway" class="textfield big" type="text">
                         </div>
@@ -77,27 +83,39 @@
                             <input id="config-subnet" class="textfield big" type="text">
                         </div>
                         <div class="field-wrapper">
-                            <label for="config-date-date">Ημερομηνία - Ώρα</label>
-                            <input id="config-date-date" class="textfield tiny right" type="text"> /
-                            <input id="config-date-month" class="textfield tiny right" type="text"> /
-                            <input id="config-date-year" class="textfield medium right" type="text">
-                            <input id="config-date-hours" class="textfield tiny right" type="text"> :
-                            <input id="config-date-minutes" class="textfield tiny right" type="text"> :
-                            <input id="config-date-seconds" class="textfield tiny right" type="text">
+                            <label for="config-date-date">Ημερομηνία &ndash; Ώρα</label>
+                            <input id="config-date-date" class="textfield tiny right more" type="text"> /
+                            <input id="config-date-month" class="textfield tiny right more" type="text"> /
+                            <input id="config-date-year" class="textfield medium right more" type="text">
+                            <input id="config-date-hours" class="textfield tiny right more" type="text"> :
+                            <input id="config-date-minutes" class="textfield tiny right more" type="text"> :
+                            <input id="config-date-seconds" class="textfield tiny right more" type="text">
+                            <div class="more-text">
+                                <p>Η τρέχουσα ημερομηνία και ώρα της συσκευής.</p>
+                                <p>Προσοχή! Η αλλαγή της ημερομηνίας σε κάποια προγενέστερη της τρέχουσας θα έχει ως αποτέλεσμα την διαγραφή όσων μετρήσεων έχουν καταχωρηθεί με ημερομηνία που έπεται της νέας.</p>
+                            </div>
                         </div>
                         <div class="field-wrapper">
-                            <label for="config-x">Λειτουργικό εύρος<span class="small">[X, Y, Z]</span></label>
-                            <input id="config-x" class="textfield tiny right" type="text"> ,
-                            <input id="config-y" class="textfield tiny right" type="text"> ,
-                            <input id="config-z" class="textfield tiny right" type="text">
+                            <label for="config-x">Λειτουργικό εύρος <span class="small">[X, Y, Z]</span></label>
+                            <input id="config-x" class="textfield tiny right more" type="text"> ,
+                            <input id="config-y" class="textfield tiny right more" type="text"> ,
+                            <input id="config-z" class="textfield tiny right more" type="text">
+                            <div class="more-text">
+                                <p>Ο συνολικός χώρος της συσκευής υποδιαιρείται σε ένα απόλυτο μέγιστο πλήθος θέσεων. Το Λειτουργικό εύρος καθορίζει πόσες από αυτές τις θέσεις διατίθενται για δειγματοληψία.</p>
+                                <p>Έχετε υπόψη ότι οι τιμές του Λειτουργικού εύρους ξεκινούν από το 1, ενώ οι τιμές των συντεταγμένων, από το 0 (πχ, στη σελίδα <a href="#operate">Χειρισμός</a>). Για παράδειγμα, Λειτουργικό εύρος 10 (θέσεων) σε κάποιον άξονα καθιστά αποδεκτές συντεταγμένες από 0 έως και 9.</p>
+                            </div>
                         </div>
                         <div class="field-wrapper">
-                            <label for="config-interval-hours">Αφύπνιση - Μετρήσεις</label>
-                            <select id="config-interval-hours" class="right"><option>00</option><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option><option>06</option><option>07</option><option>08</option><option>09</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option></select> :
-                            <select id="config-interval-minutes" class="right"><option>00</option><option>06</option><option>12</option><option>18</option><option>24</option><option>30</option><option>36</option><option>42</option><option>48</option><option>54</option></select> -
-                            <input id="config-samples" class="textfield short right" type="text">
+                            <label for="config-interval-hours">Αφύπνιση &ndash; Μετρήσεις</label>
+                            <select id="config-interval-hours" class="right more"><option>00</option><option>01</option><option>02</option><option>03</option><option>04</option><option>05</option><option>06</option><option>07</option><option>08</option><option>09</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option></select> :
+                            <select id="config-interval-minutes" class="right more"><option>00</option><option>06</option><option>12</option><option>18</option><option>24</option><option>30</option><option>36</option><option>42</option><option>48</option><option>54</option></select> -
+                            <input id="config-samples" class="textfield short right more" type="text">
+                            <div class="more-text">
+                                <p>Ο χρόνος που παρεμβάλλεται μεταξύ διαδοχικών κύκλων μετρήσεων και το πλήθος δειγματοληψιών κάθε κύκλου.</p>
+                                <p>Προσοχή! Οι αυτόματες μετρήσεις απενεργοποιούνται εάν η Αφύπνιση και/ή οι Μετρήσεις είναι μηδέν.</p>
+                            </div>
                         </div>
-                        <a id="config-save" class="button small" href="#">Αποθήκευση</a><a id="config-reset" class="button small" href="#">Καθαρισμός</a><a id="config-reload" class="button small" href="#" >Επαναφορά</a>
+                        <a id="config-save" class="button small" href="#" title="Αποστέλλει τις νέες ρυθμίσεις της συσκευής.">Αποθήκευση</a><a id="config-reset" class="button small" href="#" title="Απαλείφει τα περιεχόμενα των πεδίων.">Καθαρισμός</a><a id="config-reload" class="button small" href="#" title="Συμπληρώνει τη φόρμα με τις τρέχουσες ρυθμίσεις.">Επαναφορά</a>
                     </div>
 
                     <div id="operate-page" class="page hidden">
