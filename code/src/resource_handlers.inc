@@ -301,9 +301,6 @@ void rsrc_handle_file(HTTPRequest* req) {
     uint16_t size       =  0;
     uint8_t  is_gzip    =  1;
 
-    /* TODO: The Flash and the optical encoders share some control lines; inform
-    * the requester entity if a file resource is not currently available. */
-
     srvr_prep(TXF_STATUS_200, TXF_ln,
               TXF_STANDARD_HEADERS_ln);
 
