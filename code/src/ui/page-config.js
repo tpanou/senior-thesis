@@ -163,7 +163,7 @@
             payload.interval    =  elIntervalHrs.selectedIndex * 10
                                 +  elIntervalMins.selectedIndex;
 
-            if(fSamples.el.value && (value = fSamples.get(errors) !== null)) {
+            if(fSamples.el.value && (value = fSamples.get(errors)) !== null) {
                 payload.samples =  value;
             }
 
