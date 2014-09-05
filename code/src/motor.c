@@ -152,7 +152,8 @@ void motor_get_max(Position* max) {
 }
 
 int8_t motor_set_max(Position* max) {
-    if(max->x > GRID_X_LEN || max->y > GRID_Y_LEN || max->z > GRID_Z_LEN) {
+    if(max->x > GRID_X_LEN || max->y > GRID_Y_LEN || max->z > GRID_Z_LEN
+    || max->x < 1          || max->y < 1          || max->z < 2) {
         return -1;
     }
     max_pos.x   =  max->x;

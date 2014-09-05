@@ -420,7 +420,9 @@ void motor_get_max(Position* max);
 * @brief Set the operating limits of the device.
 *
 * Generally, the operating limits should not exceed the physical limits of the
-* device (ie, #GRID_X_LEN, #GRID_Y_LEN and #GRID_Z_LEN). If such is the case,
+* device (ie, #GRID_X_LEN, #GRID_Y_LEN and #GRID_Z_LEN). Also, they should allow
+* for at least a one-by-one X-Y grid, and at least two discrete translations on
+* Z. In any such case,
 * the limits are not altered. Successfully modifying the operating limits
 * results in a motor reset. This function may be invoked at any time; like
 * motor_reset(), any operation in progress at the time this occurs, will be
