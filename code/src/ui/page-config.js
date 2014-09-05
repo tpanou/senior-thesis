@@ -59,7 +59,7 @@
                                   .setErrorClass(cls);
             fCoords     =  (new ns.FieldPoint(x, y, z))
                                   .setErrorClass(cls);
-            fSamples    =  (new ns.FieldInt(samples, 0, 10)
+            fSamples    =  (new ns.FieldInt(samples, 0, 100)
                                   .setErrorClass(cls));
             elIntervalHrs
                         =  document.getElementById(hours);
