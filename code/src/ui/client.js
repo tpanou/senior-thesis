@@ -121,7 +121,7 @@
                             }});
 
     /* Initialise PageMonitor (the swapper). */
-    ns.PageMonitor.init(pageNames, handlers, pages, menu);
+    ns.PageMonitor.init(pageNames, handlers, pages, menu, "home");
 
     /* Register event callbacks. */
     ns.addEventListener(document.getElementById("log-submit"),
