@@ -65,6 +65,11 @@
                         =  document.getElementById(hours);
             elIntervalMins
                         =  document.getElementById(mins);
+
+            /* Minimum operational range values. */
+            fCoords.fieldX.min  = 1;
+            fCoords.fieldY.min  = 1;
+            fCoords.fieldZ.min  = 2;
         };
 
         /**
