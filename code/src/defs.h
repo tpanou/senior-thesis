@@ -7,6 +7,21 @@
 #include <inttypes.h>
 
 /**
+* @brief Enable communication via the USART.
+*
+* Additionally, if @c ENABLE_DEBUG is not defined, provide write-access to the
+* (external) Flash (from the host).
+*/
+#define ENABLE_SERIAL_IO
+
+/**
+* @brief Enable transmissions via the USART and disable writing to the Flash.
+*
+* This should only be defined, if @c ENABLE_SERIAL_IO is defined as well.
+*/
+/* #define ENABLE_DEBUG */
+
+/**
 * @brief A coordinate in device space.
 */
 typedef struct {
@@ -53,6 +68,18 @@ typedef struct {
     /** @brief Seconds: @f$0x00-0x59@f$. */
     uint8_t sec;
 } BCDDate;
+
+#if defined (ENABLE_DEBUG) && defined (ENABLE_SERIAL_IO)
+/**
+* @brief Include @p x, if @c ENABLE_DEBUG is specified.
+*
+* @param[in] x Block of code.
+*/
+#define DBG(x)          x
+
+#else  /* !defined (ENABLE_DEBUG) || !defined (ENABLE_SERIAL_IO) */
+#define DBG(x)
+#endif /* !defined (ENABLE_DEBUG) || !defined (ENABLE_SERIAL_IO) */
 
 /**
 * @brief Watchdog Time-out.

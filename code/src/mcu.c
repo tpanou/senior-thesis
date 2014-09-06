@@ -10,9 +10,9 @@
 #include "resource.h"
 #include "w5100.h"
 
-#ifdef ENABLE_SERIAL_IO
+#if defined (ENABLE_SERIAL_IO) && !defined (ENABLE_DEBUG)
 #include "flash.h"
-#endif /* ENABLE_SERIAL_IO */
+#endif
 
 #include "task.h"
 #include "motor.h"
@@ -41,7 +41,7 @@ FILE usart_output = FDEV_SETUP_STREAM(usart_putchar, NULL, _FDEV_SETUP_WRITE);
 * This stream is configured as the default input stream (stdin).
 */
 FILE usart_input  = FDEV_SETUP_STREAM(NULL, usart_getchar, _FDEV_SETUP_READ);
-#endif /* ENABLE_SERIAL_IO */
+#endif /* defined (ENABLE_SERIAL_IO) */
 
 /**
 * @brief Initialise MCU and resets all hardware.
@@ -74,7 +74,7 @@ int main() {
     /** - Setup I/O streams. */
     stdout      = &usart_output;
     stdin       = &usart_input;
-#endif /* ENABLE_SERIAL_IO */
+#endif
 
     _delay_ms(1000);
 
@@ -288,7 +288,9 @@ void init_clock() {
 }
 
 #ifdef ENABLE_SERIAL_IO
+
 ISR(USART_RX_vect) {
+    #ifndef ENABLE_DEBUG
     uint8_t     buf[256];
     uint16_t    page;
     uint16_t    len;
@@ -313,6 +315,7 @@ ISR(USART_RX_vect) {
     fls_exchange(FLS_WRITE, page, buf, len);
 
     fls_wait_WIP();
+    #endif /* ! defined (ENABLE_DEBUG) */
 }
 
 int usart_putchar(char c, FILE* stream) {
@@ -335,6 +338,10 @@ void init_usart() {
     UCSR0C      = _BV(UCSZ01) | _BV(UCSZ00);
 
     /* Enable Rx-complete interrupts, Receiver and Transmitter. */
-    UCSR0B      = _BV(RXCIE0) | _BV(RXEN0) | _BV(TXEN0);
+    UCSR0B      = _BV(RXCIE0) | _BV(RXEN0);
+
+    #ifdef ENABLE_DEBUG
+    UCSR0B     |= _BV(TXEN0);
+    #endif
 }
-#endif /* ENABLE_SERIAL_IO */
+#endif /* defined (ENABLE_SERIAL_IO) */
