@@ -42,6 +42,23 @@ void log_init() {
     log.count   =  eeprom_read_byte(&log_count);
 }
 
+uint8_t log_purge(BCDDate* dt) {
+    uint8_t      count;
+    LogRecordSet set;
+    BCDDate until   = {.year = 0x99, .mon = 0x12, .date = 0x31,
+                       .hour = 0x23, .min = 0x59, .sec  = 0x59};
+
+    /* Find records between @p dt and end-of-time. */
+    count           =  log_get_set(&set, dt, &until);
+    if(count) {
+        log.count  -=  count;
+        eeprom_write_byte(&log_count, log.count);
+    }
+
+    DBG(printf("Purged records: %d\n", count));
+    return count;
+}
+
 void log_append(LogRecord* rec) {
     uint8_t     write_offset;   /* Offset from #LOG_BASE_ADDR to write to. */
 

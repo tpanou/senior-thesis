@@ -94,6 +94,19 @@ typedef struct {
 void log_init();
 
 /**
+* @brief Remove records newer than @p dt.
+*
+* This simply updates (decreases) an internal counter; the actual records are
+* not erased from the EEPROM but are ignored and successively overwritten with
+* each call to log_append().
+*
+* @param[in] dt The starting date. Records with a date equal or greater than
+*   this value, will be purged.
+* @returns The number of records deleted.
+*/
+uint8_t log_purge(BCDDate* dt);
+
+/**
 * @brief Add a new log record.
 *
 * Apart from writing the record, it also updates @c index, @c count (in EEPROM)
