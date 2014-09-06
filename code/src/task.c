@@ -173,7 +173,7 @@ static void make_target(uint8_t* x, uint8_t* y) {
     *y      = (seed + day) % max.y;
 }
 
-static uint16_t update_motor_eta(Position* new) {
+static uint16_t task_estimate_time(Position* new) {
     uint16_t time;
     Position cur;
     int16_t one;
