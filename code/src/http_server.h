@@ -148,7 +148,7 @@ typedef struct HTTPRequest {
 * @brief The total amount of text fragments that may be used with
 * srvr_compile().
 */
-#define TXF_MAX              25
+#define TXF_MAX              27
 #define TXF_SPACE             0 /**< @brief A single space. */
 #define TXF_COLON             1 /**< @brief A single colon. */
 #define TXF_CRLF              2 /**< @brief A CRLF sequence (0x0D, 0x0A). */
@@ -174,6 +174,8 @@ typedef struct HTTPRequest {
 #define TXF_GZIP_LINE        22 /**< @brief A complete gzip encoding line. */
 #define TXF_JS_LINE          23 /**< @brief A complete JS type header line. */
 #define TXF_CSS_LINE         24 /**< @brief A complete CSS type header line. */
+#define TXF_CACHE_NO_CACHE   25 /**< @brief The text: Cache-Control:no-cache */
+#define TXF_CACHE_PUBLIC     26 /**< @brief The text: Cache-Control:public */
 
 /**
 * @brief Alias of #TXF_SPACE.
@@ -359,6 +361,15 @@ srvr_compile(0, __VA_ARGS__, SRVR_NOT_SET)
 */
 #define TXF_CONTENT_TYPE_CSS_ln     TXF_CONTENT_TYPE,   TXF_HS, \
                                     TXF_CSS_LINE,       TXF_ln
+/**
+* @brief Convenience macro to print: Cache-Control:no-cache
+*/
+#define TXF_CACHE_NO_CACHE_ln       TXF_CACHE_NO_CACHE, TXF_ln
+
+/**
+* @brief Convenience macro to print: Cache-Control:public
+*/
+#define TXF_CACHE_PUBLIC_ln         TXF_CACHE_PUBLIC,   TXF_ln
 
 /**
 * @brief HTTP method flag-bits that may be OR-ed together.

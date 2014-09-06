@@ -337,7 +337,8 @@ void rsrc_handle_file(HTTPRequest* req) {
     if(is_gzip) {
         srvr_prep(TXF_GZIP_ln);
     }
-    srvr_prep(TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size, TXF_lnln);
+    srvr_prep(TXF_CACHE_PUBLIC_ln,
+              TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size, TXF_lnln);
 
     fls_to_wiz(HTTP_SOCKET, page, size);
     net_send(HTTP_SOCKET, NULL, 0, 1);
@@ -541,6 +542,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
             srvr_prep(TXF_STATUS_200, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_TYPE_JSON_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, size,
                       TXF_lnln);
 
@@ -572,6 +574,7 @@ void rsrc_handle_configuration(HTTPRequest* req) {
             srvr_send(TXF_STATUS_400, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_TYPE_JSON_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 57,
                       TXF_lnln);
 
@@ -633,6 +636,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
 
         srvr_send(TXF_STATUS_503, TXF_ln,
                   TXF_STANDARD_HEADERS_ln,
+                  TXF_CACHE_NO_CACHE_ln,
                   TXF_CONTENT_LENGTH_ZERO_ln,
                   TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                   TXF_lnln);
@@ -692,6 +696,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
                           /* This should be using req->accept, after it is set
                           * to specific type (ie, not app/* but app/json). */
                       TXF_CONTENT_TYPE_JSON_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
             (*serialiser)(tokens, params, 3, SERIAL_DEFAULT);
@@ -700,6 +705,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
         case TXF_STATUS_202:
             srvr_send(TXF_STATUS_202, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH_ZERO_ln,
                       TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                       TXF_lnln);
@@ -709,6 +715,7 @@ void rsrc_handle_coordinates(HTTPRequest* req) {
             srvr_send(TXF_STATUS_400, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_TYPE_JSON_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH, TXF_HS, TXFx_FW_UINT, 38,
                       TXF_lnln);
 
@@ -1052,6 +1059,7 @@ void rsrc_handle_measurement(HTTPRequest* req) {
             srvr_prep(TXF_STATUS_200, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
                       TXF_CONTENT_TYPE_JSON_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CHUNKED,
                       TXF_lnln);
 
@@ -1071,6 +1079,7 @@ void rsrc_handle_measurement(HTTPRequest* req) {
         case TXF_STATUS_202:
             srvr_send(TXF_STATUS_202, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH_ZERO_ln,
                       TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                       TXF_lnln);
@@ -1079,12 +1088,14 @@ void rsrc_handle_measurement(HTTPRequest* req) {
         case TXF_STATUS_400:
             srvr_send(TXF_STATUS_400, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH_ZERO_ln, TXF_ln);
 
         break;
         case TXF_STATUS_503:
             srvr_send(TXF_STATUS_503, TXF_ln,
                       TXF_STANDARD_HEADERS_ln,
+                      TXF_CACHE_NO_CACHE_ln,
                       TXF_CONTENT_LENGTH_ZERO_ln,
                       TXF_RETRY_AFTER, TXF_HS, TXFx_FW_UINT, eta,
                       TXF_lnln);

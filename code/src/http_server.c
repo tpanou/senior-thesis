@@ -39,6 +39,9 @@ uint8_t txf_JSON_line[] PROGMEM
 uint8_t txf_gzip_line[] PROGMEM     = "Content-Encoding:gzip";
 uint8_t txf_JS_line[] PROGMEM       = "text/javascript;charset=utf-8";
 uint8_t txf_css_line[] PROGMEM      = "text/css";
+uint8_t txf_cache_no[] PROGMEM      = "Cache-Control:no-cache";
+uint8_t txf_cache_public[] PROGMEM  = "Cache-Control:public";
+
 
 /* Doxygen does not handle attributes (like PROGMEM) very well. */
 /*
@@ -73,7 +76,9 @@ PGM_P srvr_txf[] PROGMEM = {
     txf_JSON_line,
     txf_gzip_line,
     txf_JS_line,
-    txf_css_line
+    txf_css_line,
+    txf_cache_no,
+    txf_cache_public
 };
 
 /**
