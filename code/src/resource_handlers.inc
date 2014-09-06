@@ -465,8 +465,9 @@ void rsrc_handle_configuration(HTTPRequest* req) {
                 if(str_to_date(&dt, s_date) || day > 7) {
                     status      =  TXF_STATUS_400;
 
-                /* Set date to RTC. */
+                /* Set date to RTC and remove records more recent than @c dt. */
                 } else {
+                    log_purge(&dt);
                     set_date(&dt, day);
                 }
             }

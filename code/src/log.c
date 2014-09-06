@@ -62,6 +62,9 @@ uint8_t log_purge(BCDDate* dt) {
 void log_append(LogRecord* rec) {
     uint8_t     write_offset;   /* Offset from #LOG_BASE_ADDR to write to. */
 
+    /* Remove any records with a newer date than the one in @p rec. */
+    log_purge(&rec->date);
+
     /* If the storage if full, replace the oldest record with this one. */
     if(log.count == LOG_LEN) {
         write_offset    =  log.index;
