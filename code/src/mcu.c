@@ -76,7 +76,7 @@ int main() {
     stdin       = &usart_input;
 #endif
 
-    _delay_ms(1000);
+    _delay_ms(2000);
 
     /* When in Master SPI mode, if SS is input low, MSTR bit will be cleared. */
     DDRB       |= _BV(DDB2);
@@ -169,7 +169,7 @@ void sys_get(uint8_t setting, void* value) {
 }
 
 int8_t sys_set(uint8_t setting, void* value) {
-    int8_t ret;
+    int8_t ret  =  -1;
 
     switch(setting) {
         case SYS_IADDR:
@@ -321,6 +321,7 @@ ISR(USART_RX_vect) {
 int usart_putchar(char c, FILE* stream) {
     loop_until_bit_is_set(UCSR0A, UDRE0);
     UDR0        = c;
+    loop_until_bit_is_set(UCSR0A, UDRE0);
     return 0;
 }
 
