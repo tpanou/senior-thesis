@@ -259,8 +259,8 @@ static void init() {
     /* Enable interrupts on HTTP_SOCKET. */
     net_write8(NET_IMR, NET_IR_Sn(HTTP_SOCKET));
 
-    /* Setup #HTTP_SOCKET for HTTP (TCP on port 80). */
-    net_socket_open(HTTP_SOCKET, NET_Sn_MR_TCP, 80);
+    /* Setup #HTTP_SOCKET for HTTP (TCP on port #HTTP_PORT). */
+    net_socket_open(HTTP_SOCKET, NET_Sn_MR_TCP, HTTP_PORT);
     net_write8(NET_Sn_CR(HTTP_SOCKET), NET_Sn_CR_LISTEN);
 
     /* Other modules; complementary ones, first. */

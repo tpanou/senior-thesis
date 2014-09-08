@@ -67,7 +67,7 @@ void handle_http_socket(uint8_t s, uint8_t status) {
             net_write8(NET_Sn_CR(s), NET_Sn_CR_CLOSE);
 
             /* Re-open socket. */
-            net_socket_open(HTTP_SOCKET, NET_Sn_MR_TCP, 80);
+            net_socket_open(HTTP_SOCKET, NET_Sn_MR_TCP, HTTP_PORT);
             net_write8(NET_Sn_CR(s), NET_Sn_CR_LISTEN);
         }
 

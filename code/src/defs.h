@@ -291,6 +291,11 @@ int8_t sys_set(uint8_t setting, void* value);
 #define HTTP_SOCKET     0
 
 /**
+* @brief Port the HTTP server is listening to.
+*/
+#define HTTP_PORT       55555
+
+/**
 * @brief Available output buffer size in the network module (chip).
 *
 * This is just a convenience. The actual setting is done in code (main()).
