@@ -293,7 +293,7 @@ int8_t sys_set(uint8_t setting, void* value);
 /**
 * @brief Port the HTTP server is listening to.
 */
-#define HTTP_PORT       55555
+#define HTTP_PORT       80
 
 /**
 * @brief Available output buffer size in the network module (chip).
@@ -379,7 +379,7 @@ int8_t sys_set(uint8_t setting, void* value);
 *
 * The file starts at this page and extends for #FILE_SIZE_LOGO_PNG bytes.
 */
-#define FILE_PAGE_LOGO_PNG     (32*1 + 16)
+#define FILE_PAGE_LOGO_PNG     (32*1 + 10)
 
 /**
 * @brief First flash page address of client.js.
@@ -391,12 +391,12 @@ int8_t sys_set(uint8_t setting, void* value);
 /**
 * @brief Size of the index file.
 */
-#define FILE_SIZE_INDEX         1818
+#define FILE_SIZE_INDEX         3479
 
 /**
 * @brief Size of the style.css file.
 */
-#define FILE_SIZE_STYLE_CSS     1161
+#define FILE_SIZE_STYLE_CSS     1230
 
 /**
 * @brief Size of the logo.png file.
@@ -406,7 +406,7 @@ int8_t sys_set(uint8_t setting, void* value);
 /**
 * @brief Size of the client.js file.
 */
-#define FILE_SIZE_CLIENT_JS     6306
+#define FILE_SIZE_CLIENT_JS     6670
 
 /**
 * @brief Pulls Flash @c nCS low.
