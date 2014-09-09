@@ -72,7 +72,6 @@ void task_init() {
     count   =  log_get_set(&set, &since, &until);
     if(count) {
         /* Fetch the last record. */
-        log_skip(&set, count - 1);
         log_get_next(&rec, &set);
 
         task_recent =  BCD8_TO_INTERVAL(rec.date.hour, rec.date.min);

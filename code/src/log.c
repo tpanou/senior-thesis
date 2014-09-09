@@ -89,7 +89,7 @@ void log_append(LogRecord* rec) {
 uint8_t log_skip(LogRecordSet* set, uint8_t amount) {
     /* Ensure there are enough records to skip. */
     if(set->count > amount) {
-        set->index +=  amount;
+        set->index -=  amount;
         set->count -=  amount;
 
     /* Otherwise, specify the set is empty. */
@@ -103,12 +103,12 @@ uint8_t log_get_next(LogRecord* rec, LogRecordSet* set) {
     uint8_t     read_offset;
 
     /* Read the next record provided there is one. */
-    if(set->count && set->index < LOG_LEN) {
+    if(set->count && set->index < log.count) {
         read_offset = log_get_offset(set->index);
 
         eeprom_read_block(rec, (void*)LOG_ADDR(read_offset), sizeof(LogRecord));
 
-        ++(set->index);
+        --(set->index);
         --(set->count);
 
         return 0;
@@ -147,12 +147,12 @@ uint8_t log_get_set(LogRecordSet* set, BCDDate* since, BCDDate* until) {
 
         /* If date @p since is greater than the date at the returned index, that
         * date must not be included in the set (increase lower limit). */
-        if(c_since > 0 && i_since < LOG_LEN - 1) ++i_since;
+        if(c_since > 0 && i_since < log.count - 1) ++i_since;
 
         /* Likewise, for date @p until (decrease upper limit). */
         if(c_until < 0 && i_until > 0) --i_until;
 
-        set->index  =  i_since;
+        set->index  =  i_until;
         set->count  =  i_until - i_since + 1;
     }
 
