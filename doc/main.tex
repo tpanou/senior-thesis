@@ -6,9 +6,12 @@
 % Create overline over regular text.
 \newcommand{\nbar}[1]{$\overline{\text{#1}}$}
 
+\newcommand{\etc}[1]{κ\@.ο\@.κ{#1}}
+
 \begin{document}
 % All this file does is to piece together the final document. It does so by
 % using the \input command to reference documents from directory tex/.
+\input{tex/ch_construction}
 \input{tex/ch_sensors}
 \input{tex/ch_circuitry}
 \printbibliography[nottype=image,nottype=table]
