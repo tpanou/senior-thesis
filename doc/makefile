@@ -9,7 +9,7 @@ OUT_DIR = tmp/
 # Additional parameters to pass to `xelatex'.
 EXTRA   = -synctex=1
 
-.PHONY: all
+.PHONY: all ps
 
 all:
 	xelatex $(EXTRA) -output-directory=$(OUT_DIR) $(MAIN) && \
@@ -17,3 +17,13 @@ all:
 	$(INDEX) $(OUT_DIR)$(MAIN).idx && \
 	xelatex $(EXTRA) -output-directory=$(OUT_DIR) $(MAIN) && \
 	xelatex $(EXTRA) -output-directory=$(OUT_DIR) $(MAIN)
+
+# Find all .ps files and convert them into .pdf and print each matched file-name
+# on the command line twice, separating them by null. Then, replace the .ps
+# extension with .pdf and pass the (null-terminated) strings in pairs as
+# arguments into pdfcrop. Each file-name is used twice because input and output
+# files are the same.
+ps:
+	find -name "*.ps" -execdir ps2pdf {} \; -printf "%p\0%p\0" | \
+	sed 's/.ps$\/.pdf/g' | \
+	xargs -0 -n 2 --verbose pdfcrop
