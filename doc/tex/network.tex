@@ -1093,17 +1093,17 @@ typedef struct ResourceHandler {
 (true ή false) και null καθώς και έξι δομικούς χαρακτήρες, τους ακόλουθους
 \parencite[3--5]{rfc7159}:
 \begin{lstlisting}
-begin-array     = ws %x5B ws  ; [ Αριστερή αγκύλη
-begin-object    = ws %x7B ws  ; { Αριστερό άγκιστρο
-end-array       = ws %x5D ws  ; ] Δεξιά αγκύλη
-end-object      = ws %x7D ws  ; } Δεξιό άγκιστρο
-name-separator  = ws %x3A ws  ; : Άνω κάτω τελεία
-value-separator = ws %x2C ws  ; , Κόμμα
+begin-array     = ws %x5B ws  ; [ Left square bracket
+begin-object    = ws %x7B ws  ; { Left curly bracket
+end-array       = ws %x5D ws  ; ] Right square bracket
+end-object      = ws %x7D ws  ; } Right curly bracket
+name-separator  = ws %x3A ws  ; : Colon
+value-separator = ws %x2C ws  ; , Comma
 ws = *(
-        %x20 /                ; Κενό διάστημα
-        %x09 /                ; Χαρακτήρας οριζόντιας οριοθέτησης
-        %x0A /                ; Αλλαγή γραμμής
-        %x0D )                ; Χαρακτήρας επαναφοράς
+        %x20 /                ; Space
+        %x09 /                ; Horizontal tab
+        %x0A /                ; Line feed or New line
+        %x0D )                ; Carriage return
 \end{lstlisting}
 Σημειώνεται ότι η άνω κάτω τελεία (\verb~name-separator~) χρησιμοποιείται μεταξύ
 κλειδιού και τιμής στα ζεύγη κλειδιών-τιμές των αντικειμένων, ενώ το κόμμα
