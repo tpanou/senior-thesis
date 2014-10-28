@@ -8,12 +8,22 @@
 
 \newcommand{\etc}[1]{κ\@.ο\@.κ{#1}}
 
+% Issue \makeglossaries before defining any entries. *begin.pdf p.12*
+\makeglossaries
+\loadglsentries{tex/glossary}
+
 \begin{document}
 % All this file does is to piece together the final document. It does so by
 % using the \input command to reference documents from directory tex/.
 \input{tex/ch_construction}
 \input{tex/ch_sensors}
 \input{tex/ch_circuitry}
+
+% Options are provided on p.122.
+\printglossary[title=Γλωσσάριο,     % `Γλωσσάρι' is used by default
+               nogroupskip]         % Omit excess vertical space between groups
+\cleardoublepage
+
 \printbibliography[nottype=image,nottype=table]
 \printindex
 \end{document}

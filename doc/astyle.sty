@@ -119,3 +119,10 @@
 % other commands.
 \usepackage[unicode]{hyperref} % Enable hyperlinks in citations etc.
 
+% glossaries needs to come after hyperref (and other packages). p.2
+\usepackage[xindy={                     % Sorting non-Latin entries
+                glsnumbers=false},      % Omit groups. p.133
+            style=altlist]              % Term and description on separate lines
+           {glossaries}
+\glstoctrue                             % Add glossaries to TOC
+
