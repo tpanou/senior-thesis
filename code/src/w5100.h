@@ -211,49 +211,49 @@
 /**
 * @brief Initialise Socket.
 *
-* Used with NET_Sn_MR().
+* Used with NET_Sn_CR().
 */
 #define NET_Sn_CR_OPEN      0x01
 
 /**
 * @brief Listen for incoming connection requests (TCP mode).
 *
-* Used with NET_Sn_MR().
+* Used with NET_Sn_CR().
 */
 #define NET_Sn_CR_LISTEN    0x02
 
 /**
 * @brief Connect to remote host (TCP mode).
 *
-* Used with NET_Sn_MR().
+* Used with NET_Sn_CR().
 */
 #define NET_Sn_CR_CONNECT   0x03
 
 /**
 * @brief Send connection termination request (TCP mode).
 *
-* Used with NET_Sn_MR().
+* Used with NET_Sn_CR().
 */
 #define NET_Sn_CR_DISCON    0x08
 
 /**
 * @brief Close Socket (change value of #NET_Sn_SR() to #NET_SN_SR_CLOSED).
 *
-* Used with NET_Sn_MR().
+* Used with NET_Sn_CR().
 */
 #define NET_Sn_CR_CLOSE     0x10
 
 /**
 * @brief Notify to send data from the outgoing buffer of the Socket.
 *
-* Used with NET_Sn_MR().
+* Used with NET_Sn_CR().
 */
 #define NET_Sn_CR_SEND      0x20
 
 /**
 * @brief Notify that data have been read from the incoming buffer of the Socket.
 *
-* Used with NET_Sn_MR().
+* Used with NET_Sn_CR().
 */
 #define NET_Sn_CR_RECV      0x40
 
