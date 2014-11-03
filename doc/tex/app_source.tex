@@ -1,0 +1,175 @@
+\chapter{Πηγαίος κώδικας}
+
+\section{Μικροελεγκτής}
+
+
+\subsection*{Ορισμοί γενικής εφαρμογής}
+\subsubsection*{defs.h}
+\lstinputlisting{../../code/src/defs.h}
+
+
+\subsection*{Εξωτερική μνήμη Flash}
+\subsubsection*{flash.h}
+\lstinputlisting{../../code/src/flash.h}
+\subsubsection*{flash.c}
+\lstinputlisting{../../code/src/flash.c}
+
+
+\subsection*{Αναλυτής HTTP}
+\subsubsection*{http\_parser.h}
+\lstinputlisting{../../code/src/http_parser.h}
+\subsubsection*{http\_parser.c}
+\lstinputlisting{../../code/src/http_parser.c}
+
+
+\subsection*{Κορμός διακομιστή HTTP}
+\subsubsection*{http\_server.h}
+\lstinputlisting{../../code/src/http_server.h}
+\subsubsection*{http\_server.c}
+\lstinputlisting{../../code/src/http_server.c}
+
+
+\subsection*{Αναλυτής και γεννήτρια JSON}
+\subsubsection*{json\_parser.h}
+\lstinputlisting{../../code/src/json_parser.h}
+\subsubsection*{json\_parser.c}
+\lstinputlisting{../../code/src/json_parser.c}
+
+
+\subsection*{Ημερολόγιο μετρήσεων}
+\subsubsection*{log.h}
+\lstinputlisting{../../code/src/log.h}
+\subsubsection*{log.c}
+\lstinputlisting{../../code/src/log.c}
+
+
+\subsection*{Αρχείο εκκίνησης}
+\subsubsection*{mcu.h}
+\lstinputlisting{../../code/src/mcu.h}
+\subsubsection*{mcu.c}
+\lstinputlisting{../../code/src/mcu.c}
+
+
+\subsection*{Υποσύστημα κίνησης}
+\subsubsection*{motor.h}
+\lstinputlisting{../../code/src/motor.h}
+\subsubsection*{motor.c}
+\lstinputlisting{../../code/src/motor.c}
+
+
+\subsection*{W5100 Socket handler}
+\subsubsection*{net.h}
+\lstinputlisting{../../code/src/net.h}
+\subsubsection*{net.c}
+\lstinputlisting{../../code/src/net.c}
+
+
+\subsection*{Πρωτόκολλο 1-Wire}
+\subsubsection*{onewire.h}
+\lstinputlisting{../../code/src/onewire.h}
+\subsubsection*{onewire.c}
+\lstinputlisting{../../code/src/onewire.c}
+
+
+\subsection*{Διεπαφή παραμέτρων}
+\subsubsection*{param.h}
+\lstinputlisting{../../code/src/param.h}
+
+
+\subsection*{Περιγραφή πόρων HTTP}
+\subsubsection*{resource.h}
+\lstinputlisting{../../code/src/resource.h}
+\subsubsection*{resource.c}
+\lstinputlisting{../../code/src/resource.c}
+
+
+\subsection*{Ρουτίνες περάτωσης υλοποίησης}
+\subsubsection*{resource\_handlers.inc}
+\lstinputlisting{../../code/src/resource_handlers.inc}
+
+
+\subsection*{Διεπαφή ολοκληρωμένου πραγματικού χρόνου (RTC)}
+\subsubsection*{rtc.h}
+\lstinputlisting{../../code/src/rtc.h}
+\subsubsection*{rtc.c}
+\lstinputlisting{../../code/src/rtc.c}
+
+
+\subsection*{Ροή χαρακτήρων Socket}
+\subsubsection*{sbuffer.h}
+\lstinputlisting{../../code/src/sbuffer.h}
+\subsubsection*{sbuffer.c}
+\lstinputlisting{../../code/src/sbuffer.c}
+
+
+\subsection*{Αισθητήρες υλοποίησης}
+\subsubsection*{sensor.h}
+\lstinputlisting{../../code/src/sensor.h}
+\subsubsection*{sensor.c}
+\lstinputlisting{../../code/src/sensor.c}
+
+
+\subsection*{Συμπληρωματικές λειτουργίες ροής}
+\subsubsection*{stream\_util.h}
+\lstinputlisting{../../code/src/stream_util.h}
+\subsubsection*{stream\_util.c}
+\lstinputlisting{../../code/src/stream_util.c}
+
+
+\subsection*{Εργασία μετρήσεων}
+\subsubsection*{task.h}
+\lstinputlisting{../../code/src/task.h}
+\subsubsection*{task.c}
+\lstinputlisting{../../code/src/task.c}
+
+
+\subsection*{Ορισμοί TWI (I\protect\tsup{2}C)}
+\subsubsection*{twi.h}
+\lstinputlisting{../../code/src/twi.h}
+
+
+\subsection*{Ολοκληρωμένο δικτύωσης W5100}
+\subsubsection*{w5100.h}
+\lstinputlisting{../../code/src/w5100.h}
+\subsubsection*{w5100.c}
+\lstinputlisting{../../code/src/w5100.c}
+
+
+\subsection*{Συναρτήσεις γενικού σκοπού}
+\subsubsection*{util.h}
+\lstinputlisting{../../code/src/util.h}
+\subsubsection*{util.c}
+\lstinputlisting{../../code/src/util.c}
+
+
+\section{Διεπαφή χρήστη («ιστοσελίδα»)}
+
+
+\subsection*{Αρχικοποίηση JavaScript client}
+\subsubsection*{ui/client.js}
+\lstinputlisting{../../code/src/ui/client.js}
+
+
+\subsection*{Κοινόχρηστος κώδικας client}
+\subsubsection*{ui/gns-common.js}
+\lstinputlisting{../../code/src/ui/gns-common.js}
+
+
+\subsection*{Κώδικας ιστοσελίδας}
+\subsubsection*{ui/index.html}
+\lstinputlisting{../../code/src/ui/index.html}
+
+
+\subsection*{Δυναμική σελίδα «Ρυθμίσεις»}
+\subsubsection*{ui/page-config.js}
+\lstinputlisting{../../code/src/ui/page-config.js}
+
+
+\subsection*{Δυναμική σελίδα «Χειρισμός»}
+\subsubsection*{ui/page-operate.js}
+\lstinputlisting{../../code/src/ui/page-operate.js}
+
+
+\subsection*{Αρχείο μορφοποιήσεων}
+\subsubsection*{ui/style.css}
+\lstinputlisting{../../code/src/ui/style.css}
