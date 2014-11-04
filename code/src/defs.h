@@ -364,39 +364,43 @@ int8_t sys_set(uint8_t setting, void* value);
 * @brief First flash page address of index.
 *
 * The file starts at this page and extends for #FILE_SIZE_INDEX bytes.
+* Currently, allocated 15KiB.
 */
-#define FILE_PAGE_INDEX         32*0
+#define FILE_PAGE_INDEX         0
 
 /**
 * @brief First flash page address of style.css.
 *
 * The file starts at this page and extends for #FILE_SIZE_STYLE_CSS bytes.
+* Currently, allocated 5KiB.
 */
-#define FILE_PAGE_STYLE_CSS     32*1
+#define FILE_PAGE_STYLE_CSS     60
 
 /**
 * @brief First flash page address of logo.png.
 *
 * The file starts at this page and extends for #FILE_SIZE_LOGO_PNG bytes.
+* Currently, allocated 5KiB.
 */
-#define FILE_PAGE_LOGO_PNG     (32*1 + 10)
+#define FILE_PAGE_LOGO_PNG      80
 
 /**
 * @brief First flash page address of client.js.
 *
 * The file starts at this page and extends for #FILE_SIZE_CLIENT_JS bytes.
+* Currently, allocated all the way to the end.
 */
-#define FILE_PAGE_CLIENT_JS     32*2
+#define FILE_PAGE_CLIENT_JS     100
 
 /**
 * @brief Size of the index file.
 */
-#define FILE_SIZE_INDEX         3479
+#define FILE_SIZE_INDEX         8393
 
 /**
 * @brief Size of the style.css file.
 */
-#define FILE_SIZE_STYLE_CSS     1230
+#define FILE_SIZE_STYLE_CSS     1233
 
 /**
 * @brief Size of the logo.png file.
