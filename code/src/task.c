@@ -75,6 +75,11 @@ void task_init() {
         log_get_next(&rec, &set);
 
         task_recent =  BCD8_TO_INTERVAL(rec.date.hour, rec.date.min);
+
+        DBG(printf("Recent: %02x:%02x → %d\n", rec.date.hour,
+                                               rec.date.min,
+                                               task_recent));
+
     } else {
         task_recent =  0;
     }
@@ -179,6 +184,10 @@ static uint16_t task_estimate_time(Position* new) {
     int16_t two;
 
     if(!motor_get(&cur)) {
+
+/*        printf("[%d, %d, %d] → [%d, %d, %d]\n", cur.x, cur.y, cur.z,*/
+/*                                                new->x, new->y, new->z);*/
+
         /* Preserve the offset on either X or Y, whichever is greater (since the
         * common part of the two is run in parallel). */
         one     =  abs(cur.x - new->x);
@@ -203,6 +212,7 @@ static uint16_t task_estimate_time(Position* new) {
         * retract head for that sampling should be taken into account. */
         if(!cur.z) two +=  GRID_Z_LEN;
 
+/*        printf("ETA: (%d+%d): %d\n", one, two, one+two);*/
         time    =  one + two;
     } else {
         time    =  0;
@@ -303,6 +313,9 @@ ISR(WDT_vect) {
     uint16_t now_stamp;
     uint16_t elapsed;   /* Allow for a two-day interval. */
 
+DBG(printf("pending: %d, interval: %d, samples: %d, INT0: %d\n", task_is_pending, task.interval, task.samples));
+    _delay_ms(100);
+
     /* Do not proceed, if a task is in progress or there are no automation
     * settings. */
     if(task_is_pending || !task.interval || !task.samples) return;
@@ -322,8 +335,16 @@ ISR(WDT_vect) {
 
     elapsed =  now_stamp - task_recent;
 
+DBG(printf("Now (%02x:%02x) : %3d\n"
+           "Most recent : %3d\n"
+            "Elapsed     : %3d\n", now.hour, now.min, now_stamp, task_recent, elapsed));
 
     if(elapsed >= task.interval) {
         task_log_samples(task.samples);
+
+/*        printf("Samples     : %3d\n", task.samples);*/
     }
+
+/*    puts("");*/
+    _delay_ms(100);
 }
