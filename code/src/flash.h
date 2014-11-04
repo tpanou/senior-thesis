@@ -156,7 +156,7 @@ void fls_wait_WIP();
 void fls_command(uint8_t c, uint8_t* data);
 
 /**
-* @brief
+* @brief Exchange data with the Flash starting at a particular page's byte 0.
 *
 * It sends command @p c followed by an address (calculated from @p page). It may
 * optionally send *and* receive @p len bytes. Note that this function
