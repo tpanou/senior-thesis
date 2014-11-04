@@ -996,6 +996,9 @@ Request-Line  = Method SP Request-URI SP HTTP-Version CRLF
 πεδίο, διαχωρίζοντάς τα με κόμμα ή και σε επανεμφάνιση του ίδιου πεδίου
 \parencite[32]{rfc2616}.
 
+%\subsubsection{}
+% Τι υλοποιεί
+% Γραμμή αιτήματος
 
 Ο αναλυτής HTTP σέβεται πλήρως αυτές τις προδιαγραφές και προσπαθεί επιπρόσθετα
 να είναι ελαστικός σε ορισμένες πιθανές αποκλίσεις. Για παράδειγμα, αδιαφορεί
@@ -1022,6 +1025,16 @@ Request-Line  = Method SP Request-URI SP HTTP-Version CRLF
 \parencite[9--11]{rfc2396}. Παρότι η υλοποίηση αποφεύγει τη χρήση τέτοιων
 χαρακτήρων στα URI της, υποστηρίζει την επαναφορά κωδικοποιημένων χαρακτήρων
 πριν την απόπειρα αναγνώρισης τους.
+
+% Υποστηριζόμενα πεδία
+% Transfer encoding
+% Accept
+%  q param
+% Content length
+
+
+%Παρόλα αυτά, στο πλαίσιο της υλοποίησης, ο αναλυτής είναι σε θέση να αναγνωρίσει
+%ένα πολύ μικρό πλήθος πεδίων.
 
 
 \subsection{Πόροι διακομιστή}
@@ -1371,7 +1384,8 @@ ws = *(
 %\nameref{subsec:network:http-parser} (σ.~\pageref{subsec:network:http-parser}).
 
 \begin{figure}
-    \caption{Οι πόροι της υλοποίησης.\label{fig:network:resources}}
+    \caption{Πόροι υλοποίησης και οι μονάδες που χρησιμοποιούν.
+    \label{fig:network:resources}}
     \begin{center}
     \includegraphics{network_resources}
     \end{center}
@@ -1404,7 +1418,7 @@ URI της, ενδεχομένως, συνοδεύεται από παραμέτ
 \label{subsec:network:config}
 
 Ο πόρος /configuration αντιπροσωπεύει τις ρυθμίσεις που ορίζουν τη συμπεριφορά
-της κεφαλής.
+της συσκευής.
 
 
 \subsubsection{Μέθοδος GET}
@@ -1607,9 +1621,7 @@ page-size
 την 21\textsuperscript{η} και που έχουν πραγματοποιηθεί από την 1/1/2015 στις
 12:30 και μετά:
 \begin{lstlisting}
-/measurement?page-size=10
-            &page-index=2
-            &date-since=2015-01-01T12:30:00
+/measurement?page-size=10&page-index=2&date-since=2015-01-01T12:30:00
 \end{lstlisting}
 
 Οι πιθανοί κωδικοί κατάστασης (\te{status code}) της απόκρισης σε αιτήματα GET
@@ -1702,3 +1714,24 @@ page-size
 \parencite[23,118--119]{rfc2616}. Τα αρχεία αποθηκεύονται εξαρχής σε αυτήν τη
 μορφή στην εξωτερική μνήμη με κύριο όφελος την εξοικονόμηση αποθηκευτικού χώρου
 στην αποθήκευση και φορτίου κατά την αποστολή.
+
+%\subsection{Ιστοσελίδα}
+
+%   Fragment [25]{rfc3986}
+%   Fragment identifiers have a special role in information retrieval
+%   systems as the primary form of client-side indirect referencing,
+%   allowing an author to specifically identify aspects of an existing
+%   resource that are only indirectly provided by the resource owner.  As
+%   such, the fragment identifier is not used in the scheme-specific
+%   processing of a URI; instead, the fragment identifier is separated
+%   from the rest of the URI prior to a dereference, and thus the
+%   identifying information within the fragment itself is dereferenced
+%   solely by the user agent, regardless of the URI scheme.
+
+%Ωστόσο, στο πλαίσιο της υλοποίησης και λόγω των περιορισμένων πόρων
+%του μικροελεγκτή, η TCP σύνδεση τερματίζεται με το πέρας της 
+
+
+% breadboard    πρωτότυπη κάρτα
+%               πειραματική διάταξη
+%               πειραματική συναρμολόγηση κυκλώματος                         ΤΕΕ
