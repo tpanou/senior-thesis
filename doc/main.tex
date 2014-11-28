@@ -1,0 +1,66 @@
+\documentclass[twoside,a4paper,openright]{report}
+\usepackage{astyle}
+
+\newcommand{\nref}{[{\bf REF}]}
+
+% Issue \makeglossaries before defining any entries. *begin.pdf p.12*
+%\makeglossaries
+%\loadglsentries{tex/glossary}
+
+\begin{document}
+
+% Apply different margins for the title page.
+\newgeometry{hmargin=1.5in,vmargin={1.5in,1in}}
+\input{tex/title}
+\cleardoublepage
+
+\input{tex/acknowledgements}
+\cleardoublepage
+
+\restoregeometry
+
+\input{tex/abstract}
+
+% Use roman numbering in front matter.
+\pagenumbering{roman}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\cleardoublepage
+
+
+% Use arabic numbering for the main matter.
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% Piece together the final document by using the \input command to refer to
+% documents from directory tex/.
+\input{tex/introduction}
+\input{tex/principles}
+\input{tex/foundation}
+\input{tex/construction}
+\input{tex/encoder}
+\input{tex/drive-system}
+\input{tex/network}
+\input{tex/conclusion}
+
+
+%% Options are provided on p.122.
+%%\printglossary[title=Γλωσσάριο,     % `Γλωσσάρι' is used by default
+%%               nogroupskip]         % Omit excess vertical space between groups
+%%\cleardoublepage
+
+\appendix
+\addappheadtotoc
+\appendixpage
+\input{tex/app_circuitry}
+\input{tex/app_source}
+\input{tex/app_picture}
+
+
+\printbibliography[nottype=image,nottype=table]
+
+\cleardoublepage
+\end{document}

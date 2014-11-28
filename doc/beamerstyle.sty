@@ -1,0 +1,101 @@
+\ProvidesPackage{beamerstyle}
+\usepackage{fontspec}    % Specify otf or ttf font (required by `polyglossia')
+\usepackage{xcolor}
+
+\usepackage{metalogo}    % Support for various logos such as XeLaTeX
+
+% Support TeX-ish Ligatures, e.g. --.
+\defaultfontfeatures{Mapping=tex-text}
+% Use the CMU font (equivalent to the default TeX font) that supports both
+% english and greek encoding.
+\setmainfont[
+    Extension      = .otf,
+    UprightFont    = *rm, % Roman
+    BoldFont       = *bx, % Bold Extended Roman
+    ItalicFont     = *ti, % Italic; alt. ci for Classical Italic
+    BoldItalicFont = *bi  % Bold Extended Italic; alt. bl for Slanted
+]{cmun}
+
+\setmonofont[
+    Extension      = .otf,
+    UprightFont    = *tt, % Regular
+    BoldFont       = *tb, % Bold
+    ItalicFont     = *it, % Italic; alt. st for Oblique
+    BoldItalicFont = *tx  % Bold Italic
+]{cmun}
+
+\setsansfont[
+    Extension      = .otf,
+    UprightFont    = *ss,
+    BoldFont       = *sx, % Bold Extended
+    ItalicFont     = *si, % Oblique; alt. sl for Roman Slanted
+    BoldItalicFont = *so  % Bold Extended Oblique
+]{cmun}
+
+\usepackage{amsmath}
+\numberwithin{equation}{section}    % Include section in equation numbering
+\numberwithin{figure}{section}      % Include section in figure numbering
+\numberwithin{table}{section}       % Include table in figure numbering
+
+\usepackage{fixltx2e}     % \textsubscript
+\newcommand\tsub[1]{\textsubscript{#1}}
+\newcommand\tsup[1]{\textsuperscript{#1}}
+
+\usepackage{tabu}
+\tabulinesep = ^0.4em     % Default row spacing for all tables
+
+\usepackage{csquotes}
+\usepackage{polyglossia}
+\setdefaultlanguage{greek}
+\setotherlanguage{english}
+
+\usepackage{graphicx} % Include images from external files
+\graphicspath{ {img/} }
+
+% Explicitly specify the supported file extensions to provide priority to .pdf
+% files over .ps. This is required because, currently, the original as well as
+% the .pdf-cropped version of some schematics exist under img/.
+\DeclareGraphicsExtensions{.png, .jpg, .pdf, .ps}
+
+\usepackage[
+    backend        = biber,
+    citestyle      = authoryear,
+    bibstyle       = authoryear,
+    natbib         = true,
+    hyperref       = true
+]{biblatex}
+\renewcommand{\multicitedelim}{.\;}
+
+\addbibresource{bib/sample.bib} % Suffix is required
+\addbibresource{bib/rfc.bib} % Suffix is required
+
+\usepackage{setspace} % Change line-height
+
+% As stated in http://www.latex-project.org/cgi-bin/ltxbugs2html?pr=latex/3531,
+% the second word after a \slash is not hyphenated, if required. Use this
+% temporary fix.
+\def\slash{/\penalty\exhyphenpenalty\hskip\z@skip}
+
+\usepackage{color}
+\definecolor{gray}{gray}{0.5}
+
+\usepackage{textcomp}
+\usepackage{listings}
+\lstset{language=C,
+        upquote=true,
+        columns=fullflexible,       % Since monospace font is used, remove
+                                    % space used for formatting proportional-
+                                    % width text.
+        commentstyle=\color{gray},
+        basicstyle=\footnotesize\ttfamily}
+
+\usepackage{fancyhdr} % Allows customization of header and footer
+
+% Utility commands (short-hands, really).
+
+\newcommand{\te}[1]{\textenglish{#1}}
+
+% Create overline over regular text.
+\newcommand{\nbar}[1]{$\overline{\text{#1}}$}
+
+\newcommand{\etc}[1]{κ.ο.κ{#1}}
