@@ -3,33 +3,26 @@
 
 \usetheme{default}
 
-
-%\useoutertheme{infolines}
-%\useoutertheme{smoothbars}
 \useoutertheme{miniframes}
 
 \usecolortheme{seahorse}
-%\usecolortheme{seagull}
 \useinnertheme{circles}
 
-%\beamertemplatenavigationsymbolsempty
-
-%\setbeamercolor{title}{fg=black!80}
-%\setbeamercolor{frametitle}{fg=black!80}
-%\setbeamercolor{normal text}{bg=white,fg=black!80}
+\beamertemplatenavigationsymbolsempty
 
 \title{Μελέτη και υλοποίηση συστήματος αυτοματισμού για την απομακρυσμένη
 παρακολούθηση περιβαλλοντικών συνθηκών}
 
-\author{Θεόδωρος Ελευθέριος \textsc{Πάνου}\\ΑΜ 071045}
+\author{Θεόδωρος Ελευθέριος \textsc{Πάνου}\\071045\\[0.3cm]
+{\scriptsize Επιβλέπουσα καθηγήτρια}\\Ιφιγένεια \textsc{Φουντά}}
+
 
 \institute[ΤΕΙ Αθήνας]{
     Τεχνολογικό Εκπαιδευτικό Ίδρυμα Αθήνας\\
     Σχολή Τεχνολογικών Εφαρμογών\\
     Τμήμα Πληροφορικής
 }
-
-\date{Αθήνα 2014}
+\date{Αθήνα, Νοέμβριος 2014}
 
 \begin{document}
 
@@ -39,26 +32,32 @@
 \end{frame}
 
 
-\begin{frame}
-    \frametitle{Περιεχόμενα}
-    \tableofcontents
+\begin{frame}\frametitle
+    {Η συσκευή}
+
+    \begin{columns}[t]
+    \column{6cm}
+        \begin{itemize}
+        \item Παρακολούθηση περιβάλλοντος δοχείου
+        \item Διασύνδεση μέσω HTTP
+        \end{itemize}
+
+    \column{6cm}
+
+
+        \begin{itemize}
+        \item Αισθητήρες προσαρτημένοι σε κινητό εξάρτημα
+        \item Αυτοματοποίηση μετρήσεων
+        \end{itemize}
+
+    \end{columns}
+
+    \begin{center}
+    \includegraphics[scale=0.75,clip,viewport=0 -50 151 70]{network_interface-0}
+    \includegraphics[scale=0.45]{construct_overall}
+    \end{center}
 \end{frame}
 
-
-\section{Γενικά}
-
-%\begin{frame}
-%    \begin{center}
-%    \includegraphics[scale=0.5]{avr_toolchain}
-%    \end{center}
-%\end{frame}
-
-% arduino
-
-
-%
-%Χρήστης - Συσκευή - Δοχείο
-%
 
 \begin{frame}\frametitle
     {Καθήκοντα συσκευής}
@@ -80,7 +79,7 @@
 
         \begin{itemize}
         \item Έλεγχος χρόνου από πρόσφατη μέτρηση
-        \item Εκκίνηση νέας εργασίας
+        \item Εκκίνηση νέου κύκλου εργασιών
         \end{itemize}
     \end{block}
     \end{columns}
@@ -91,9 +90,46 @@
 \end{frame}
 
 
-\section{Εργασία μέτρησης}
+\begin{frame}\frametitle
+    {Περιβάλλον ανάπτυξης}
 
-\begin{frame}\frametitle%
+    \begin{columns}[t]
+        \column{5.5cm}
+
+        \begin{block}
+            {Arduino}
+
+            \begin{itemize}
+            \item IDE (ανάπτυξη μέσω GUI)
+            \item Βιβλιοθήκες
+            \item Πλακέτα
+            \item Boot Loader
+            \item USB σε USART
+            \end{itemize}
+        \end{block}
+
+        \begin{block}
+            {AVR}
+
+            \begin{itemize}
+            \item Atmel AVR
+            \item Μικροελεγκτής AVR ATmega328
+            \item AVR GCC Toolchain
+            \end{itemize}
+        \end{block}
+
+        \column{6cm}
+
+        \begin{center}
+            \includegraphics[scale=0.6]{avr_toolchain}\\
+            \;
+            \includegraphics[scale=0.5]{arduino_uno}
+        \end{center}
+    \end{columns}
+\end{frame}
+
+
+\begin{frame}\frametitle
     {Κεφαλή αισθητήρων}
 
     \begin{itemize}
@@ -108,20 +144,16 @@
     \end{center}
 \end{frame}
 
-%    \item Σύστημα συντεταγμένων
-%    \item Λειτουργικό εύρος
 
-\begin{frame}\frametitle%
+\begin{frame}\frametitle
     {Υποσύστημα κίνησης}
 
     \begin{columns}
     \column{5.5cm}
     \begin{itemize}
         \item Έλεγχος θέσης κεφαλής
-        \item Χρήση υλικού αντί CPU
-        \begin{itemize}
-            \item Παραγωγή και παύση ελέγχου
-        \end{itemize}
+        \item CPU: διευθέτηση υλικού
+        \item Υλικό: Παραγωγή και παύση σήματος ελέγχου
     \end{itemize}
 
     \column{5.5cm}
@@ -140,12 +172,12 @@
 
 
 \begin{frame}\frametitle
-    {dsfsdf}
+    {Λεπτομέρειες υποσυστήματος κίνησης}
 
     \begin{columns}[T]
     \column{5cm}
     \begin{itemize}
-    \item Υποδιαίρεση επιφάνειας σε θέσεις 4cm\tsup{2}
+    \item Υποδιαίρεση επιφάνειας σε διακριτές θέσεις
     \item Σύστημα συντεταγμένων [X, Y, Z]
     \item Παράλληλη μετατόπιση σε επίπεδο X-Y
     \item Θέση επιστροφής (homing) κατά την έναρξη
@@ -153,89 +185,73 @@
     \end{itemize}
 
     \column{6cm}
+    \begin{center}
     \includegraphics[scale=0.65]{drive_lvl-0}
 
     \rule{0pt}{0.5cm}
 
     \includegraphics[scale=0.65]{drive_coordinates}
+    \end{center}
     \end{columns}
 \end{frame}
 
 
-\begin{frame}\frametitle%
+\begin{frame}\frametitle
     {Κωδικοποιητής κίνησης}
 
     \begin{columns}[t]
     \column{5.5cm}
     \begin{itemize}
+        \item Παρακολούθηση και ενημέρωση σχετικά με περιστροφή
         \item Παραγωγή παλμών από περιστροφή κινητήρα
-        \item Αυτοσχέδιος με χρήση ανακλαστικού αισθητήρα
         \item Προσαυξητικός
     \end{itemize}
 
     \column{5.5cm}
     \begin{itemize}
+        \item Αυτοσχέδιος με χρήση ανακλαστικού αισθητήρα
         \item Ενεργοποιείται μόνο όσο λειτουργεί ο κινητήρας
         \item Ένας για κάθε άξονα κίνησης
     \end{itemize}
     \end{columns}
 
     \begin{columns}
-    \column{5.5cm}
+    \column{5cm}
     \includegraphics[scale=0.65]{encoder_lvl-0}
-    \column{5.5cm}
+    \column{5cm}
     \includegraphics[scale=0.65]{encoder_lvl-1}
     \end{columns}
-\end{frame}
-
-% PWM
-
-%\begin{frame}%\frametitle
-%%    {}
-
-%    \begin{center}
-%    \includegraphics{drive_schem_step-and-pwm}
-%    \end{center}
-%\end{frame}
-
-
-\begin{frame}\frametitle
-    {Το υποσύστημα κίνησης συνολικά}
-
-    \begin{center}
-    \includegraphics[scale=1]{drive_lvl-1}
-    \end{center}
 \end{frame}
 
 
 \begin{frame}
     \frametitle{Κύκλος μετρήσεων}
     \begin{itemize}
-%--    Υπολογισμός χρόνου μεταξύ πρόσφατης μέτρησης και τρέχουσας ώρας ~~
-%    Κύκλοι μετρήσεων (goto-sample) % Implies asynchronous
-%    Ασύγχρονη υλοποίηση / Σταδιακή ολοκλήρωση
-    
-    \item Καθορισμός νέας θέσης
-    \item Ανάγνωση αισθητήρων
+    \item Εκκίνηση ανά σταθερά διαστήματα (κβάντα)
+    \item Τυχαία επιλογή θέσεων δειγματοληψίας
     \item Εκτίμηση χρόνου ολοκλήρωσης
-    \item Καταχώρηση σε ημερολόγιο
+    \item Καταχώρηση μετρήσεων
+        \begin{itemize}
+            \item Ημερ\slash{}ώρα, συντεταγμένες, θερμοκρασία, (RH, pH)
+        \end{itemize}
     \end{itemize}
 
-    \begin{center}
-        \includegraphics[scale=0.65]{task_interval}
-        \hfill
-        \includegraphics[scale=0.65]{task_estimate-update}
-    \end{center}
-%[hints drivesystem]
-%[needs RTC]
+    \rule{0pt}{0.5cm}
+    \begin{columns}
+    \column{5.5cm}
+    \includegraphics[scale=0.65]{task_interval}
+
+    \column{5.5cm}
+    \includegraphics[scale=0.65]{task_estimate-update}
+    \end{columns}
 \end{frame}
 
 
 \begin{frame}
-    \frametitle{Ημερολόγιο}
+    \frametitle{Ημερολόγιο (Log)}
     \begin{itemize}
     \item Διαχείριση εγγραφών μετρήσεων
-    \item Διατήρηση πιο πρόσφατων μετρήσεων
+    \item Διατήρηση πλέον πρόσφατων μετρήσεων
         \begin{itemize}
         \item Κυκλική μνήμη (μείωση επανεγγραφών)
         \item Δυαδική αναζήτηση (μείωση αναγνώσεων)
@@ -249,7 +265,115 @@
         \includegraphics[scale=0.65]{log_structure}
     \end{center}
 \end{frame}
-%    (Δομή εγγραφής· implies BCD)
+
+
+\begin{frame}\frametitle
+    {Επικοινωνία μέσω HTTP}
+
+    \begin{columns}
+    \column{5.5cm}
+
+    \begin{block}{Το HTTP}
+        \begin{itemize}
+        \item Διάδοση
+        \item Πόρος και URI
+            \begin{itemize}
+            \item \verb~http://example.com~ , \verb~/~
+            \end{itemize}
+        \item Αναπαράσταση πόρου
+        \end{itemize}
+    \end{block}
+
+    \begin{block}{Η υλοποίηση}
+        \begin{itemize}
+        \item Κωδικοί κατάστασης {\tiny (404, 405, 503)}
+        \item Πεδία {\tiny (Allow, Retry-After, Transfer-coding)}
+        \item Query string, chunked
+        \item Αναπαράσταση JSON
+        \end{itemize}
+    \end{block}
+
+    \column{5.5cm}
+    \begin{center}
+    \includegraphics[scale=0.65]{network_interface-0}\\
+    \rule{0pt}{1cm}\\
+    \includegraphics[scale=0.65]{network_requester-provider}
+    \end{center}
+    \end{columns}
+\end{frame}
+
+
+\begin{frame}\frametitle
+    {Ολοκληρωμένο δικτύωσης}
+
+    \begin{itemize}
+    \item Υλοποιεί Link, Network, Transport
+    \item Λογισμικό οδήγησης του W5100
+    \item Υπέρ και κατά διασύνδεσης
+    \item Γενικά χαρακτηριστικά (SMD, Socket, διακοπή\slash{}αναγγελία)
+    \end{itemize}
+
+    \begin{center}
+    \includegraphics[viewport=0 0 99 110,clip,scale=0.65]{network_lvl-0}
+    \includegraphics[scale=0.65]{network_lvl-1}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}
+    {Κύκλος εργασίας μονάδων διακομιστή}
+
+    \begin{center}
+    \includegraphics[scale=0.65]{network_server-modules}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}\frametitle
+    {Πόροι υλοποίησης}
+
+    \begin{center}
+    \includegraphics{network_resources}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}[plain]
+    \begin{center}
+    \begin{block}{Ευχαριστώ}
+    \end{block}
+    \end{center}
+\end{frame}
+
+
+%
+% Appendix
+%
+
+\begin{frame}[plain]
+    \begin{block}
+        {Παραρτήματα}
+    \end{block}
+\end{frame}
+
+
+
+\begin{frame}\frametitle
+    {Δρομολόγηση και διεκπεραίωση}
+
+    \begin{center}
+    \includegraphics{drive_schem_step-and-pwm}
+    \end{center}
+\end{frame}
+
+
+\begin{frame}\frametitle
+    {Το υποσύστημα κίνησης συνολικά}
+
+    \begin{center}
+    \includegraphics{drive_lvl-1}
+    \end{center}
+\end{frame}
 
 
 \begin{frame}\frametitle
@@ -261,102 +385,26 @@
 \end{frame}
 
 
+\begin{frame}\frametitle
+    {Αρχές επεξεργασίας εισερχομένων δεδομένων}
 
+    \begin{columns}[t]
+    \column{5cm}
+    \begin{itemize}
+    \item Ροή χαρακτήρων από Socket {\tiny (next, peek, drop)}
+    \item Φίλτρο ανασύνθεσης
+    \item Αναγνώριση αναμενόμενων στοιχείων
+    \end{itemize}
 
-
-
-\section{Διεπαφή επικοινωνίας}
-
-\begin{frame}
+    \column{6cm}
     \begin{center}
-    \includegraphics{network_resources}
+    \includegraphics[scale=0.65]{network_stream-match}\\
+    \rule{0pt}{0.5cm}\\
+    \includegraphics[scale=0.65]{network_chunked-stream}
     \end{center}
+
+    \end{columns}
 \end{frame}
 
-\begin{frame}
-    \begin{center}
-    \includegraphics[scale=0.5]{network_requester-provider}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \begin{center}
-    \includegraphics[scale=0.5]{network_interface-0}
-    \end{center}
-\end{frame}
-
-
-\begin{frame}
-    \begin{center}
-    \includegraphics[scale=0.5]{network_lvl-0}
-    \end{center}
-\end{frame}
-
-\begin{frame}
-    \begin{center}
-    \includegraphics[scale=0.5]{network_lvl-1}
-    \end{center}
-\end{frame}
-
-%Αίτημα - Απόκριση HTTP
-%    
-
-
-%Διακομιστής HTTP
-%    Ανάλυση επικεφαλίδων
-%    Προώθηση σε ρουτίνα περάτωσης
-
-%[κάποια πράγματα για HTTP]
-
-% Εργοστασιακές ρυθμίσεις
-% Δίαυλοι επικοινωνίας
-
-%\section{Εισαγωγή}
-
-
-%\section{Μετρήσεις}
-
-%\section{Υποσύστημα κίνησης}
-%\subsection{Κεφαλή}
-%\subsection{Συντεταγμένες}
-
-%\section{Επικοινωνία με συσκευή}
-
-%\begin{frame}
-%\frametitle{Υποσύστημα κίνησης}
-%\begin{itemize}
-%    \item Διακριτές θέσεις κεφαλής
-%    \item Ανεξαρτησία από CPU (κίνηση, ολοκλήρωση)
-%    \item Ανασταλτικοί διακόπτες
-%    \item Επαναφορά και επανάκαμψη
-%    \item Θέση επιστροφής (homing)
-%    \item Λειτουργία σε προσαρμοσμένες διαστάσεις
-%\end{itemize}
-%    \vfill
-%    \begin{center}
-%        \includegraphics[scale=0.65]{drive_lvl-0}
-%%        \hfill
-%%        \includegraphics[scale=0.65]{task_estimate-update}
-%    \end{center}
-%\end{frame}
-
-%\begin{frame}
-%\frametitle{Εργασία μετρήσεων}
-%\begin{itemize}
-%    \item Περιοδική αφύπνιση (από WDT)
-%    \item Εκκίνηση κύκλου μετρήσεων (εργασία)
-%    \item Καταχώρηση σε ημερολόγιο μετρήσεων
-%    \item Εκτίμηση χρόνου ολοκλήρωσης
-%\end{itemize}
-%    \vfill
-%    \begin{center}
-%        \includegraphics[scale=0.65]{task_interval}
-%        \hfill
-%        \includegraphics[scale=0.65]{task_estimate-update}
-%    \end{center}
-%\end{frame}
-
-\begin{frame}
-\end{frame}
 
 \end{document}
