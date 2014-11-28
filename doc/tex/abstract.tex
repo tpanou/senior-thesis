@@ -1,0 +1,69 @@
+\thispagestyle{empty}
+
+\begin{center}{\bfseries Περίληψη}\end{center}
+
+\noindent
+Η εργασία ασχολείται με την υλοποίηση μίας συσκευής που αυτοματοποιεί την
+παρακολούθηση συνθηκών που επικρατούν στο υλικό ανοικτού δοχείου το οποίο αυτή
+περιβάλλει. Η πρόσβαση στη συσκευή πραγματοποιείται απομακρυσμένα με χρήση
+πρωτοκόλλου HTTP.
+%
+Η υλοποίηση στηρίζεται στη χρήση μίας πλακέτας \te{Arduino Uno rev3} και ενός
+μικροελεγκτή Atmel AVR ATmega328 που αυτή περιέχει. Ο προγραμματισμός του
+μικροελεγκτή γίνεται δια μέσω λογισμικού \te{Boot loader} και διασύνδεσης USB.
+Η ανάπτυξη του λογισμικού υποβοηθείται μόνο από την AVR GNU συλλογή
+μεταγλωττιστών avr-gcc και τη βιβλιοθήκη προγραμματισμού AVR Libc. Κρίσιμες
+δυνατότητες που ο συγκεκριμένος μικροελεγκτής στερείται, όπως ρολόι πραγματικού
+χρόνου, δικτυακή διασύνδεση και επιπρόσθετο αποθηκευτικό χώρο, παρέχονται από
+εξωτερικά ολοκληρωμένα κυκλώματα.
+%
+Η συσκευή ρυθμίζεται σε σχέση με παραμέτρους βοηθητικών λειτουργιών της καθώς
+και της διαδικασίας παρακολούθησης. Όλες οι ρυθμίσεις διατηρούνται μεταξύ
+διακοπών τροφοδοσίας και είναι δυνατό να επαναφερθούν στις εργοστασιακές
+της ρυθμίσεις με μηχανικό τρόπο.
+%
+Για τη διασύνδεσή της με το χρήστη, υλοποιείται λογισμικό διακομιστή HTTP μέσω
+του οποίου επιτυγχάνεται η ανάκτηση πόρων, οι οποίοι, σε συνδυασμό με
+παρεχόμενες μεθόδους του πρωτοκόλλου HTTP, επιτρέπουν πρόσβαση σε αυτήν.
+Η μορφή των αναπαραστάσεων των πόρων γίνεται σε JSON και προορίζεται για
+αξιοποίηση από εξωτερικές εφαρμογές. Επιπλέον, υποστηρίζονται πόροι σε HTML,
+CSS, JavaScript και PNG για χρήση της συσκευής μέσω λογισμικού πλοήγησης.
+%
+Το κεντρικό σημείο ενδιαφέροντος της εργασίας έγκειται στην υλοποίηση ενός
+ολοκληρωμένου συστήματος που εμπλέκει πληθώρα τεχνολογικών πεδίων.
+
+\clearpage
+\thispagestyle{empty}
+
+\begin{center}{\bfseries Abstract}\end{center}
+
+\begin{english}
+\noindent
+The project's aims is a device that automates monitoring the conditions of the
+material within a container. Access to the device is provided remotely via the
+HTTP protocol.
+%
+The core of the implementation is an Arduino Uno rev3 board and an Atmel AVR
+ATmega328 microcontroller contained therein. The microcontroller is programmed
+via Boot loader software on a USB interface. The development of the firmware is
+based solely on the GNU AVR toolchain and AVR Libc library. Important
+functionality not inherently present on the microcontroller, such as real-time
+clock, network interfacing and additional storage, is provided by external
+integrated circuits.
+%
+The device may be configured as far as monitoring parameters are concerned
+as well as supplementary functions it provides. A mechanism is provided so the
+configuration is unaffected from power outage, while allowing to manually reset
+it to its default factory settings, if needed.
+%
+The user interface is based on a rudimentary HTTP server; HTTP resources in
+combination with HTTP methods provide the fundamental mechanism for remote
+access. The resources are represented in JSON format, mostly intended for
+external software systems. A few additional resources are provided in HTML, CSS,
+JavaScript and PNG intended to be viewed in a web browser.
+%
+The primary reason for undertaking such a project lies in the desire to
+implement a complete system that incorporates various technological fields.
+\end{english}
+
+\clearpage
